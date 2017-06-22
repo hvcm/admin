@@ -1,0 +1,29 @@
+<script type="text/javascript">
+		window.api = {
+				request(url, data) {
+						myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
+
+						console.log('request', url, data);
+						return Promise.resolve(fetch(url, {
+								method: 'POST',
+								headers: myHeaders,
+								credentials: 'include',
+								body: JSON.stringify(data)
+						}).then(res => res.json())).then(res => {
+								console.log('result', res);
+								return res;
+						}).timeout(40000);
+				},
+				login(user, password) {
+						return this.request('/login', {user, password}).then(res => res.state
+								? res
+								: Promise.reject(new Error(res.reason)));
+				},
+				preparePage(entity, department) {
+						return this.request(`/entity-list/${entity}`, {department});
+				},
+				saveEntity(entity, data) {
+						return this.request(`/entity-save/${entity}`, {data});
+				}
+		};
+</script>

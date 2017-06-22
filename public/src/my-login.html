@@ -1,0 +1,26 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="./components/iris-login/iris-login.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-login">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+								padding: 10px;
+						}
+						iris-login {
+								background-color: white;
+								max-width: 480px;
+								margin: 0 auto;
+						}
+
+				</style>
+
+				<iris-login></iris-login>
+		</template>
+
+		<script>
+				Polymer({is: 'my-login'});
+		</script>
+</dom-module>

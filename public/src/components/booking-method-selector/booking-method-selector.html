@@ -1,0 +1,67 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="booking-method-selector">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+						}
+
+				</style>
+				<div class="line">
+						<label>Живая очередь</label>
+						<paper-toggle-button checked="{{live}}"></paper-toggle-button>
+				</div>
+				<div class="line">
+						<label>Предварительная запись</label>
+						<paper-toggle-button checked="{{prebook}}"></paper-toggle-button>
+				</div>
+		</template>
+		<script>
+				Polymer({
+						is: 'booking-method-selector',
+						properties: {
+								methods: {
+										type: Array,
+										notify: true,
+										value: []
+								},
+								live: {
+										type: Boolean,
+										value: false,
+										observer: '_toggleLive'
+								},
+								prebook: {
+										type: Boolean,
+										value: false,
+										observer: '_togglePrebook'
+								}
+						},
+						ready: function () {
+								if (!this.methods) 
+										return;
+								this.set('live', this.methods.indexOf('live'));
+								this.set('prebook', this.methods.indexOf('prebook'));
+						},
+						_togglePrebook(v) {
+								const item = 'live';
+								this._toggle(item, v);
+						},
+						_toggleLive(v) {
+								const item = 'prebook';
+								this._toggle(item, v);
+						},
+						_toggle(item, v) {
+								if (!this.methods)
+										this.methods = [];
+								if (v) {
+										this.push('methods', item);
+										return;
+								}
+
+								const index = this.methods.indexOf(item);
+								this.splice('methods', index, 1);
+						}
+				});
+		</script>
+</dom-module>

@@ -1,0 +1,12 @@
+<script type="text/javascript">
+		window.reducers = window.reducers || {};
+		reducers['auth-success'] = (state, value) => {
+				state.user = value;
+				return state;
+		};
+		reducers.list = (state, value) => {
+				state.list = value.list;
+				state.helpers = value.helpers;
+				return state;
+		};
+</script>

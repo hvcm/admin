@@ -1,0 +1,89 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\node.exe',
+1 verbose cli   'C:\\Users\\default.user\\AppData\\Roaming\\npm\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   '--save',
+1 verbose cli   'https://github.com/sdk-group/iris-polymer-table.git' ]
+2 info using npm@4.1.1
+3 info using node@v7.4.0
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readLocalPackageData
+7 silly fetchPackageMetaData https://github.com/sdk-group/iris-polymer-table.git
+8 silly fetchOtherPackageData https://github.com/sdk-group/iris-polymer-table.git
+9 silly cache add args [ 'https://github.com/sdk-group/iris-polymer-table.git', null ]
+10 verbose cache add spec https://github.com/sdk-group/iris-polymer-table.git
+11 silly cache add parsed spec Result {
+11 silly cache add   raw: 'https://github.com/sdk-group/iris-polymer-table.git',
+11 silly cache add   scope: null,
+11 silly cache add   escapedName: null,
+11 silly cache add   name: null,
+11 silly cache add   rawSpec: 'https://github.com/sdk-group/iris-polymer-table.git',
+11 silly cache add   spec: 'git+https://github.com/sdk-group/iris-polymer-table.git',
+11 silly cache add   type: 'hosted',
+11 silly cache add   hosted:
+11 silly cache add    { type: 'github',
+11 silly cache add      ssh: 'git@github.com:sdk-group/iris-polymer-table.git',
+11 silly cache add      sshUrl: 'git+ssh://git@github.com/sdk-group/iris-polymer-table.git',
+11 silly cache add      httpsUrl: 'git+https://github.com/sdk-group/iris-polymer-table.git',
+11 silly cache add      gitUrl: 'git://github.com/sdk-group/iris-polymer-table.git',
+11 silly cache add      shortcut: 'github:sdk-group/iris-polymer-table',
+11 silly cache add      directUrl: 'https://raw.githubusercontent.com/sdk-group/iris-polymer-table/master/package.json' } }
+12 verbose addRemoteGit caching https://github.com/sdk-group/iris-polymer-table.git
+13 verbose addRemoteGit git+https://github.com/sdk-group/iris-polymer-table.git is a repository hosted by github
+14 silly tryClone cloning git+https://github.com/sdk-group/iris-polymer-table.git via git+https://github.com/sdk-group/iris-polymer-table.git
+15 verbose tryClone git-https-github-com-sdk-group-iris-polymer-table-git-b0d3d67a not in flight; caching
+16 verbose correctMkdir C:\Users\default.user\AppData\Roaming\npm-cache\_git-remotes correctMkdir not in flight; initializing
+17 info git [ 'clone',
+17 info git   '--template=C:\\Users\\default.user\\AppData\\Roaming\\npm-cache\\_git-remotes\\_templates',
+17 info git   '--mirror',
+17 info git   'https://github.com/sdk-group/iris-polymer-table.git',
+17 info git   'C:\\Users\\default.user\\AppData\\Roaming\\npm-cache\\_git-remotes\\git-https-github-com-sdk-group-iris-polymer-table-git-b0d3d67a' ]
+18 verbose mirrorRemote git+https://github.com/sdk-group/iris-polymer-table.git git clone https://github.com/sdk-group/iris-polymer-table.git
+19 verbose setPermissions git+https://github.com/sdk-group/iris-polymer-table.git skipping chownr on Windows
+20 verbose resolveHead git+https://github.com/sdk-group/iris-polymer-table.git original treeish: master
+21 info git [ 'rev-list', '-n1', 'master' ]
+22 silly resolveHead git+https://github.com/sdk-group/iris-polymer-table.git resolved treeish: eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c
+23 verbose resolveHead git+https://github.com/sdk-group/iris-polymer-table.git resolved Git URL: git+https://github.com/sdk-group/iris-polymer-table.git#eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c
+24 silly resolveHead Git working directory: C:\Users\DEFAUL~1.USE\AppData\Local\Temp\npm-282700-209b7574\git-cache-4497d6f6\eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c
+25 info git [ 'clone',
+25 info git   'C:\\Users\\default.user\\AppData\\Roaming\\npm-cache\\_git-remotes\\git-https-github-com-sdk-group-iris-polymer-table-git-b0d3d67a',
+25 info git   'C:\\Users\\DEFAUL~1.USE\\AppData\\Local\\Temp\\npm-282700-209b7574\\git-cache-4497d6f6\\eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c' ]
+26 verbose cloneResolved git+https://github.com/sdk-group/iris-polymer-table.git clone Cloning into 'C:\Users\DEFAUL~1.USE\AppData\Local\Temp\npm-282700-209b7574\git-cache-4497d6f6\eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c'...
+26 verbose cloneResolved done.
+27 info git [ 'checkout', 'eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c' ]
+28 verbose checkoutTreeish git+https://github.com/sdk-group/iris-polymer-table.git checkout Note: checking out 'eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c'.
+28 verbose checkoutTreeish
+28 verbose checkoutTreeish You are in 'detached HEAD' state. You can look around, make experimental
+28 verbose checkoutTreeish changes and commit them, and you can discard any commits you make in this
+28 verbose checkoutTreeish state without impacting any branches by performing another checkout.
+28 verbose checkoutTreeish
+28 verbose checkoutTreeish If you want to create a new branch to retain commits you create, you may
+28 verbose checkoutTreeish do so (now or later) by using -b with the checkout command again. Example:
+28 verbose checkoutTreeish
+28 verbose checkoutTreeish   git checkout -b new_branch_name
+28 verbose checkoutTreeish
+28 verbose checkoutTreeish HEAD is now at eff21a6... upd
+29 info git [ 'submodule', '-q', 'update', '--init', '--recursive' ]
+30 verbose updateSubmodules git+https://github.com/sdk-group/iris-polymer-table.git submodule update
+31 error addLocal Could not install C:\Users\DEFAUL~1.USE\AppData\Local\Temp\npm-282700-209b7574\git-cache-4497d6f6\eff21a6358a6d1e3b1c0a2c7a6bd1844fa70cd1c
+32 silly fetchPackageMetaData Error: EISDIR: illegal operation on a directory, read
+32 silly fetchPackageMetaData  error for https://github.com/sdk-group/iris-polymer-table.git { Error: EISDIR: illegal operation on a directory, read errno: -4068, code: 'EISDIR', syscall: 'read' }
+33 silly rollbackFailedOptional Starting
+34 silly rollbackFailedOptional Finishing
+35 silly runTopLevelLifecycles Finishing
+36 silly install printInstalled
+37 verbose stack Error: EISDIR: illegal operation on a directory, read
+38 verbose cwd E:\Develop\github\admin
+39 error Windows_NT 6.3.9600
+40 error argv "C:\\Program Files\\nodejs\\node.exe" "C:\\Users\\default.user\\AppData\\Roaming\\npm\\node_modules\\npm\\bin\\npm-cli.js" "install" "--save" "https://github.com/sdk-group/iris-polymer-table.git"
+41 error node v7.4.0
+42 error npm  v4.1.1
+43 error code EISDIR
+44 error errno -4068
+45 error syscall read
+46 error eisdir EISDIR: illegal operation on a directory, read
+47 error eisdir This is most likely not a problem with npm itself
+47 error eisdir and is related to npm not being able to find a package.json in
+47 error eisdir a package you are trying to install.
+48 verbose exit [ -4068, true ]

@@ -1,0 +1,59 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="zone-picker">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+						paper-dropdown-menu {
+								min-width: 350px;
+						}
+						.wrap {
+								max-height: 200px;
+								overflow-y: scroll;
+						}
+
+				</style>
+				<label>Часовой пояс:
+						<template is="dom-if" if="[[selected]]">
+								<b>[[selected]]</b>
+						</template>
+						<template is="dom-if" if="[[!selected]]">
+								[[placeholder]]
+						</template>
+				</label>
+				<paper-input label="Поиск часового пояса" value="{{searchString}}"></paper-input>
+
+				<div class="wrap">
+						<paper-listbox class="dropdown-content" selected="{{selected}}" attr-for-selected="val">
+								<template is="dom-repeat" items="[[zones]]" filter="{{computeFilter(searchString)}}">
+										<paper-item val="[[item]]">[[item]]</paper-item>
+								</template>
+						</paper-listbox>
+				</div>
+		</template>
+		<script>
+				const zones = moment.tz.names();
+				Polymer({
+						is: 'zone-picker',
+						properties: {
+								selected: {
+										type: String,
+										notify: true
+								}
+						},
+						computeFilter(string) {
+								if (!string) {
+										return null;
+								}
+
+								return zone => ~ (zone || '').toLowerCase().indexOf(string.toLowerCase());
+						},
+						ready() {
+								this.zones = zones;
+								this.selected = this.selected || moment.tz.guess();
+						}
+				});
+		</script>
+</dom-module>

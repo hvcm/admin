@@ -1,0 +1,236 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="my-icons.html">
+<link rel="import" href="./components/iris-importer/iris-importer.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="my-app">
+		<template>
+				<style>
+						:host {
+								--app-primary-color: #4285f4;
+								--app-secondary-color: black;
+								display: block;
+						}
+						app-header {
+								color: #fff;
+								background-color: var(--mydoc-brown-800);
+						}
+						app-header paper-icon-button {
+								--paper-icon-button-ink-color: white;
+						}
+						.drawer-list {
+								margin: 0 20px;
+						}
+						.drawer-list a {
+								display: block;
+								padding: 0 16px;
+								text-decoration: none;
+								color: var(--app-secondary-color);
+								line-height: 40px;
+						}
+						.drawer-list a.iron-selected {
+								color: black;
+								font-weight: bold;
+						}
+						paper-progress {
+								width: 100%;
+						}
+						#selector {
+								padding-left: 15px;
+						}
+						#drawer {
+								box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+						}
+						.drawer-list a.locked {
+								pointer-events: none;
+								cursor: default;
+								color: #ccc;
+						}
+
+				</style>
+
+				<app-location route="{{route}}"></app-location>
+				<app-route route="{{route}}" pattern="/:department/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+
+				<app-drawer-layout fullbleed>
+						<!-- Drawer content -->
+						<app-drawer id="drawer">
+								<app-toolbar>
+										Сущности системы
+								</app-toolbar>
+								<paper-dropdown-menu id="selector" label="Офис" no-label-float>
+										<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{app.global.department}}">
+												<template is="dom-repeat" items="[[admins]]">
+														<paper-item val="[[item.id]]">[[item.label]]</paper-item>
+												</template>
+										</paper-listbox>
+								</paper-dropdown-menu>
+								<iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+										<a name="globals" href$="/{{app.global.department}}/globals">Поля</a>
+										<a name="globals-priority" href$="/{{app.global.department}}/globals-priority">Настройки приоритета</a>
+										<a name="departments" href$="/{{app.global.department}}/departments">Отделы</a>
+										<a class="locked" name="workstations" href$="/{{app.global.department}}/workstations">Рабочие места</a>
+										<a class="locked" name="system-workstations" href$="/{{app.global.department}}/system-workstations">Служебные рабочие места</a>
+										<a class="locked" name="services" href$="/{{app.global.department}}/services">Услуги</a>
+										<a class="locked" name="humans" href$="/{{app.global.department}}/humans">Сотрудники</a>
+										<a class="locked" name="terminals" href$="/{{app.global.department}}/terminals">Терминалы</a>
+										<a class="locked" name="roomdisplays" href$="/{{app.global.department}}/roomdisplays">Табло</a>
+										<a class="locked" name="digital-displays" href$="/{{app.global.department}}/digital-displays">Цифровые табло</a>
+										<a class="locked" name="schedules" href$="/{{app.global.department}}/schedules">Расписания</a>
+								</iron-selector>
+						</app-drawer>
+
+						<!-- Main content -->
+						<app-header-layout id="wrap" has-scrolling-region>
+
+								<app-header condenses reveals effects="waterfall">
+										<app-toolbar>
+												<paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+												<div main-title>
+														Панель Администратора
+												</div>
+										</app-toolbar>
+										<paper-progress indeterminate="[[inProgress]]" class="blue"></paper-progress>
+								</app-header>
+
+								<iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
+										<my-globals name="globals" app="{{app}}"></my-globals>
+										<my-globals-priority name="globals-priority" app="{{app}}"></my-globals-priority>
+										<my-departments name="departments" app="{{app}}"></my-departments>
+										<my-workstations name="workstations"></my-workstations>
+										<my-humans name="humans" app="{{app}}"></my-humans>
+										<my-terminals name="terminals"></my-terminals>
+										<my-roomdisplays name="roomdisplays"></my-roomdisplays>
+										<my-services name="services"></my-services>
+										<my-schedules name="schedules"></my-schedules>
+										<my-digital-displays name="digital-displays"></my-digital-displays>
+										<my-system-workstations name="system-workstations"></my-system-workstations>
+										<my-view404 name="view404"></my-view404>
+								</iron-pages>
+						</app-header-layout>
+				</app-drawer-layout>
+		</template>
+
+		<script>
+				function getCookie(name) {
+						var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
+						return matches
+								? decodeURIComponent(matches[1])
+								: undefined;
+				}
+				Polymer({
+						is: 'my-app',
+
+						properties: {
+								page: {
+										type: String,
+										reflectToAttribute: true
+								},
+								department: {
+										type: String,
+										reflectToAttribute: true
+								},
+								app: {
+										type: Object,
+										value: {
+												global: {}
+										}
+								}
+						},
+
+						observers: [
+								'_routePageChanged(routeData.page)', '_routeDepChanged(routeData.department)', '_pageChanged(page,department)'
+						],
+						initAction(e) {
+								const {type, value} = e.detail;
+								this.dispatch(type, value);
+						},
+						ready() {
+								const user = getCookie('user');
+								const admins = _.split(getCookie('admins'), '$$$');
+								const permissions = _.split(getCookie('permissions'), ',');
+								this.admins = _.reduce(admins, (acc, item, index) => {
+										acc.push({id: permissions[index], label: item})
+										return acc;
+								}, []);
+								const firstOffice = _.head(permissions);
+								if (!user || !firstOffice) {
+										window.location.replace('/login');
+								}
+								this.page = this.page || "globals";
+								this.selectedPage = this.page;
+								this.set('app.global.department', firstOffice);
+						},
+						dispatch(type, value) {
+								this.app = _.cloneDeep(window.reducers[type](this.app, value));
+								console.log('state', this.app);
+						},
+						_routePageChanged: function (page) {
+								this.page = page || 'login';
+
+								if (!this.$.drawer.persistent) {
+										this.$.drawer.close();
+								}
+						},
+						_routeDepChanged: function (dep) {
+								this.department = dep || '';
+
+								if (!this.$.drawer.persistent) {
+										this.$.drawer.close();
+								}
+						},
+
+						_pageChanged: function (page, department) {
+								// Load page import on demand. Show 404 page if fails
+								var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+								this.set('inProgress', true);
+
+								(page && department) && api.preparePage(page, department).then(value => {
+										this.dispatch('list', value);
+										this.set('inProgress', false);
+										this.importHref(resolvedPageUrl, null, this._showPage404, true);
+										this.selectedPage = this.page;
+								})
+
+						},
+
+						_showPage404: function () {
+								this.page = 'view404';
+						}
+				});
+		</script>
+</dom-module>

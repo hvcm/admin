@@ -1,0 +1,101 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="route-selector">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+						}
+						#ok {
+								bottom: 110px;
+						}
+
+				</style>
+
+				<div class="routes">
+						<template is="dom-if" if="[[edit]]">
+								<service-selector services="[[services]]" selected="{{selectedRoute}}"></service-selector>
+								<paper-fab mini id="ok" icon="check" on-tap="editEnd"></paper-fab>
+						</template>
+						<template is="dom-if" if="[[!edit]]">
+								<h3>[[label]]
+										<paper-icon-button icon="add" on-tap="addRoute" raised>Добавить</paper-icon-button>
+								</h3>
+								<template is="dom-repeat" items="[[routes]]">
+										<div class="route">
+												<span>
+														<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
+												</span>
+												<span class="from">
+														[[translate(item.from)]]
+														<paper-icon-button icon="create" on-tap="editFrom"></paper-icon-button>
+												</span>
+												<iron-icon icon="chevron-right"></iron-icon>
+												<span class="to">
+														[[translate(item.to)]]
+														<paper-icon-button icon="create" on-tap="editTo"></paper-icon-button>
+												</span>
+										</div>
+								</template>
+						</template>
+
+				</div>
+		</template>
+		<script>
+				Polymer({
+						is: 'route-selector',
+						properties: {
+								routes: {
+										type: Array,
+										notify: true
+								}
+						},
+						ready() {
+								this.edit = false;
+						},
+						addRoute() {
+								console.log('add');
+								this.push('routes', {
+										from: "*",
+										to: "*"
+								});
+						},
+						delete(e) {
+								const index = e.model.index;
+								this.splice('routes', index, 1)
+						},
+						translate(item) {
+								return item === '*'
+										? "Все"
+										: `${item.length} Маршрутов`;
+						},
+						editIt(field, e) {
+								const index = e.model.index;
+								this.current = index;
+								this.field = field;
+								this.edit = true;
+								const routes = this.routes[index][field];
+								this.selectedRoute = routes === "*"
+										? _.keys(this.services)
+										: _.clone(routes);
+						},
+						editTo(e) {
+								this.editIt('to', e)
+						},
+						editFrom(e) {
+								this.editIt('from', e)
+						},
+						editEnd() {
+								this.edit = false;
+								const diff = {};
+								if (_.size(this.selectedRoute) >= _.size(this.services)) {
+										diff[this.field] = "*"
+								} else {
+										diff[this.field] = _.clone(this.selectedRoute);
+								}
+								this.splice('routes', this.current, 1, Object.assign(_.cloneDeep(this.routes[this.current]), diff))
+						}
+				});
+		</script>
+</dom-module>

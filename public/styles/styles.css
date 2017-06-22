@@ -1,0 +1,101 @@
+body {
+  background: #fafafa;
+  font-family: 'PT Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+#controlpanel-page, #settings-page {
+  overflow: auto;
+}
+
+.auth-successful h2 {
+  width: 100%;
+  text-align: center;
+}
+
+.auth-successful paper-button {
+  width: 100%;
+  text-align: center;
+}
+
+paper-card {
+  border: 1px solid #cd9660;
+  border-radius: 2px;
+  font-family: 'PT Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+paper-menu #arm-info {
+  padding: 0 16px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+}
+
+iris-report-hub {
+  height: 100%;
+}
+
+#headerPanelMain .content {
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.content iron-pages {
+  height: 100%;
+}
+
+iron-pages section {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+paper-toolbar a, paper-toolbar a:active, paper-toolbar a:focus, paper-toolbar a:hover, paper-toolbar a:visited {
+  color: #fff;
+}
+
+paper-tabs {
+  background-color: #f4ebe0;
+  color: #fff;
+}
+
+paper-button.btn-primary, paper-button.primary, paper-button[primary] {
+  color: #EF9585;
+}
+
+paper-button.btn-primary[raised], paper-button.primary[raised], paper-button[primary][raised] {
+  background-color: #C79B65;
+  color: #46413a;
+}
+
+paper-button.btn-secondary, paper-button.secondary, paper-button[secondary] {
+  color: #6e4d44;
+}
+
+paper-button.btn-secondary[raised], paper-button.secondary[raised], paper-button[secondary][raised] {
+  background-color: #424242;
+  color: #fff;
+}
+
+paper-button.btn-success, paper-button.success, paper-button[success] {
+  color: #8bc34a;
+}
+
+paper-button.btn-success[raised], paper-button.success[raised], paper-button[success][raised] {
+  background-color: #8bc34a;
+  color: #fff;
+}
+
+paper-button.btn-info, paper-button.info, paper-button[info] {
+  color: #fadd60;
+}
+
+paper-button.btn-info[raised], paper-button.info[raised], paper-button[info][raised] {
+  background-color: #fadd60;
+  color: #4b421d;
+}
+
+paper-button[disabled] {
+  color: #656565!important;
+  background: #e4e4e4!important;
+}
