@@ -1,0 +1,95 @@
+<script>
+		window.ListBehavior = {
+				properties: {
+						app: {
+								type: Object,
+								notify: true
+						}
+				},
+				observers: ['_itemChanged(routeData.itemId)'],
+				actionHappens(e) {
+						if (!this.changed) {
+								this.clone = _.cloneDeep(this.item);
+						}
+						this.changed = true;
+				},
+				_correct() {},
+				_redrawTable() {
+						const temp = this.app.list;
+						this.set('searchString', 'x');
+						this.async(() => this.set('searchString', ''));
+				},
+				_itemChanged(id, pid) {
+						if (!id) {
+								this.listVisible = true;
+								this.changed = false;
+
+						} else {
+
+								this.listVisible = false;
+								this.item = _.find(this.app.list, {'@id': id});
+								this._correct();
+						}
+				},
+				filter(data, searchString) {
+						if (!searchString)
+								return data;
+
+						return _.filter(data, item => ~ (item.label || '').indexOf(searchString));
+				},
+				cellTap(e) {
+						const id = e.detail.row_data['@id'];
+						const row = e.detail.row;
+						this.routeToID(id, row);
+				},
+				routeToID(id, row) {
+						const prefix = this.route.prefix;
+						const path = prefix[prefix.length - 1] === '/'
+								? prefix
+								: prefix + '/';
+
+						this.index = row;
+						window.history.pushState({}, null, `${path}${id}/common`);
+						window.dispatchEvent(new CustomEvent('location-changed'));
+				},
+				saveAll() {
+						this.changed = false;
+						if (this.presave)
+								this.presave();
+						window.api.saveEntity(this.entityName, this.item);
+						this._back();
+				},
+				deleteDialog(e) {
+						this.isOpen = true;
+				},
+				discardChanges(e) {
+						if (!e.detail.confirmed) {
+								this.set('routeData.subpage', 'common');
+								return;
+						}
+						this.changed = false;
+						this.splice('app.list', this.index, 1, this.clone);
+						this._back();
+				},
+				_back() {
+						this._redrawTable();
+						window.history.pushState({}, null, this.route.prefix);
+						window.dispatchEvent(new CustomEvent('location-changed'));
+						this.listVisible = true;
+				},
+				back() {
+						if (this.changed) {
+								this.set('isOpenDiscard', true)
+								return;
+						}
+						this._back();
+				},
+				delete(e) {
+						if (!e.detail.confirmed)
+								return;
+						this.splice('app.list', this.index, 1);
+						window.api.deleteEntity(this.entityName, this.item);
+						this._back();
+				}
+		};
+</script>

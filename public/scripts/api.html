@@ -24,6 +24,9 @@
 				},
 				saveEntity(entity, data) {
 						return this.request(`/entity-save/${entity}`, {data});
+				},
+				deleteEntity(entity, data) {
+						return this.request(`/entity-delete/${entity}`, {data});
 				}
 		};
 </script>

@@ -5,6 +5,7 @@ const login = require('../server/controllers/login');
 module.exports = app => {
 	router.post(app, '/entity-list/:entity', entity, 'entityList');
 	router.post(app, '/entity-save/:entity', entity, 'entitySave');
+	router.post(app, '/entity-delete/:entity', entity, 'entityDelete');
 	router.post(app, '/login', login, 'login');
 
 	return router;

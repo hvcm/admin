@@ -1,0 +1,90 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="schedule-picker">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+								overflow: hidden;
+						}
+						.line {
+								padding: 10px 0;
+						}
+						.all {
+								border-bottom: 2px solid var(--mydoc-brown-800);
+						}
+						*[hidden] {
+								display: none;
+						}
+
+				</style>
+				<paper-input label="Поиск" value="{{searchString}}"></paper-input>
+				<div class="line all" hidden$="{{!multi}}">
+						<paper-checkbox id="all" on-tap="checkAll" checked="[[isAll(selected.length,schedules.length)]]">Выбрать все</paper-checkbox>
+				</div>
+				<template is="dom-repeat" items="[[schedules]]" filter="{{computeFilter(searchString)}}">
+						<div class="line">
+								<paper-checkbox checked="[[isSelected(item, selected)]]" on-tap="check">[[item.label]]</paper-checkbox>
+						</div>
+				</template>
+		</template>
+		<script>
+				Polymer({
+						is: 'schedule-picker',
+						properties: {
+								selected: {
+										type: Array,
+										notify: true
+								},
+								multi: {
+										type: Boolean,
+										value: false
+								}
+						},
+						computeFilter(string) {
+								if (!string) {
+										return null;
+								}
+
+								return item => ~ (item.label || '').toLowerCase().indexOf(string.toLowerCase());
+						},
+
+						check(e) {
+								const id = e.model.item.id;
+								if (this.multi) {
+										const index = this.selected.indexOf(id);
+
+										if (index === -1) {
+												this.push('selected', id);
+												return;
+										}
+
+										this.splice('selected', index, 1);
+										return;
+								}
+
+								this.set('selected', id);
+						},
+						isSelected(item, selected) {
+								return this.multi
+										? ~ selected.indexOf(item.id)
+										: item.id == selected;
+						},
+						checkAll(e) {
+
+								if (!this.$.all.checked) {
+										this.set('selected', []);
+										return;
+								}
+
+								this.set('selected', _.map(this.schedules, 'id'));
+						},
+						isAll(a, b) {
+
+								return this.multi
+										? a >= b
+										: false;
+						}
+				});
+		</script>
+</dom-module>

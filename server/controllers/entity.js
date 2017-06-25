@@ -1,7 +1,8 @@
 "use strict";
 
-const Basic = require('./basic');
+const couchbase = require('couchbase');
 
+const Basic = require('./basic');
 const serviceToLabels = (all_services) => _.transform(all_services, (acc, service) => {
 	const id = _.get(service, 'value.@id');
 	acc[id] = _.get(service, 'value.label');
@@ -25,6 +26,70 @@ class Entity extends Basic {
 			return this.res.send({error: 'no such entity'});
 
 		this[method](data).then(res => this.res.json(res));
+	}
+	entityDelete() {
+		const {entity} = this.req.params;
+		const {data} = this.req.body;
+		const method = `_deleteEntity${_.upperFirst(_.camelCase(entity))}`;
+		if (!this[method])
+			return this.res.send({error: 'no such entity'});
+
+		this[method](data).then(res => this.res.json(res));
+	}
+	_saveEntityWorkstation(data) {
+		const {cb, cookies, params} = this.req;
+		const {entity} = params;
+		const {attached_to, device_type} = data;
+		const id = data['@id'];
+
+		if (!attached_to) {
+			return Promise.resolve({state: false});
+		}
+		const registry = `registry_workstation_${attached_to}`;
+
+		const permissions = cookies
+			.permissions
+			.split(',');
+		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+		const addToRegistry = () => cb
+			.get(registry)
+			.then((data) => {
+				const path = 'value.content.' + device_type;
+				const old = _.get(data, path, []);
+				old.push(id);
+				_.set(data, path, _.uniq(old));
+
+				return cb.upsert(registry, data.value);
+			});
+
+		const removeEveryWhere = Promise.map(registries, toDelete => {
+			if (toDelete == registry) {
+				return true;
+			}
+
+			return cb
+				.get(toDelete)
+				.then((data) => {
+					const path = 'value.content.' + device_type;
+					const old = _.get(data, path, []);
+					const index = old.indexOf(id);
+
+					if (index === -1) {
+						return true;
+					}
+					old.splice(index, 1);
+					_.set(data, path, old);
+					return cb.upsert(toDelete, data.value);
+				});
+		})
+		return Promise.props({
+			insert: cb.upsert(id, data),
+			toggle: removeEveryWhere.then(() => addToRegistry())
+		});
+	}
+	_deleteEntityWorkstation(data) {
+		console.log(data);
+		return Promise.resolve({})
 	}
 	_saveEntityFields(data) {
 		const {entity} = this.req.params;
@@ -141,32 +206,44 @@ class Entity extends Basic {
 					.getMulti(workstation_id)
 					.then(data => _.map(data, 'value'));
 
+				const getServiceMaps = Promise.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}));
+				const schedule = cb
+					.view(this.req.query('schedule'))
+					.then(items => _.map(items, item => ({
+						id: item.id,
+						label: item.value || (item.id == 'schedule-0'
+							? 'Основное расписание'
+							: item.id.replace('schedule-', 'Расписание '))
+					})));
+
 				const helpers = Promise.props({
+					schedule,
 					offices: cb
 						.get('global_org_structure')
 						.then(data => _.get(data, 'value.content')),
-					service_labels: cb
-						.get('registry_service')
-						.catch(e => ({content: []}))
-						.then(data => {
-							return cb
-								.getMulti(data.value.content)
-								.then(serviceToLabels);
-						}),
-					service_map: Promise
-						.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}))
-						.then(data => {
-							return _
-								.chain(data)
-								.map(item => [
-									item
-										.value['@id']
-										.substr(17),
-									item.value.content
-								])
-								.fromPairs()
-								.value();
-						}),
+					service_labels: getServiceMaps.then(data => {
+						return _
+							.chain(data)
+							.flatMap(item => item.value.content)
+							.uniq()
+							.value();
+					}).then(data => {
+						return cb
+							.getMulti(data)
+							.then(serviceToLabels);
+					}),
+					service_map: getServiceMaps.then(data => {
+						return _
+							.chain(data)
+							.map(item => [
+								item
+									.value['@id']
+									.substr(17),
+								item.value.content
+							])
+							.fromPairs()
+							.value();
+					}),
 					service_config: cb
 						.get('iris_config_service_groups')
 						.then(data => _.chain(data).get('value.main_group.roomdisplay.params.direction_types', {}).map((label, id) => ({label, id})).value())
