@@ -2,6 +2,11 @@
 
 const Basic = require('./basic');
 
+const serviceToLabels = (all_services) => _.transform(all_services, (acc, service) => {
+	const id = _.get(service, 'value.@id');
+	acc[id] = _.get(service, 'value.label');
+}, {});
+
 class Entity extends Basic {
 	entityList() {
 		const {entity} = this.req.params;
@@ -117,6 +122,59 @@ class Entity extends Basic {
 			})
 
 	}
+	_getListWorkstations() {
+		const {cb, cookies} = this.req;
+		const permissions = cookies
+			.permissions
+			.split(',');
+		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+
+		return cb
+			.getMulti(registries)
+			.then((res) => {
+				const workstation_id = _
+					.chain(res)
+					.map('value.content.control-panel')
+					.flatMap()
+					.value();
+				const list = cb
+					.getMulti(workstation_id)
+					.then(data => _.map(data, 'value'));
+
+				const helpers = Promise.props({
+					offices: cb
+						.get('global_org_structure')
+						.then(data => _.get(data, 'value.content')),
+					service_labels: cb
+						.get('registry_service')
+						.catch(e => ({content: []}))
+						.then(data => {
+							return cb
+								.getMulti(data.value.content)
+								.then(serviceToLabels);
+						}),
+					service_map: Promise
+						.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}))
+						.then(data => {
+							return _
+								.chain(data)
+								.map(item => [
+									item
+										.value['@id']
+										.substr(17),
+									item.value.content
+								])
+								.fromPairs()
+								.value();
+						}),
+					service_config: cb
+						.get('iris_config_service_groups')
+						.then(data => _.chain(data).get('value.main_group.roomdisplay.params.direction_types', {}).map((label, id) => ({label, id})).value())
+				});
+
+				return Promise.props({list, helpers})
+			});
+	}
 	_getListDepartments() {
 		const {cb, cookies} = this.req;
 		const permissions = cookies
@@ -130,19 +188,19 @@ class Entity extends Basic {
 			oper_design: Promise.map(permissions, department => cb.get(`operator-display--satellite--${department}--template`).catch(e => {})),
 			routes: Promise.map(permissions, department => cb.get(`service-routing-map-${department}`).catch(e => {})),
 			all_services: cb
-				.get(`registry_service_global`)
+				.get('registry_service')
 				.catch(e => ({content: []}))
 		}).then(res => {
-			let all_services;
-			if (res.all_services.content.length) {
-				all_services = res.all_services.content
-			} else {
-				all_services = _
+			const has_services = _
+				.get(res, 'all_services.value.content', [])
+				.length;
+			const all_services = has_services
+				? res.all_services.value.content
+				: _
 					.chain(res.services)
 					.flatMap()
 					.uniq()
 					.value();
-			}
 
 			return Promise.props(Object.assign(res, {
 				all_services: cb.getMulti(all_services)
@@ -164,10 +222,7 @@ class Entity extends Basic {
 
 					const helpers = {
 						office: value.content,
-						labels: _.transform(res.all_services, (acc, service) => {
-							const id = _.get(service, 'value.@id');
-							acc[id] = _.get(service, 'value.label');
-						}, {})
+						labels: serviceToLabels(res.all_services)
 					};
 					return {list, helpers};
 				});

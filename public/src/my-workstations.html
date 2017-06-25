@@ -1,0 +1,190 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-workstations">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+								padding: 10px;
+						}
+						iris-table {
+								max-height: 80vh;
+						}
+						.line {
+								align-items: center;
+						}
+
+				</style>
+
+				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+
+				<template is="dom-if" if="[[listVisible]]">
+						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
+						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+						<paper-fab id="add" mini icon="add" on-tap="addPriority"></paper-fab>
+				</template>
+				<template is="dom-if" if="[[!listVisible]]">
+						<paper-tabs selected="{{subpage}}" attr-for-selected="page">
+								<paper-tab page="common">Основные параметры</paper-tab>
+								<paper-tab page="services">Услуги</paper-tab>
+						</paper-tabs>
+						<iron-pages selected="{{subpage}}" attr-for-selected="page">
+								<div page="common">
+										<paper-input label="Наименование" value="{{item.label}}"></paper-input>
+										<paper-input label="Номер для табло" value="{{item.short_label}}"></paper-input>
+										<div class="line">
+												<paper-dropdown-menu label="Офис">
+														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.attached_to}}">
+																<template is="dom-repeat" items="[[departments]]" as="dep">
+																		<paper-item val="[[dep.id]]">[[dep.label]]</paper-item>
+																</template>
+														</paper-listbox>
+												</paper-dropdown-menu>
+										</div>
+										<div class="line">
+												<paper-dropdown-menu label="Тип приема">
+														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
+																<paper-item val="*">Все</paper-item>
+																<paper-item val="live">Живая очередь</paper-item>
+																<paper-item val="prebook">Предварительная запись</paper-item>
+														</paper-listbox>
+												</paper-dropdown-menu>
+										</div>
+										<div class="line">
+												<paper-dropdown-menu label="Настройки типа АРМ">
+														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.device_placement.sound}}">
+																<template is="dom-repeat" items="[[app.helpers.service_config]]" as="config">
+																		<paper-item val="[[config.id]]">[[config.label]]</paper-item>
+																</template>
+														</paper-listbox>
+												</paper-dropdown-menu>
+										</div>
+
+								</div>
+
+								<div page="services">
+										<div class="line">
+												<span>Услуги:</span>
+												<span>[[provides(item.provides,item.provides.length)]]</span>
+										</div>
+										<service-selector id="services" services="[[getServiceMap(item.attached_to)]]" selected="[[transformProvides(item.provides)]]" on-tap="changeProvides"></service-selector>
+								</div>
+						</iron-pages>
+
+				</template>
+				<paper-fab id="save" mini icon="save" on-tap="saveAll"></paper-fab>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление поля</h2>
+						<paper-dialog-scrollable>
+								Вы действительно хотите удалить это поле
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+		</template>
+
+		<script>
+				Polymer({
+						is: 'my-workstations',
+						properties: {
+								app: {
+										type: Object,
+										notify: true
+								}
+						},
+						observers: [
+								'_itemChanged(routeData.itemId)', '_subpageChanged(routeData.subpage)'
+						],
+						getServiceMap(dep) {
+								const indexes = this.app.helpers.service_map[dep];
+								const service_labels = this.app.helpers.service_labels;
+								return _.chain(indexes).map(id => ([id, service_labels[id]])).fromPairs().value();
+						},
+						changeProvides() {
+								const selected = Polymer.dom(this.root).querySelector('#services').selected;
+								// this.provides = selected.length === this.helpers.service_labels.length 		? '*' 		:
+
+						},
+						transformProvides(provides) {
+								const indexes = this.app.helpers.service_map[this.attached_to];
+								return provides === '*'
+										? indexes
+										: provides;
+						},
+						_subpageChanged(subpage) {
+								this.subpage = subpage;
+						},
+						_correct() {
+								this.set('item.device_placement', {});
+						},
+
+						provides(count) {
+								return count === '*'
+										? "Все"
+										: (count || []).length
+						},
+						_itemChanged(id) {
+								if (!id) {
+										this.listVisible = true;
+										return;
+								}
+
+								this.listVisible = false;
+								this.item = _.find(this.app.list, {'@id': id});
+								this._correct();
+								this.toDelete = _.findIndex(this.app.list, {'@id': id});
+								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+						},
+						filter(data, searchString) {
+								if (!searchString)
+										return data;
+
+								return _.filter(data, item => ~ (item.label || '').indexOf(searchString));
+						},
+						cellTap(e) {
+								this.listVisible = false;
+								const prefix = this.route.prefix;
+								const path = prefix[prefix.length - 1] === '/'
+										? prefix
+										: prefix + '/';
+								console.log('path', window.location, this.route);
+								window.history.pushState({}, null, `${path}${e.detail.row_data['@id']}/common`);
+								window.dispatchEvent(new CustomEvent('location-changed'));
+						},
+						saveAll() {
+								console.log(this.item);
+						},
+						ready: function () {
+								// this.listVisible = true;
+								const sortable = true;
+								this.fieldsModel = [
+										{
+												field: 'label',
+												label: 'Наименование',
+												sortable
+										}, {
+												field: 'short_label',
+												label: 'Номер для табло',
+												sortable
+										}, {
+												field: 'attached_to',
+												label: 'Отдел',
+												transform: item => {
+														return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
+												},
+												sortable
+										}
+								];
+
+						}
+				});
+		</script>
+</dom-module>
