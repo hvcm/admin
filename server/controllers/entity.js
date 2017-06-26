@@ -1,6 +1,7 @@
 "use strict";
 
 const couchbase = require('couchbase');
+const Util = require('./util');
 
 const Basic = require('./basic');
 const serviceToLabels = (all_services) => _.transform(all_services, (acc, service) => {
@@ -9,6 +10,10 @@ const serviceToLabels = (all_services) => _.transform(all_services, (acc, servic
 }, {});
 
 class Entity extends Basic {
+	constructor(req, res, next) {
+		super(req, res, next)
+		this.util = new Util(req);
+	}
 	entityList() {
 		const {entity} = this.req.params;
 		const method = `_getList${_.upperFirst(_.camelCase(entity))}`;
@@ -36,6 +41,12 @@ class Entity extends Basic {
 
 		this[method](data).then(res => this.res.json(res));
 	}
+	_saveEntitySystemWorkstation(data) {
+		return this._saveEntityWorkstation(data);
+	}
+	_deleteEntitySystemWorkstation(data) {
+		return this._deleteEntityWorkstation(data);
+	}
 	_saveEntityWorkstation(data) {
 		const {cb, cookies, params} = this.req;
 		const {entity} = params;
@@ -46,50 +57,22 @@ class Entity extends Basic {
 			return Promise.resolve({state: false});
 		}
 		const registry = `registry_workstation_${attached_to}`;
+		const util = this.util;
+		const remove = util
+			.removeEveryWhere(id, device_type, registry)
+			.then(() => util.addWorkstation(id, device_type, registry));
 
-		const permissions = cookies
-			.permissions
-			.split(',');
-		const registries = _.map(permissions, item => `registry_workstation_${item}`);
-		const addToRegistry = () => cb
-			.get(registry)
-			.then((data) => {
-				const path = 'value.content.' + device_type;
-				const old = _.get(data, path, []);
-				old.push(id);
-				_.set(data, path, _.uniq(old));
-
-				return cb.upsert(registry, data.value);
-			});
-
-		const removeEveryWhere = Promise.map(registries, toDelete => {
-			if (toDelete == registry) {
-				return true;
-			}
-
-			return cb
-				.get(toDelete)
-				.then((data) => {
-					const path = 'value.content.' + device_type;
-					const old = _.get(data, path, []);
-					const index = old.indexOf(id);
-
-					if (index === -1) {
-						return true;
-					}
-					old.splice(index, 1);
-					_.set(data, path, old);
-					return cb.upsert(toDelete, data.value);
-				});
-		})
 		return Promise.props({
 			insert: cb.upsert(id, data),
-			toggle: removeEveryWhere.then(() => addToRegistry())
+			toggle: remove
 		});
 	}
 	_deleteEntityWorkstation(data) {
-		console.log(data);
-		return Promise.resolve({})
+		const id = data['@id'];
+		const {device_type} = data;
+		return this
+			.util
+			.removeEveryWhere(id, device_type);
 	}
 	_saveEntityFields(data) {
 		const {entity} = this.req.params;
@@ -110,6 +93,43 @@ class Entity extends Basic {
 			"@type": "Description",
 			"content": data
 		});
+	}
+
+	_getListSystemWorkstations() {
+		const {cb, cookies} = this.req;
+		const permissions = cookies
+			.permissions
+			.split(',');
+		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+
+		return Promise.props({
+			reg: this
+				.util
+				.getWorkstationsId('call-center', 'registry'),
+			webterm: cb.get('megatron-6')
+		}).then(({reg, webterm}) => {
+			const workstation_id = _
+				.chain(reg)
+				.concat(_.get(webterm, 'value.available_workstation', []))
+				.value();
+			console.log(workstation_id);
+			const list = cb
+				.getMulti(workstation_id)
+				.then(data => _.map(data, 'value'));
+			const helpers = Promise.props({
+				offices: cb
+					.get('global_org_structure')
+					.then(data => _.get(data, 'value.content')),
+				terminals: this
+					.util
+					.getWorkstationsId('terminal')
+					.then(ids => cb.getMulti(ids).then(res => _.chain(res).map(({
+						value = {}
+					}) => [value["@id"], value.label]).fromPairs().value()))
+			});
+			return Promise.props({list, helpers})
+		});
+
 	}
 	_getListGlobalsPriority() {
 		const {cb} = this.req;
@@ -194,14 +214,10 @@ class Entity extends Basic {
 			.split(',');
 		const registries = _.map(permissions, item => `registry_workstation_${item}`);
 
-		return cb
-			.getMulti(registries)
-			.then((res) => {
-				const workstation_id = _
-					.chain(res)
-					.map('value.content.control-panel')
-					.flatMap()
-					.value();
+		return this
+			.util
+			.getWorkstationsId('control-panel')
+			.then(workstation_id => {
 				const list = cb
 					.getMulti(workstation_id)
 					.then(data => _.map(data, 'value'));

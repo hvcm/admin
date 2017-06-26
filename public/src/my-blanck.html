@@ -30,7 +30,7 @@
 				<template is="dom-if" if="[[listVisible]]">
 						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addPriority"></paper-fab>
+						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
 				</template>
 				<template is="dom-if" if="[[!listVisible]]">
 						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">

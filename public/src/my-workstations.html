@@ -132,13 +132,7 @@
 										return acc;
 								}, []).fromPairs().value();
 						},
-						addEntity() {
-								const entity = this.makeEntity();
-								const id = entity['@id'];
-								const row = this.push('app.list', entity);
 
-								this.routeToID(id, row);
-						},
 						changeProvides() {
 								const selected = Polymer.dom(this.root).querySelector('#services').selected;
 								const indexes = _.size(this.getServiceMap(this.item.attached_to));

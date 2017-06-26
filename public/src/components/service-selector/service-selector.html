@@ -18,7 +18,7 @@
 				</style>
 				<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 				<div class="line all">
-						<paper-checkbox id="all" on-tap="checkAll" checked="[[isAll(selected,services)]]">Выбрать все</paper-checkbox>
+						<paper-checkbox id="all" on-tap="checkAll" checked="[[isAll(selected.length,services)]]">Выбрать все</paper-checkbox>
 				</div>
 				<template is="dom-repeat" items="[[mapIt(services)]]" filter="{{computeFilter(searchString)}}">
 						<div class="line">
@@ -69,7 +69,7 @@
 								this.set('selected', _.keys(this.services));
 						},
 						isAll(selected, services) {
-								return _.size(selected) >= _.size(services);
+								return selected >= _.size(services);
 						}
 				});
 		</script>
