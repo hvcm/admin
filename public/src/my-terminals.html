@@ -1,0 +1,231 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="my-globals.html">
+
+<dom-module id="my-terminals">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+								padding: 10px;
+						}
+						iris-table {
+								max-height: 80vh;
+						}
+						.line {
+								align-items: center;
+						}
+						paper-fab#delete {
+								bottom: 10px;
+						}
+
+				</style>
+
+				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+
+				<template is="dom-if" if="[[listVisible]]">
+						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
+						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+						<paper-fab id="add" mini icon="add" on-tap="openAddEntity"></paper-fab>
+				</template>
+				<template is="dom-if" if="[[!listVisible]]">
+						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+								<paper-tab on-tap="back" style="max-width:50px;">
+										<iron-icon icon="chevron-left"></iron-icon>
+								</paper-tab>
+								<paper-tab page="common">Основные параметры</paper-tab>
+								<paper-tab page="info">Информационные поля</paper-tab>
+								<paper-tab page="sg">Базовая группа услуг</paper-tab>
+						</paper-tabs>
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+								<div page=""></div>
+								<div page="common">
+										<paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
+
+										<paper-dropdown-menu label="Офис" on-tap="actionHappens">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.attached_to}}">
+														<template is="dom-repeat" items="[[departments]]" as="dep">
+																<paper-item val="[[dep.id]]">[[dep.label]]</paper-item>
+														</template>
+												</paper-listbox>
+										</paper-dropdown-menu>
+										<paper-input label="Время простоя до возврата «Домой»" value="{{item.reload_interval}}"></paper-input>
+										<paper-input label="Шаблон талона" value="{{item.ticket_design}}"></paper-input>
+										<paper-dropdown-menu label="Типы записи" on-tap="actionHappens">
+												<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="[[transformBM(item.booking_methods)]]" on-iron-select="selectedBM">
+														<paper-item val="*">Все</paper-item>
+														<paper-item val="live">Живая очередь</paper-item>
+														<paper-item val="prebook">Предварительная запись</paper-item>
+												</paper-listbox>
+										</paper-dropdown-menu>
+										<div class="line">
+												<label>Авторегистрация талонов</label>
+												<paper-toggle-button checked="{{item.prebook_autoregister}}"></paper-toggle-button>
+										</div>
+										<div class="line">
+												<label>Пачка услуг</label>
+												<paper-toggle-button checked="{{item.multiselect}}"></paper-toggle-button>
+										</div>
+								</div>
+								<div page="info">
+										<my-globals app="[[item.custom_fields]]"></my-globals>
+								</div>
+								<div page="sg">
+										<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="[[item.bound_service_groups]]">
+												<template is="dom-repeat" items="[[app.helpers.groups]]" as="group">
+														<paper-item val="[[group.id]]">[[group.label]]</paper-item>
+												</template>
+										</paper-listbox>
+								</div>
+						</iron-pages>
+						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+				</template>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление</h2>
+						<paper-dialog-scrollable>
+								[[deleteMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+						<h2>Изменения будут потеряны</h2>
+						<paper-dialog-scrollable>
+								[[discardMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+				<paper-dialog opened="{{isOpenAdd}}">
+						<h2>Выберите тип терминала</h2>
+						<paper-dialog-scrollable>
+								<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{termType}}">
+										<paper-item val="terminal">Терминал</paper-item>
+										<paper-item val="web-terminal">Веб-терминал</paper-item>
+										<paper-item val="call-center">Терминал записи ПЗ</paper-item>
+										<paper-item val="registry">Терминал записи ЖО</paper-item>
+								</paper-listbox>
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Отмена</paper-button>
+								<paper-button dialog-confirm on-tap="addEntity">Продолжить</paper-button>
+						</div>
+				</paper-dialog>
+		</template>
+
+		<script>
+				Polymer({
+						is: 'my-terminals',
+						behaviors: [ListBehavior],
+						_correct() {},
+						_itemChanged(id, pid) {
+								ListBehavior._itemChanged.call(this, id, pid);
+								if (id) {
+										this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+								}
+						},
+						selectedBM(e) {
+								const selected = Polymer.dom(this.root).querySelector('#bookingMethods').selected;
+								this.set('item.booking_methods', selected === '*'
+										? ['live', 'prebook']
+										: [selected]);
+						},
+						transformBM(method) {
+								if (!method)
+										return '*';
+								if (method.length == 2)
+										return '*';
+
+								return method[0];
+						},
+						openAddEntity() {
+								this.isOpenAdd = true;
+						},
+						makeEntity() {
+								const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
+								return {
+										"multiselect": false,
+										"default_agent": "megatron-1",
+										"attached_to": department,
+										"device_type": "terminal",
+										"bound_service_groups": "sg-0",
+										"__hidden_type": this.termType,
+										"occupied_by": [],
+										"prebook_autoregister": false,
+										"booking_methods": [
+												"live", "prebook"
+										],
+										"reload_interval": 5,
+										"@id": `terminal-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+										"@type": "Terminal",
+										"label": ""
+								};
+						},
+						ready: function () {
+								this.names = {
+										"terminal": "Терминал",
+										"web-terminal": "Веб-терминал",
+										"call-center": "Терминал записи ПЗ",
+										"registry": "Терминал записи ЖО"
+								};
+								this.deleteMessage = "Вы действительно хотите удалить этот терминал?";
+								this.discardMessage = "	Вы действительно хотите отменить изменения?";
+								this.entityName = 'terminals';
+								const sortable = true;
+								this.fieldsModel = [
+										{
+												field: "label",
+												label: "Наименование"
+										}, {
+												field: 'attached_to',
+												label: 'Отдел',
+												transform: item => {
+														return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
+												},
+												sortable
+										}, {
+
+												label: "Принадлежность",
+												sortable,
+												transform: all => {
+														if (all.__hidden_type)
+																return this.names[all.__hidden_type];
+
+														const item = all["@id"];
+														const helpers = this.app.helpers;
+														if (~ _.indexOf(helpers.megatron1, item)) {
+																return 'Терминал';
+														}
+														if (~ _.indexOf(helpers.megatron6, item)) {
+																return 'Веб-терминал';
+														}
+														for (var i = 0; i < helpers.workstations.length; i++) {
+																const ws = helpers.workstations[i] || {};
+
+																if (~ _.indexOf(ws.attached_terminal, item)) {
+																		const device_type = ws.device_type;
+																		return device_type == 'call-center'
+																				? "Терминал записи ПЗ"
+																				: "Терминал записи ЖО";
+																}
+														}
+
+														return '';
+												}
+										}
+								];
+						}
+				});
+		</script>
+</dom-module>
