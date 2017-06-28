@@ -1,7 +1,7 @@
 "use strict";
 const Basic = require('./basic.js');
 
-class Terminals extends Basic {
+class Digitaldisplay extends Basic {
 	save() {
 		const {data} = this.req.body;
 		return this
@@ -14,36 +14,27 @@ class Terminals extends Basic {
 	linkToEntity(data) {
 		const {cb} = this.req;
 		const id = data['@id'];
-		const hiddentype = data.__hidden_type;
-		console.log(id, hiddentype);
-		const field = hiddentype.indexOf('megatron') === 0
-			? 'available_workstation'
-			: 'attached_terminal'
+
 		return cb
-			.get(hiddentype)
+			.get('megatron-2')
 			.then(res => {
 				const item = res.value;
-				const workstations = item[field];
-				console.log(item);
+				const workstations = item.available_workstation;
 				workstations.push(id);
-				item[field] = _.uniq(workstations)
+				item.available_workstation = _.uniq(workstations)
 				return cb.upsert(item["@id"], item);
 			})
 	}
 	unlinkToEntity(data) {
 		const {cb} = this.req;
 		const id = data['@id'];
-		const hiddentype = data.__hidden_type;
-		console.log(id, hiddentype);
-		const field = hiddentype.indexOf('megatron') === 0
-			? 'available_workstation'
-			: 'attached_terminal'
+
 		return cb
-			.get(hiddentype)
+			.get('megatron-2')
 			.then(res => {
 				const item = res.value;
-				const workstations = item[field];
-				item[field] = _.filter(workstations, item => item != id);
+				const workstations = item.available_workstation;
+				item.available_workstation = _.filter(workstations, item => item != id);
 
 				return cb.upsert(item["@id"], item);
 			})
@@ -58,7 +49,6 @@ class Terminals extends Basic {
 			.then(data => this.res.json(data));
 	}
 	list() {
-
 		const {cb, cookies} = this.req;
 		const permissions = cookies
 			.permissions
@@ -67,8 +57,9 @@ class Terminals extends Basic {
 
 		return this
 			.util
-			.getWorkstationsId('terminal')
+			.getWorkstationsId('digital-display')
 			.then(workstation_id => {
+
 				const list = cb
 					.getMulti(_.uniq(workstation_id))
 					.then(data => _.map(data, 'value'));
@@ -76,25 +67,7 @@ class Terminals extends Basic {
 				const helpers = Promise.props({
 					offices: cb
 						.get('global_org_structure')
-						.then(data => _.get(data, 'value.content')),
-					megatron6: cb
-						.get('megatron-6')
-						.then(item => _.get(item, 'value.available_workstation')),
-					megatron1: cb
-						.get('megatron-1')
-						.then(item => _.get(item, 'value.available_workstation')),
-					groups: cb
-						.view(this.req.query('service_group'))
-						.then(items => _.map(items, item => ({id: item.id, label: item.value}))),
-					workstations: this
-						.util
-						.getWorkstationsId('call-center', 'registry')
-						.then(items => {
-
-							return cb
-								.getMulti(items)
-								.then(data => _.map(data, 'value'));
-						})
+						.then(data => _.get(data, 'value.content'))
 				});
 
 				return Promise.props({list, helpers})
@@ -104,4 +77,4 @@ class Terminals extends Basic {
 	}
 }
 
-module.exports = Terminals;
+module.exports = Digitaldisplay;

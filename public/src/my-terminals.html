@@ -111,10 +111,12 @@
 						<h2>Выберите тип терминала</h2>
 						<paper-dialog-scrollable>
 								<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{termType}}">
-										<paper-item val="terminal">Терминал</paper-item>
-										<paper-item val="web-terminal">Веб-терминал</paper-item>
-										<paper-item val="call-center">Терминал записи ПЗ</paper-item>
-										<paper-item val="registry">Терминал записи ЖО</paper-item>
+										<paper-item val="megatron-1">Терминал</paper-item>
+										<paper-item val="megatron-6">Веб-терминал</paper-item>
+										<template is="dom-repeat" items="[[app.helpers.workstations]]" as="ws">
+												<paper-item val="[[getId(ws)]]">[[translateType(ws)]]: [[ws.label]]</paper-item>
+										</template>
+
 								</paper-listbox>
 						</paper-dialog-scrollable>
 						<div class="buttons">
@@ -128,7 +130,6 @@
 				Polymer({
 						is: 'my-terminals',
 						behaviors: [ListBehavior],
-						_correct() {},
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
 								if (id) {
@@ -172,10 +173,40 @@
 										"label": ""
 								};
 						},
+						getId(ws) {
+								return ws["@id"];
+						},
+						getHiddenType(all) {
+								const item = all["@id"];
+								const helpers = this.app.helpers;
+								if (~ _.indexOf(helpers.megatron1, item)) {
+										return 'megatron-1';
+								}
+								if (~ _.indexOf(helpers.megatron6, item)) {
+										return 'megatron-6';
+								}
+								for (var i = 0; i < helpers.workstations.length; i++) {
+										const ws = helpers.workstations[i] || {};
+
+										if (~ _.indexOf(ws.attached_terminal, item)) {
+
+												return ws["@id"];
+										}
+								}
+
+								return 'terminal';
+						},
+						translateType(ws) {
+								const type = ws.device_type == 'call-center'
+										? "call-center"
+										: "registry";
+
+								return this.names[type];
+						},
 						ready: function () {
 								this.names = {
-										"terminal": "Терминал",
-										"web-terminal": "Веб-терминал",
+										"megatron-1": "Терминал",
+										"megatron-6": "Веб-терминал",
 										"call-center": "Терминал записи ПЗ",
 										"registry": "Терминал записи ЖО"
 								};
@@ -199,29 +230,19 @@
 												label: "Принадлежность",
 												sortable,
 												transform: all => {
-														if (all.__hidden_type)
+														if (!all.__hidden_type) {
+																const hiddentype = this.getHiddenType(all);
+																all.__hidden_type = hiddentype;
+														}
+
+														if (this.names[all.__hidden_type]) {
 																return this.names[all.__hidden_type];
-
-														const item = all["@id"];
-														const helpers = this.app.helpers;
-														if (~ _.indexOf(helpers.megatron1, item)) {
-																return 'Терминал';
-														}
-														if (~ _.indexOf(helpers.megatron6, item)) {
-																return 'Веб-терминал';
-														}
-														for (var i = 0; i < helpers.workstations.length; i++) {
-																const ws = helpers.workstations[i] || {};
-
-																if (~ _.indexOf(ws.attached_terminal, item)) {
-																		const device_type = ws.device_type;
-																		return device_type == 'call-center'
-																				? "Терминал записи ПЗ"
-																				: "Терминал записи ЖО";
-																}
 														}
 
-														return '';
+														const ws = _.find(this.app.helpers.workstations, {"@id": all.__hidden_type});
+														const type = _.get(ws, 'device_type');
+
+														return this.names[type];
 												}
 										}
 								];
