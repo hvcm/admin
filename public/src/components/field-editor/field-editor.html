@@ -1,0 +1,143 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="field-editor">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+
+				</style>
+
+				<div id="globals">
+						<template is="dom-repeat" items="[[value]]">
+								<div class="field">
+										<paper-input label="Ключ" value="{{item.key}}"></paper-input>
+										<paper-input label="ID" value="{{item.__index}}"></paper-input>
+										<paper-input label="Значение по умолчанию" value="{{item.default}}"></paper-input>
+										<paper-input label="Описание" value="{{item.description}}"></paper-input>
+										<paper-input label="Подпись" value="{{item.label}}"></paper-input>
+										<paper-input label="Порядок" value="{{item.order}}"></paper-input>
+										<paper-input label="Количество символов" value="{{item.length}}"></paper-input>
+										<paper-input label="Максимальное значение" value="{{item.max-value}}"></paper-input>
+										<div class="toggle">
+												<label>Обязательное поле</label>
+												<paper-toggle-button label="Обязательное поле" checked="{{item.required}}"></paper-toggle-button>
+										</div>
+										<div class="toggle">
+												<label>Включено по умолчанию</label>
+												<paper-toggle-button label="Включено" checked="{{item.include}}"></paper-toggle-button>
+										</div>
+
+										<paper-dropdown-menu label="Клавиатура">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.layout}}">
+														<template is="dom-repeat" items="[[layouts]]" as="keyboard">
+																<paper-item val="[[keyboard.id]]">[[keyboard.label]]</paper-item>
+														</template>
+												</paper-listbox>
+										</paper-dropdown-menu>
+
+										<paper-dropdown-menu label="Метод регистрацияя">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.method}}">
+														<paper-item val="live">Живая очередь</paper-item>
+														<paper-item val="prebook">Предварительная запись</paper-item>
+												</paper-listbox>
+										</paper-dropdown-menu>
+
+										<paper-dropdown-menu label="Тип поля">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.type}}">
+														<template is="dom-repeat" items="[[types]]" as="type">
+																<paper-item val="[[type.id]]">[[type.label]]</paper-item>
+														</template>
+												</paper-listbox>
+										</paper-dropdown-menu>
+										<paper-button raised on-tap="deleteDialog">Удалить</paper-button>
+								</div>
+
+						</template>
+				</div>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление поля</h2>
+						<paper-dialog-scrollable>
+								Вы действительно хотите удалить это поле
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+		</template>
+		<script>
+				Polymer({
+						is: 'field-editor',
+						properties: {
+								value: {
+										type: Array,
+										notify: true
+								},
+								types: {
+										type: Array,
+										value: [
+												{
+														id: 'input',
+														label: 'Текстовое поле'
+												}, {
+														id: 'date-picker',
+														label: 'Выбор даты'
+												}, {
+														id: 'input-number',
+														label: 'Цифровое поле'
+												}
+										]
+								},
+								layouts: {
+										type: Array,
+										value: [
+												{
+														id: "email",
+														label: "e-mail"
+												}, {
+														id: "en-layout",
+														label: "Английская"
+												}, {
+														id: "numeric",
+														label: "Цифровая"
+												}, {
+														id: "ru-layout",
+														label: "Русская"
+												}, {
+														id: "ru-letnum",
+														label: "Русская цифры и буквы"
+												}, {
+														id: "ru-letters",
+														label: "Русская буквы"
+												}
+										]
+								}
+						},
+						addField() {
+								const field = _.clone(defaultField);
+								const rnd = Math.ceil(Math.random() * 100000);
+								field.key = field.key + rnd;
+								field.__index = field.__index + rnd;
+								this.push('value', field);
+								this.debounce('xx', () => {
+										const last = _.last(this.$.globals.querySelectorAll('.field'));
+										last.scrollIntoView();
+								}, 300);
+						},
+
+						deleteDialog(e) {
+								this.toDelete = e.model.index;
+								this.isOpen = true;
+						},
+						delete(e) {
+								if (!e.detail.confirmed)
+										return;
+								this.splice('value', this.toDelete, 1);
+						}
+
+				});
+		</script>
+</dom-module>

@@ -1,5 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="./components/schedule-picker/schedule-picker.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-humans">
@@ -12,50 +16,182 @@
 						iris-table {
 								max-height: 80vh;
 						}
+						.line {
+								align-items: center;
+						}
+						paper-fab#delete {
+								bottom: 10px;
+						}
+						.line paper-input {
+								padding-right: 15px;
+								flex: 1;
+						}
 
 				</style>
-				<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-				<iris-table id="humansTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+
+				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+
+				<template is="dom-if" if="[[listVisible]]">
+						<div class="line">
+								<paper-input label="Поиск" value="{{searchString}}"></paper-input>
+								<paper-dropdown-menu label="Права">
+										<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{permissionfilter}}">
+												<paper-item val="*">Любые</paper-item>
+												<paper-item val="ticket-by-id-registered">Прием</paper-item>
+												<paper-item val="ticket-by-id-postponed">Прием из отложенных</paper-item>
+												<paper-item val="can-admin">Администратор</paper-item>
+												<paper-item val="can-report">Отчеты</paper-item>
+												<paper-item val="can-book">Запись</paper-item>
+												<paper-item val="can-manage">Ресепшен</paper-item>
+										</paper-listbox>
+								</paper-dropdown-menu>
+						</div>
+						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,permissionfilter)]]" on-cell-tap="cellTap"></iris-table>
+						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+				</template>
+				<template is="dom-if" if="[[!listVisible]]">
+						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+								<paper-tab on-tap="back" style="max-width:50px;">
+										<iron-icon icon="chevron-left"></iron-icon>
+								</paper-tab>
+								<paper-tab page="common">Основные</paper-tab>
+								<paper-tab page="provides">Услуги</paper-tab>
+								<paper-tab page="workstations">Рабочие места</paper-tab>
+								<paper-tab page="schedules">Расиписания</paper-tab>
+								<paper-tab page="permissions">Права</paper-tab>
+						</paper-tabs>
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+								<div page=""></div>
+								<div page="common">
+										<paper-input label="Фамилия" value="{{item.last_name}}" placeholder="Фамилия"></paper-input>
+										<paper-input label="Имя" value="{{item.first_name}}" placeholder="Имя"></paper-input>
+										<paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество"></paper-input>
+										<paper-input label="Логин" value="{{item.login}}" placeholder="Логин"></paper-input>
+										<paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль"></paper-input>
+										<paper-dropdown-menu label="Тип приема" on-tap="actionHappens">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
+														<paper-item val="*">Все</paper-item>
+														<paper-item val="live">Живая очередь</paper-item>
+														<paper-item val="prebook">Предварительная запись</paper-item>
+												</paper-listbox>
+										</paper-dropdown-menu>
+								</div>
+								<div page="provides"></div>
+								<div page="workstations"></div>
+								<div page="schedules"></div>
+								<div page="permissions"></div>
+						</iron-pages>
+						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+				</template>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление</h2>
+						<paper-dialog-scrollable>
+								[[deleteMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+						<h2>Изменения будут потеряны</h2>
+						<paper-dialog-scrollable>
+								[[discardMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
 		</template>
 
 		<script>
 				Polymer({
 						is: 'my-humans',
-						properties: {
-								app: {
-										type: Object,
-										notify: true
+						behaviors: [ListBehavior],
+						_correct() {},
+						hasPermission(item, filter) {
+								if (filter === 'ticket-by-id-registered') {
+										return _.get(item, ['permissions', 'ticket-by-id', 'registered']) || false;
 								}
+								if (filter === 'ticket-by-id-postponed') {
+										return _.get(item, ['permissions', 'ticket-by-id', 'postponed']) || false;
+								}
+								const perm = _.get(item, ['permissions', filter]);
+								return !!_.find(perm, item => !!item);
 						},
-						inFields(fields, searchString) {},
-						permissionsToString(value, key) {
-								// console.log(key, value);
-								switch (key) {
-										case 1:
+						filter(data, searchString, filter) {
+								let result = searchString
+										? data
+										: _.filter(data, item => ~ (item.last_name || '').indexOf(searchString));
 
-												break;
+								result = (!filter || filter === '*')
+										? data
+										: _.filter(result, item => this.hasPermission(item, filter));
+								return result;
+						},
+						commonPermision(data, label) {
+								_.reduce(data, (acc, perm, dep) => {
+										if (!perm)
+												return acc;
+										acc.push({value: dep, label: 'Администратор'})
+										return acc;
+								}, []);
+						},
+						permissionsToString(data, name) {
+								const commonPermision = (data, label) => {
+										return _.reduce(data, (acc, perm, value) => {
+												if (!perm) {
+														return acc;
+												}
+												acc.push({value, label})
+												return acc;
+										}, []);
+								};
+								switch (name) {
+										case 'ticket-by-id':
+												return [
+														{
+																label: 'Прием',
+																value: data.registered
+																		? '+'
+																		: '-'
+														}, {
+																label: 'Прием из отложенных',
+																value: data.postponed
+																		? '+'
+																		: '-'
+														}
+												];
+										case 'can-report':
+												return commonPermision(data, 'Отчеты');
+										case 'can-manage':
+												return commonPermision(data, 'Респшен');
+										case 'can-book':
+												return commonPermision(data, 'Запись');
+										case 'can-admin':
+												return commonPermision(data, 'Администратор');
 										default:
-												return 'x';
+												return '';
 								}
-						},
-						filter(data, searchString) {
-								if (!searchString)
-										return data;
 
-								return _.filter(data, item => this.inFields([
-										'last_name', 'first_name', 'middle_name'
-								], searchString));
 						},
 						ready: function () {
+								this.deleteMessage = "Вы действительно хотите удалить этого сотрудника?";
+								this.discardMessage = "	Вы действительно хотите отменить изменения?";
+								this.entityName = 'humans';
 								const transform = value => value || '-';
+								this.permissionfilter = "*";
 								this.fieldsModel = [
 										{
-												field: '@type',
+												field: 'first_name',
 												label: 'Имя',
 												transform
 										}, {
 												field: 'last_name',
-												label: 'Имя',
+												label: 'Фамилия',
 												transform
 										}, {
 												field: 'middle_name',
@@ -64,13 +200,8 @@
 										}, {
 												field: 'login',
 												label: 'Логин'
-										}, {
-												field: 'permissions',
-												label: 'Права',
-												transform: permissions => _.map(permissions, this.permissionsToString)
 										}
 								];
-
 						}
 				});
 		</script>

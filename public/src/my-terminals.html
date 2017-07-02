@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="./components/field-editor/field-editor.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-globals.html">
 
@@ -22,6 +23,9 @@
 						}
 						paper-fab#delete {
 								bottom: 10px;
+						}
+						paper-fab#add-field {
+								bottom: 110px;
 						}
 
 				</style>
@@ -73,7 +77,8 @@
 										</div>
 								</div>
 								<div page="info">
-										<my-globals app="[[item.custom_fields]]"></my-globals>
+										<field-editor id="peditor" value="[[transformedFields]]"></field-editor>
+										<paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab>
 								</div>
 								<div page="sg">
 										<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="[[item.bound_service_groups]]">
@@ -132,15 +137,34 @@
 						behaviors: [ListBehavior],
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
-								if (id) {
-										this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+								if (!id) {
+										return;
 								}
+								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+								this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
+										item.__index = index;
+										return item;
+								});
+								console.log(this.transformedFields);
 						},
 						selectedBM(e) {
 								const selected = Polymer.dom(this.root).querySelector('#bookingMethods').selected;
 								this.set('item.booking_methods', selected === '*'
 										? ['live', 'prebook']
 										: [selected]);
+						},
+						_correct() {
+								if (!this.item.custom_fields) {
+										this.set('item.custom_fields', {});
+								}
+						},
+						presave() {
+								this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
+						},
+						addField() {
+								const editor = Polymer.dom(this.root).querySelector('#peditor');
+								console.log(Polymer.dom(this.root), editor);
+								editor.addField();
 						},
 						transformBM(method) {
 								if (!method)

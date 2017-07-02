@@ -1,0 +1,212 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-digital-displays">
+		<template>
+				<style include="shared-styles">
+						:host {
+								display: block;
+								padding: 10px;
+						}
+						iris-table {
+								max-height: 80vh;
+						}
+						.line {
+								align-items: center;
+						}
+						paper-fab#delete {
+								bottom: 10px;
+						}
+						.displays paper-fab {
+								bottom: 110px;
+						}
+
+				</style>
+
+				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+
+				<template is="dom-if" if="[[listVisible]]">
+						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
+						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+				</template>
+				<template is="dom-if" if="[[!listVisible]]">
+						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+								<paper-tab on-tap="back" style="max-width:50px;">
+										<iron-icon icon="chevron-left"></iron-icon>
+								</paper-tab>
+								<paper-tab page="common">Основные параметры</paper-tab>
+								<paper-tab page="displays">ID цифровых табло</paper-tab>
+						</paper-tabs>
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+								<div page=""></div>
+								<div page="common">
+										<paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
+										<paper-input label="Тип табло" value="{{item.display_type}}" placeholder="Тип табло"></paper-input>
+										<paper-dropdown-menu label="Офис" on-tap="actionHappens">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.attached_to}}">
+														<template is="dom-repeat" items="[[departments]]" as="dep">
+																<paper-item val="[[dep.id]]">[[dep.label]]</paper-item>
+														</template>
+												</paper-listbox>
+										</paper-dropdown-menu>
+										<paper-input label="Symbol depth" value="{{item.symbol_depth}}" placeholder="Symbol depth"></paper-input>
+										<paper-input label="Y offset" value="{{item.y_offset}}" placeholder="Y offset"></paper-input>
+										<paper-input label="X offset" value="{{item.x_offset}}" placeholder="X offset"></paper-input>
+										<paper-input label="Height" value="{{item.height}}" placeholder="Height"></paper-input>
+										<paper-input label="Width" value="{{item.width}}" placeholder="Width"></paper-input>
+										<paper-input label="Baud rate" value="{{item.baud_rate}}" placeholder="Baud rate"></paper-input>
+										<paper-input label="Data bits" value="{{item.data_bits}}" placeholder="Data bits"></paper-input>
+										<paper-input label="Parity" value="{{item.parity }}" placeholder="Parity"></paper-input>
+										<paper-input label="Stop bits " value="{{item.stop_bits }}" placeholder="Stop bits"></paper-input>
+
+								</div>
+								<div page="displays" class="displays">
+										<template is="dom-repeat" items="[[displaylist]]" as="maintain">
+												<div class="line">
+														<span>
+																[[translateWS(maintain.id)]]
+														</span>
+														<paper-input label="Значение" value="{{maintain.value}}"></paper-input>
+														<paper-icon-button icon="delete" on-tap="removeMaintain"></paper-icon-button>
+												</div>
+										</template>
+										<paper-dialog opened="{{maintainDialog}}">
+												<h2>Добавить цифровое табло</h2>
+												<paper-dialog-scrollable>
+														<template is="dom-repeat" items="[[availableWorkstations(item.attached_to)]]" as="ws">
+																<paper-item on-tap="addMaintain">
+																		[[ws.label]]
+																</paper-item>
+														</template>
+												</paper-dialog-scrollable>
+												<div class="buttons">
+														<paper-button dialog-dismiss>Отмена</paper-button>
+												</div>
+										</paper-dialog>
+										<paper-fab mini icon="add" on-tap="addMaintainDialog"></paper-fab>
+								</div>
+						</iron-pages>
+						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+				</template>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление</h2>
+						<paper-dialog-scrollable>
+								[[deleteMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+						<h2>Изменения будут потеряны</h2>
+						<paper-dialog-scrollable>
+								[[discardMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+		</template>
+
+		<script>
+				Polymer({
+						is: 'my-digital-displays',
+						behaviors: [ListBehavior],
+						_correct() {},
+						_itemChanged(id, pid) {
+								ListBehavior._itemChanged.call(this, id, pid);
+								if (!id) {
+										return;
+								}
+								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+								this.displaylist = _.map(this.item.maintains, (value, id) => ({value, id}));
+						},
+						availableWorkstations(attached_to) {
+								const dep = this.item.attached_to
+								const ws = _.filter(this.app.helpers.workstations, {attached_to});
+
+								return ws;
+						},
+						addMaintainDialog() {
+								this.maintainDialog = true;
+						},
+						translateWS(id) {
+								const ws = this.app.helpers.workstations;
+								return ws[id]
+										? ws[id].label
+										: '';
+						},
+						addMaintain(e) {
+								this.maintainDialog = false;
+								const ws = e.model.ws;
+								this.push('displaylist', {
+										id: ws.id,
+										value: ''
+								});
+								this.actionHappens();
+						},
+						presave() {
+								this.item.maintains = _.transform(this.displaylist, (acc, item) => {
+										acc[item.id] = item.value;
+								}, {});
+						},
+						removeMaintain(e) {
+								const index = e.model.index;
+								this.splice('displaylist', index, 1);
+								this.actionHappens();
+						},
+						makeEntity() {
+								const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
+								return {
+										"@id": `digital-display-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+										"@type": "DigitalDisplay",
+										"attached_to": department,
+										baud_rate: 115200,
+										data_bits: 8,
+										default_agent: "megatron-4",
+										device_type: "digital-display",
+										display_type: "SvetovodMatrix",
+										height: 9,
+										label: "Введите название табло",
+										maintains: {},
+										occupied_by: [],
+										parity: "none",
+										stop_bits: 1,
+										symbol_depth: 4,
+										width: 24,
+										x_offset: 0,
+										y_offset: 0
+								};
+						},
+						ready: function () {
+								this.deleteMessage = "Вы действительно хотите удалить это цифровое табло?";
+								this.discardMessage = "	Вы действительно хотите отменить изменения?";
+								this.entityName = 'digital-displays';
+								const sortable = true;
+								this.fieldsModel = [
+										{
+												field: "label",
+												label: "Наименование"
+										}, {
+												field: 'attached_to',
+												label: 'Отдел',
+												transform: item => {
+														return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
+												},
+												sortable
+										}
+								];
+						}
+				});
+		</script>
+</dom-module>

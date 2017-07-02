@@ -120,6 +120,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				Polymer({
 						is: 'my-app-login',
 						loginAction(e) {
+								if (e.detail.type === 'auth-failed') 
+										return;
 								const user_id = e.detail.value.user_id;
 								const permissions = _.chain(e.detail).get('value.user.permissions.can-admin').map((item, index) => item && index).filter().value();
 								const admins = _.map(permissions, item => _.find(e.detail.value.admins, {'@id': item}).label);

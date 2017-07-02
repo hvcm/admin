@@ -162,16 +162,30 @@ class Entity extends Basic {
 					.filter({organization: department})
 					.map('member')
 					.value();
+				const offices = cb
+					.get('global_org_structure')
+					.then(data => _.get(data, 'value.content'));
 
+				const helpers = Promise.props({
+					offices,
+					workstations: this
+						.util
+						.getWorkstationsId('control-panel', 'reports', 'reception', 'call-center', 'registry')
+						.then(ids => {
+							return cb
+								.getMulti(_.uniq(ids))
+								.then(data => _.map(data, 'value'));
+						})
+				});
 				return Promise.props({
 					data: cb.getMulti(ids),
-					helpers: cb.get('global_org_structure')
+					helpers
 				})
 			})
 			.then(({data, helpers}) => {
 				return {
 					list: _.map(data, 'value'),
-					helpers: helpers.value.content
+					helpers
 				}
 			})
 

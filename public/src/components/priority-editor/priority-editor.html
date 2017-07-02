@@ -1,0 +1,81 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="priority-editor">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+
+				</style>
+
+				<div id="globals">
+						<template is="dom-repeat" items="[[value]]">
+								<div class="priority">
+										<paper-input label="Ключ" value="{{item.__index}}"></paper-input>
+										<paper-input label="Подпись" value="{{item.label}}"></paper-input>
+										<paper-input label="Описание" value="{{item.description}}"></paper-input>
+										<paper-input label="Префикс" value="{{item.params.prefix}}"></paper-input>
+										<paper-input label="Значение" value="{{item.params.value}}"></paper-input>
+										<paper-button raised on-tap="deleteDialog">Удалить</paper-button>
+								</div>
+						</template>
+
+				</div>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление поля</h2>
+						<paper-dialog-scrollable>
+								Вы действительно хотите удалить это поле
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+		</template>
+		<script>
+				Polymer({
+						is: 'priority-editor',
+						properties: {
+								value: {
+										type: Array,
+										notify: true
+								}
+						},
+						addPriority() {
+								const defaultPriority = {
+										"label": "Подпись",
+										"description": "Описание",
+										"params": {
+												"prefix": "Х",
+												"value": 1
+										},
+										__index: "random-key-"
+								};
+								const field = _.clone(defaultPriority);
+								const rnd = Math.ceil(Math.random() * 100000);
+								field.key = field.key + rnd;
+								field.__index = field.__index + rnd;
+								this.push('value', field);
+								this.debounce('xx', () => {
+										const last = _.last(this.$.globals.querySelectorAll('.priority'));
+										last.scrollIntoView();
+								}, 300);
+								console.log('sdddad');
+						},
+						getData() {
+								return _.keyBy(this.value, '__index');
+						},
+						deleteDialog(e) {
+								this.toDelete = e.model.index;
+								this.isOpen = true;
+						},
+						delete(e) {
+								if (!e.detail.confirmed)
+										return;
+								this.splice('value', this.toDelete, 1);
+						}
+				});
+		</script>
+</dom-module>
