@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="./components/permissions-picker/permissions-picker.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-humans">
@@ -76,10 +77,23 @@
 												</paper-listbox>
 										</paper-dropdown-menu>
 								</div>
-								<div page="provides"></div>
-								<div page="workstations"></div>
-								<div page="schedules"></div>
-								<div page="permissions"></div>
+								<div page="provides">
+										<service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>
+								</div>
+								<div page="workstations">
+										<service-selector services="[[transformWS(app.helpers.workstations)]]" selected="{{item.available_workstation}}"></service-selector>
+								</div>
+								<div page="schedules">
+										<h3>Ресурсное расписание</h3>
+										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker>
+										<h3>Живая очередь</h3>
+										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
+										<h3>Предварительная запись</h3>
+										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
+								</div>
+								<div page="permissions">
+										<permissions-picker departments="{{transformDep(app.helpers.offices)}}" value="{{item.permissions}}"></permissions-picker>
+								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
 						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
@@ -111,7 +125,45 @@
 				Polymer({
 						is: 'my-humans',
 						behaviors: [ListBehavior],
-						_correct() {},
+						_correct() {
+								this.item.has_schedule = this.item.has_schedule || {};
+						},
+						transformWS(ws) {
+								return _.chain(ws).map(item => [item["@id"], item.label]).fromPairs().value();
+						},
+						transformDep(dep) {
+								return _.chain(dep).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+						},
+						randomString(number) {
+								let text = "";
+								const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+								for (var i = 0; i < number; i++)
+										text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+								return text;
+						},
+						makeEntity() {
+
+								return {
+										"@type": "Employee",
+										"@id": `human-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+										"first_name": "Имя",
+										"last_name": "Фамилия",
+										"middle_name": "Отчество",
+										"login": this.randomString(15),
+										"password_hash": this.randomString(6),
+										"provides": [],
+										"permissions": {
+												"ticket-by-id": {
+														"registered": false,
+														"postponed": false
+												}
+										},
+										"state": "inactive",
+										"available_workstation": []
+								};
+						},
 						hasPermission(item, filter) {
 								if (filter === 'ticket-by-id-registered') {
 										return _.get(item, ['permissions', 'ticket-by-id', 'registered']) || false;
@@ -123,12 +175,12 @@
 								return !!_.find(perm, item => !!item);
 						},
 						filter(data, searchString, filter) {
-								let result = searchString
+								let result = !searchString
 										? data
 										: _.filter(data, item => ~ (item.last_name || '').indexOf(searchString));
 
 								result = (!filter || filter === '*')
-										? data
+										? result
 										: _.filter(result, item => this.hasPermission(item, filter));
 								return result;
 						},

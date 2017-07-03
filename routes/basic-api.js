@@ -2,6 +2,7 @@ const router = require('../helper/router');
 const entity = require('../server/controllers/entity');
 const terminals = require('../server/controllers/terminals');
 const roomdisplay = require('../server/controllers/roomdisplay');
+const humans = require('../server/controllers/humans');
 const digitaldisplay = require('../server/controllers/digitaldisplay');
 const login = require('../server/controllers/login');
 
@@ -12,6 +13,9 @@ module.exports = app => {
 	router.post(app, '/entity-delete/roomdisplays', roomdisplay, 'delete');
 	router.post(app, '/entity-save/roomdisplays', roomdisplay, 'save');
 	router.post(app, '/entity-list/roomdisplays', roomdisplay, 'list');
+	router.post(app, '/entity-delete/humans', humans, 'delete');
+	router.post(app, '/entity-save/humans', humans, 'save');
+	router.post(app, '/entity-list/humans', humans, 'list');
 	router.post(app, '/entity-delete/digital-displays', digitaldisplay, 'delete');
 	router.post(app, '/entity-save/digital-displays', digitaldisplay, 'save');
 	router.post(app, '/entity-list/digital-displays', digitaldisplay, 'list');

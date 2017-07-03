@@ -150,46 +150,7 @@ class Entity extends Basic {
 				return value;
 			})
 	}
-	_getListHumans() {
-		const {department} = this.req.body;
-		const {cb} = this.req;
-		return cb
-			.get('global_membership_description')
-			.then(({value}) => {
-				const {content} = value;
-				const ids = _
-					.chain(content)
-					.filter({organization: department})
-					.map('member')
-					.value();
-				const offices = cb
-					.get('global_org_structure')
-					.then(data => _.get(data, 'value.content'));
 
-				const helpers = Promise.props({
-					offices,
-					workstations: this
-						.util
-						.getWorkstationsId('control-panel', 'reports', 'reception', 'call-center', 'registry')
-						.then(ids => {
-							return cb
-								.getMulti(_.uniq(ids))
-								.then(data => _.map(data, 'value'));
-						})
-				});
-				return Promise.props({
-					data: cb.getMulti(ids),
-					helpers
-				})
-			})
-			.then(({data, helpers}) => {
-				return {
-					list: _.map(data, 'value'),
-					helpers
-				}
-			})
-
-	}
 	_getListWorkstations() {
 		const {cb, cookies} = this.req;
 		const permissions = cookies

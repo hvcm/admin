@@ -1,0 +1,74 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="permissions-picker">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+
+				</style>
+				<h2>Прием</h2>
+				<div class="">
+						<paper-checkbox checked="{{value.ticket-by-id.registered}}">Прием</paper-checkbox>
+				</div>
+				<div class="">
+						<paper-checkbox checked="{{value.ticket-by-id.postponed}}">Прием из отложенных</paper-checkbox>
+				</div>
+				<template is="dom-repeat" items="[[types]]" as="type">
+						<h2>[[type.label]]</h2>
+						<template is="dom-repeat" items="[[departments]]">
+								<div class="">
+										<paper-checkbox on-tap="toggle" checked="[[getChecked(value,type.id,item.id)]]" type="{{type}}">[[item.label]]</paper-checkbox>
+								</div>
+						</template>
+				</template>
+		</template>
+		<script>
+				Polymer({
+						is: 'permissions-picker',
+						properties: {
+								departments: {
+										type: Array
+								},
+								value: {
+										type: Object,
+										notify: true
+								}
+						},
+
+						toggle(e) {
+								const type = e.model.type;
+								const dep = e.model.item;
+								const temp = this.get(`value.${type.id}.${dep.id}`) || false;
+								if (!temp) {
+										_.set(this.value, `${type.id}.${dep.id}`, false);
+								}
+								this.set(`value.${type.id}.${dep.id}`, !temp);
+						},
+						getChecked(value, type, dep) {
+								return _.get(value, [
+										type, dep
+								], false);
+						},
+						ready() {
+								this.types = [
+										{
+												id: 'can-report',
+												label: 'Отчеты'
+										}, {
+												id: 'can-manage',
+												label: 'Респшен'
+										}, {
+												id: 'can-book',
+												label: 'Запись'
+										}, {
+												id: 'can-admin',
+												label: 'Администратор'
+										}
+								];
+
+						}
+				});
+		</script>
+</dom-module>
