@@ -111,7 +111,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<a name="terminals" href$="/{{app.global.department}}/terminals">Терминалы</a>
 										<a name="roomdisplays" href$="/{{app.global.department}}/roomdisplays">Табло</a>
 										<a name="digital-displays" href$="/{{app.global.department}}/digital-displays">Цифровые табло</a>
-										<a class="locked" name="schedules" href$="/{{app.global.department}}/schedules">Расписания</a>
+										<a name="schedules" href$="/{{app.global.department}}/schedules">Расписания</a>
 								</iron-selector>
 						</app-drawer>
 
@@ -137,7 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<my-terminals name="terminals" app="{{app}}" route="{{subroute}}"></my-terminals>
 										<my-roomdisplays name="roomdisplays" app="{{app}}" route="{{subroute}}"></my-roomdisplays>
 										<my-services name="services"></my-services>
-										<my-schedules name="schedules"></my-schedules>
+										<my-schedules name="schedules" app="{{app}}" route="{{subroute}}"></my-schedules>
 										<my-digital-displays name="digital-displays" app="{{app}}" route="{{subroute}}"></my-digital-displays>
 										<my-system-workstations name="system-workstations" app="{{app}}" route="{{subroute}}"></my-system-workstations>
 										<my-view404 name="view404"></my-view404>

@@ -1,0 +1,67 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="days-picker">
+		<template>
+				<style>
+						:host {
+								display: flex;
+								flex-direction: row;
+						}
+						paper-checkbox {
+								padding-right: 20px;
+						}
+
+				</style>
+
+				<template is="dom-repeat" items="[[days]]" as="day">
+						<paper-checkbox checked="[[isChecked(day,index)]]" on-tap="dayTap">[[getLabetl(index)]]</paper-checkbox>
+				</template>
+		</template>
+		<script>
+				Polymer({
+						is: 'days-picker',
+						properties: {
+								value: {
+										type: Array,
+										notify: true
+								}
+						},
+						dayTap(e) {
+								const i = e.model.index;
+								const day = this.days[i];
+								const dp = this.value.indexOf(day);
+								if (dp === -1) {
+										this.push('value', day);
+								} else {
+										this.splice('value', dp, 1);
+								}
+						},
+						isChecked(day, index) {
+								return ~ this.value.indexOf(day);
+						},
+						getLabetl(index) {
+								return this.labels[index];
+						},
+						ready() {
+								this.days = [
+										"Monday",
+										"Tuesday",
+										"Wednesday",
+										"Thursday",
+										"Friday",
+										"Saturday",
+										"Sunday"
+								];
+								this.labels = [
+										"Пнедельник",
+										"Вторник",
+										"Среда",
+										"Четверг",
+										"Пятница",
+										"Суббота",
+										"Воскресенье"
+								];
+						}
+				});
+		</script>
+</dom-module>

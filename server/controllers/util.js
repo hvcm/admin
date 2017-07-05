@@ -49,6 +49,15 @@ class Util {
 				});
 		});
 	}
+	getSchedules() {
+		const {cb, cookies, params} = this.req;
+		const schedule = cb
+			.view(this.req.query('schedule'))
+			.then(items => _.map(items, 'id'))
+			.then(ids => cb.getMulti(ids));
+
+		return schedule;
+	}
 	addWorkstation(id, device_type, registry) {
 		const {cb} = this.req;
 		return cb
