@@ -19,6 +19,14 @@ class Util {
 				return workstation_id;
 			})
 	}
+	getServiceMaps() {
+		const {cb, cookies} = this.req;
+		const permissions = cookies
+			.permissions
+			.split(',');
+
+		return Promise.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}));
+	}
 	removeEveryWhere(id, device_type, registry = false) {
 		const {cb, cookies, params} = this.req;
 		const {entity} = params;
@@ -49,6 +57,13 @@ class Util {
 				});
 		});
 	}
+	getOffices() {
+		const {cb} = this.req;
+		return cb
+			.get('global_org_structure')
+			.then(data => _.get(data, 'value.content'))
+	}
+
 	getSchedules() {
 		const {cb, cookies, params} = this.req;
 		const schedule = cb

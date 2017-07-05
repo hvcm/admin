@@ -145,7 +145,6 @@
 										item.__index = index;
 										return item;
 								});
-								console.log(this.transformedFields);
 						},
 						selectedBM(e) {
 								const selected = Polymer.dom(this.root).querySelector('#bookingMethods').selected;
@@ -163,7 +162,6 @@
 						},
 						addField() {
 								const editor = Polymer.dom(this.root).querySelector('#peditor');
-								console.log(Polymer.dom(this.root), editor);
 								editor.addField();
 						},
 						transformBM(method) {

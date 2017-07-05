@@ -1,0 +1,234 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="range-picker">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+						paper-input {
+								padding-right: 15px;
+								max-width: 50px;
+								display: inline;
+						}
+						.interval {
+								display: flex;
+								align-items: center;
+						}
+						paper-icon-button {
+								margin-top: 25px;
+						}
+						.line {
+								padding-left: 15px;
+						}
+
+				</style>
+				<!-- <h3>Интервалы обслуживания</h3> -->
+				<div class="line">
+						<template is="dom-repeat" items="[[intervals]]">
+								<div class="interval">
+										<range-item value="[[item.0]]"></range-item>
+										<range-item value="[[item.1]]"></range-item>
+										<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
+								</div>
+						</template>
+				</div>
+				<paper-button icon="add" id="add" on-tap="add">
+						<iron-icon icon="add"></iron-icon>Добавить интервал</paper-button>
+		</template>
+		<script>
+				Polymer({
+						is: 'range-picker',
+						properties: {
+								intervals: {
+										type: Array,
+										value: () => [
+												[0, 86400]
+										],
+										notify: true
+								}
+						},
+						delete(e) {
+								const index = e.model.index;
+								this.splice('intervals', index, 1);
+						},
+						add() {
+								this.push('intervals', [0, 0]);
+						}
+				});
+		</script>
+</dom-module>
+
+<dom-module id="range-item">
+		<template>
+				<style>
+						:host {
+								display: flex;
+								align-items: center;
+						}
+						.line {
+								display: flex;
+								flex-direction: column;
+						}
+						paper-input {
+								max-width: 50px;
+						}
+						.interval {
+								display: flex;
+								align-items: center;
+						}
+						.col {
+								display: flex;
+								flex-direction: column;
+								width: 25px;
+						}
+						.row {
+								display: flex;
+								flex-direction: row;
+						}
+						paper-button {
+								min-width: 20px;
+								height: 20px;
+						}
+						.dropdown-content {
+								height: 230px;
+								width: 200px;
+						}
+						paper-menu-button {
+								margin-top: 25px;
+								padding: 0;
+						}
+
+				</style>
+				<paper-input class="start" label="" value="{{_formated}}" pattern="[0-2][0-9]:[0-5][0-9]"></paper-input>
+				<paper-menu-button no-cancel-on-outside-click vertical-offset="35">
+						<paper-icon-button icon="schedule" class="dropdown-trigger"></paper-icon-button>
+						<div class="dropdown-content">
+								<div class="row">
+
+										<div class="row hours">
+												<div class="col first">
+														<template is="dom-repeat" items="[[hoursF]]">
+																<paper-button toggles="[[isSelected(_formated, index,'0')]]" raised="[[isSelected(_formated,index,'0')]]" on-tap="changeHF">[[item]]</paper-button>
+														</template>
+												</div>
+												<div class="col  second">
+														<template is="dom-repeat" items="[[hoursS]]">
+																<paper-button toggles="[[isSelected(_formated,index,'1')]]" raised="[[isSelected(_formated,index,'1')]]" disabled="[[isDisabled(_formated, index)]]" on-tap="changeHS">[[item]]</paper-button>
+														</template>
+												</div>
+										</div>
+										<div class="row mins">
+												<div class="col first">
+														<template is="dom-repeat" items="[[minsF]]">
+																<paper-button toggles="[[isSelected(_formated, index,'3')]]" raised="[[isSelected(_formated,index,'3')]]" on-tap="changeMF">[[item]]</paper-button>
+														</template>
+												</div>
+												<div class="col  second">
+														<template is="dom-repeat" items="[[minsS]]">
+																<paper-button toggles="[[isSelected(_formated,index,'4')]]" raised="[[isSelected(_formated,index,'4')]]" on-tap="changeMS">[[item]]</paper-button>
+														</template>
+												</div>
+										</div>
+								</div>
+
+						</div>
+				</paper-menu-button>
+
+		</template>
+		<script>
+				Polymer({
+						is: 'range-item',
+						properties: {
+
+								value: {
+										type: Array,
+										value: [],
+										notify: true
+								},
+								icon: {
+										type: String,
+										value: "arrow-drop-down"
+								},
+								hoursF: {
+										type: Array,
+										value: () => _.range(3)
+								},
+								hoursS: {
+										type: Array,
+										value: () => _.range(10)
+								},
+								minsF: {
+										type: Array,
+										value: () => _.range(6)
+								},
+								minsS: {
+										type: Array,
+										value: () => _.range(10)
+								}
+						},
+						observers: [
+								'_valueChanged(_formated)', '_timeToString(value)'
+						],
+						timeToString(value) {
+								const hours = _.padStart(Math.floor(value / 3600), 2, '0');
+								const minutes = _.padStart((value % 3600) / 60, 2, '0');
+
+								return `${hours}:${minutes}`;
+						},
+						_timeToString(value) {
+								this.set('_formated', this.timeToString(value));
+						},
+						isSelected(value, index, pos) {
+								return value[pos] == index;
+						},
+						changeHF(e) {
+								this.changeValue(e.model.item, 0)
+						},
+						changeHS(e) {
+								this.changeValue(e.model.item, 1)
+						},
+						isDisabled(v, index) {
+								return v[0] === "2" && index > 3;
+						},
+						changeMF(e) {
+								this.changeValue(e.model.item, 3)
+						},
+						changeMS(e) {
+								this.changeValue(e.model.item, 4)
+						},
+						changeValue(val, index) {
+								let current = this._formated;
+								current = _.padEnd(current, 5, '0');
+								current = current.substr(0, index) + String(val) + current.substr(index + 1);
+								this.set('_formated', current)
+						},
+						_valueChanged(v) {
+								v = (v || '').replace(':', '');
+								let first = v.substr(0, 2);
+								first = first > 0
+										? first
+										: "00";
+								first = first > 23
+										? 23
+										: first;
+								let last = _.padStart(Number(v.substr(2, v.length)), 2, '0').substr(0, 2);
+								last = last > 0
+										? last
+										: "00";
+								last = last > 59
+										? 59
+										: last;
+								const time = Number(first) * 60 * 60 + Number(last) * 60;
+								if (`${first}:${last}` != this._formated)
+										this.set('_formated', `${first}:${last}`);
+								this.set('value', time);
+						},
+						add() {
+								this.push('intervals', 'x')
+						}
+				});
+		</script>
+</dom-module>
+</script>
+</dom-module>

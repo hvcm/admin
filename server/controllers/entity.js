@@ -86,9 +86,9 @@ class Entity extends Basic {
 				.getMulti(workstation_id)
 				.then(data => _.map(data, 'value'));
 			const helpers = Promise.props({
-				offices: cb
-					.get('global_org_structure')
-					.then(data => _.get(data, 'value.content')),
+				offices: this
+					.util
+					.getOffices(),
 				terminals: this
 					.util
 					.getWorkstationsId('terminal')
@@ -166,7 +166,9 @@ class Entity extends Basic {
 					.getMulti(workstation_id)
 					.then(data => _.map(data, 'value'));
 
-				const getServiceMaps = Promise.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}));
+				const getServiceMaps = this
+					.util
+					.getServiceMaps();
 				const schedule = cb
 					.view(this.req.query('schedule'))
 					.then(items => _.map(items, item => ({
@@ -178,9 +180,9 @@ class Entity extends Basic {
 
 				const helpers = Promise.props({
 					schedule,
-					offices: cb
-						.get('global_org_structure')
-						.then(data => _.get(data, 'value.content')),
+					offices: this
+						.util
+						.getOffices(),
 					service_labels: getServiceMaps.then(data => {
 						return _
 							.chain(data)

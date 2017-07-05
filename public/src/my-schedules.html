@@ -5,6 +5,7 @@
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
 <link rel="import" href="./components/days-picker/days-picker.html">
+<link rel="import" href="./components/range-picker/range-picker.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-schedules">
@@ -38,17 +39,19 @@
 								<paper-tab on-tap="back" style="max-width:50px;">
 										<iron-icon icon="chevron-left"></iron-icon>
 								</paper-tab>
-								<paper-tab page="common">Основные параметры</paper-tab>
-								<paper-tab page="services">Услуги</paper-tab>
-								<paper-tab page="schedules">Расиписания</paper-tab>
+								<paper-tab page="common">Интервалы обслуживания</paper-tab>
+								<paper-tab page="days">Доступные дни</paper-tab>
 						</paper-tabs>
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
 								<div page=""></div>
 								<div page="common">
-										<days-picker value="{{item.has_day}}"></days-picker>
+										<paper-input value="{{item.label}}" label="Наименование"></paper-input>
+										<range-picker intervals="{{item.has_time_description.data}}" on-tap="actionHappens"></range-picker>
 								</div>
-								<div page="services"></div>
-								<div page="schedules"></div>
+								<div page="days">
+										<days-picker value="{{item.has_day}}"></days-picker>
+
+								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
 						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
@@ -80,8 +83,39 @@
 				Polymer({
 						is: 'my-schedules',
 						behaviors: [ListBehavior],
-						_correct() {},
+						_correct() {
+								this.item.label = this.item.label || (this.item["@id"] == 'schedule-0'
+										? 'Основное расписание'
+										: this.item["@id"].replace('schedule-', 'Расписание '))
+						},
+						makeEntity() {
+								return {
+										"@id": `schedule-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+										"@type": "Schedule",
+										"label": "Новое расписание",
+										"has_day": [
+												"Thursday",
+												"Monday",
+												"Tuesday",
+												"Saturday",
+												"Friday",
+												"Wednesday",
+												"Sunday"
+										],
+										"has_time_description": {
+												"data": [
+														[0, 86400]
+												],
+												"state": "a"
+										}
+								};
+						},
+						timeToString(value) {
+								const hours = _.padStart(Math.floor(value / 3600), 2, '0');
+								const minutes = _.padStart((value % 3600) / 60, 2, '0');
 
+								return `${hours}:${minutes}`;
+						},
 						ready: function () {
 								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
@@ -90,9 +124,21 @@
 										{
 												label: "Наименование",
 												transform: item => {
-														return item.label || (item.id == 'schedule-0'
+														const label = item.label || (item['@id'] == 'schedule-0'
 																? 'Основное расписание'
-																: item["@id"].replace('schedule-', 'Расписание '))
+																: item["@id"].replace('schedule-', 'Расписание '));
+
+														return `${label}`;
+												}
+										}, {
+												label: "Интервалы обслуживания",
+												transform: item => {
+														const intervals = _.get(item, 'has_time_description.data');
+														if (!intervals)
+																return '';
+														let add = _.map(intervals, item => `${this.timeToString(item[0])} - ${this.timeToString(item[1])}`).join(' ');
+
+														return add;
 												}
 										}
 								];
