@@ -2,7 +2,7 @@
 
 const Basic = require('./basic.js');
 
-class Schedules extends Basic {
+class ServiceGroups extends Basic {
 	save() {
 		const {data} = this.req.body;
 		const {cb} = this.req;
@@ -22,20 +22,31 @@ class Schedules extends Basic {
 			.remove(id)
 			.then(data => this.res.json(data));
 	}
+	_linkToRegistry() {}
+	_unlinkToRegistry() {}
 	list() {
 		const {department} = this.req.body;
 		const {cb} = this.req;
 
-		return this
+		const services = this
 			.util
-			.getSchedules()
+			.getServiceMaps()
+			.then(data => _.flatMap(data, item => _.get(item, 'value.content', [])))
+			.then(data => cb.getMulti(data))
+			.then(items => _.mapValues(items, 'value.label'));
+
+		const list = this
+			.util
+			.getServiceGroups()
 			.then(data => {
-				return {
-					list: _.map(data, 'value')
-				};
-			})
+				return _.map(data, 'value');
+			});
+
+		const helpers = Promise.props({services});
+		return Promise
+			.props({list, helpers})
 			.then(data => this.res.json(data));
 	}
 }
 
-module.exports = Schedules;
+module.exports = ServiceGroups;

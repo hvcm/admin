@@ -66,9 +66,7 @@ class Entity extends Basic {
 
 	_getListSystemWorkstations() {
 		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
+		const permissions = this.permissions;
 		const registries = _.map(permissions, item => `registry_workstation_${item}`);
 
 		return Promise.props({
@@ -153,10 +151,8 @@ class Entity extends Basic {
 
 	_getListWorkstations() {
 		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
-		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+
+		const registries = _.map(this.permissions, item => `registry_workstation_${item}`);
 
 		return this
 			.util
@@ -169,6 +165,7 @@ class Entity extends Basic {
 				const getServiceMaps = this
 					.util
 					.getServiceMaps();
+
 				const schedule = cb
 					.view(this.req.query('schedule'))
 					.then(items => _.map(items, item => ({
@@ -213,59 +210,6 @@ class Entity extends Basic {
 
 				return Promise.props({list, helpers})
 			});
-	}
-	_getListDepartments() {
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
-		return Promise.props({
-			services: Promise
-				.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}))
-				.then(services => _.map(services, 'value.content')),
-			qa_design: Promise.map(permissions, department => cb.get(`qa--satellite--${department}--template`).catch(e => {})),
-			oper_design: Promise.map(permissions, department => cb.get(`operator-display--satellite--${department}--template`).catch(e => {})),
-			routes: Promise.map(permissions, department => cb.get(`service-routing-map-${department}`).catch(e => {})),
-			all_services: cb
-				.get('registry_service')
-				.catch(e => ({content: []}))
-		}).then(res => {
-			const has_services = _
-				.get(res, 'all_services.value.content', [])
-				.length;
-			const all_services = has_services
-				? res.all_services.value.content
-				: _
-					.chain(res.services)
-					.flatMap()
-					.uniq()
-					.value();
-
-			return Promise.props(Object.assign(res, {
-				all_services: cb.getMulti(all_services)
-			}))
-		}).then(res => {
-			return cb
-				.get('global_org_structure')
-				.then(({value}) => {
-					const {content} = value;
-
-					const list = _.map(permissions, (permission, index) => {
-						const dep = _.find(content, {'@id': permission});
-						dep.services = res.services[index];
-						dep.qa_design = res.qa_design[index].value;
-						dep.oper_design = _.get(res.oper_design[index], 'value', {});
-						dep.routes = _.get(res.routes[index], 'value', {});
-						return dep;
-					});
-
-					const helpers = {
-						office: value.content,
-						labels: serviceToLabels(res.all_services)
-					};
-					return {list, helpers};
-				});
-		});
 	}
 }
 

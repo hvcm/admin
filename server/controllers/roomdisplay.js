@@ -49,11 +49,9 @@ class Roomdisplay extends Basic {
 			.then(data => this.res.json(data));
 	}
 	list() {
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
-		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+		const {cb} = this.req;
+
+		const registries = _.map(this.permissions, item => `registry_workstation_${item}`);
 
 		return this
 			.util

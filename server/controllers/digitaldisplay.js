@@ -50,9 +50,7 @@ class Digitaldisplay extends Basic {
 	}
 	list() {
 		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
+		const permissions = this.permissions;
 		const registries = _.map(permissions, item => `registry_workstation_${item}`);
 
 		return this

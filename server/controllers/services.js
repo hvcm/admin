@@ -25,10 +25,7 @@ class Services extends Basic {
 	_linkToRegistry() {}
 	_unlinkToRegistry() {}
 	list() {
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
+		const {cb} = this.req;
 
 		const getServiceMaps = this
 			.util

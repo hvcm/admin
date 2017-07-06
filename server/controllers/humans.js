@@ -5,16 +5,13 @@ const Basic = require('./basic.js');
 class Humans extends Basic {
 	save() {
 		const {data} = this.req.body;
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
+		const {cb} = this.req;
 
 		cb
 			.get('global_membership_description')
 			.then(({value}) => {
 				const content = value.content;
-				_.forEach(permissions, department => {
+				_.forEach(this.permissions, department => {
 					const x = {
 						"member": data["@id"],
 						"organization": department
@@ -40,10 +37,7 @@ class Humans extends Basic {
 	}
 	delete() {
 		const {data} = this.req.body;
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
+		const {cb} = this.req;
 
 		const id = data["@id"];
 
@@ -59,11 +53,8 @@ class Humans extends Basic {
 	}
 	list() {
 		const {department} = this.req.body;
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
-
+		const {cb} = this.req;
+		console.log('list');
 		return cb
 			.get('global_membership_description')
 			.then(({value}) => {
@@ -77,13 +68,12 @@ class Humans extends Basic {
 					.get('global_org_structure')
 					.then(data => _.get(data, 'value.content'));
 
-				const services = Promise
-					.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}))
-					.then(data => {
-						return cb
-							.getMulti(_.flatMap(data, item => _.get(item, 'value.content', [])))
-							.then(items => _.mapValues(items, 'value.label'));
-					});
+				const services = this
+					.util
+					.getServiceMaps()
+					.then(data => _.flatMap(data, item => _.get(item, 'value.content', [])))
+					.then(data => cb.getMulti(data))
+					.then(items => _.mapValues(items, 'value.label'));
 
 				const schedule = cb
 					.view(this.req.query('schedule'))

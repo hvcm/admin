@@ -7,7 +7,11 @@ class Basic {
 		this.req = req;
 		this.res = res;
 		this.next = next;
-		this.util = new Util(req);
+
+		const permissions = _.get(this.req, 'cookies.permissions', '');
+
+		this.permissions = permissions.split(',');
+		this.util = new Util(req, this.permissions);
 	}
 	entity() {
 		this

@@ -1,0 +1,94 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="group-shower">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+						.taped {
+								padding-left: 25px;
+						}
+						.no-button {
+								padding-left: 65px;
+						}
+				</style>
+				<paper-icon-button icon="arrow-drop-down" on-tap="expand"></paper-icon-button>
+				<span on-tap="cellTap">[[group.label]]</span>
+				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
+				<template is="dom-if" if="[[open]]">
+						<template is="dom-repeat" items="[[findGroup(open, group.content)]]">
+								<group-shower class="taped" group="[[item]]" services="[[services]]" groups="[[groups]]"></group-shower>
+						</template>
+						<service-group class="taped no-button" services="[[services]]" selected="{{group.content}}"></service-group>
+						<div class="taped">
+								<paper-icon-button icon="add" on-tap="add"></paper-icon-button>
+						</div>
+				</template>
+		</template>
+		<script>
+				Polymer({
+						is: 'group-shower',
+						properties: {
+								group: {
+										type: Object
+								},
+								services: {
+										type: Object,
+										value: () => {}
+								},
+								groups: {
+										type: Array
+								},
+								open: {
+										type: Boolean,
+										value: false
+								}
+						},
+						ready: function () {
+								console.log(this.group);
+						},
+						cellTap() {
+								this.fire('cell-tap', {row_data: this.group});
+						},
+						expand() {
+								this.set('open', !this.open)
+						},
+						findGroup(open, content) {
+								if (!open)
+										return [];
+
+								return _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]));
+						}
+				});
+		</script>
+</dom-module>
+
+<dom-module id="service-group">
+		<template>
+				<style>
+						:host {
+								display: block;
+						}
+
+				</style>
+				<template is="dom-repeat" items="[[filter(selected)]]">
+						<div class="">
+								<span>[[item]]</span>
+								<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
+						</div>
+				</template>
+		</template>
+		<script>
+				Polymer({
+						is: 'service-group',
+
+						filter(items) {
+								const serv = this.services || {};
+								return _.transform(items, (acc, item) => {
+										serv[item] && acc.push(serv[item]);
+								}, [])
+						}
+				});
+		</script>
+</dom-module>

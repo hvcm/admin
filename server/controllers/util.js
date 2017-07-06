@@ -1,13 +1,12 @@
 class Util {
-	constructor(req) {
+	constructor(req, permissions) {
 		this.req = req;
+		this.permissions = permissions;
 	}
 	getWorkstationsId(...types) {
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
-		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+		const {cb} = this.req;
+
+		const registries = _.map(this.permissions, item => `registry_workstation_${item}`);
 		return cb
 			.getMulti(registries)
 			.then(reg => {
@@ -20,21 +19,15 @@ class Util {
 			})
 	}
 	getServiceMaps() {
-		const {cb, cookies} = this.req;
-		const permissions = cookies
-			.permissions
-			.split(',');
+		const {cb} = this.req;
 
-		return Promise.map(permissions, department => cb.get(`registry_service_${department}`).catch(e => {}));
+		return Promise.map(this.permissions, department => cb.get(`registry_service_${department}`).catch(e => {}));
 	}
 	removeEveryWhere(id, device_type, registry = false) {
-		const {cb, cookies, params} = this.req;
+		const {cb, params} = this.req;
 		const {entity} = params;
 
-		const permissions = cookies
-			.permissions
-			.split(',');
-		const registries = _.map(permissions, item => `registry_workstation_${item}`);
+		const registries = _.map(this.permissions, item => `registry_workstation_${item}`);
 
 		return Promise.map(registries, toDelete => {
 			if (registry && (toDelete == registry)) {
@@ -57,6 +50,36 @@ class Util {
 				});
 		});
 	}
+	toggleService(id, list) {
+		const {cb, params} = this.req;
+		const {entity} = params;
+
+		const registries = _.map(this.permissions, item => `registry_service_${item}`);
+
+		return Promise.map(registries, toDelete => {
+			return cb
+				.get(toDelete)
+				.then((data) => {
+					const path = 'value.content';
+					const old = _.get(data, path, []);
+					const index = old.indexOf(id);
+
+					if (list && (~ list.indexOf(toDelete)) && index === -1) {
+						old.push(id);
+
+					} else if (index === -1) {
+						return true;
+					} else {
+						old.splice(index, 1);
+					}
+
+					_.set(data, path, old);
+
+					return cb.upsert(toDelete, data.value);
+				});
+		});
+	}
+
 	getOffices() {
 		const {cb} = this.req;
 		return cb
@@ -65,14 +88,21 @@ class Util {
 	}
 
 	getSchedules() {
-		const {cb, cookies, params} = this.req;
-		const schedule = cb
+		const {cb, params} = this.req;
+		return cb
 			.view(this.req.query('schedule'))
 			.then(items => _.map(items, 'id'))
 			.then(ids => cb.getMulti(ids));
-
-		return schedule;
 	}
+
+	getServiceGroups() {
+		const {cb, params} = this.req;
+		return cb
+			.view(this.req.query('service_group'))
+			.then(items => _.map(items, 'id'))
+			.then(ids => cb.getMulti(ids));
+	}
+
 	addWorkstation(id, device_type, registry) {
 		const {cb} = this.req;
 		return cb
