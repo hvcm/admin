@@ -34,24 +34,11 @@
 				<span class="name" on-tap="cellTap">[[group.label]]</span>
 				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
 				<template id="list" is="dom-if" if="[[open]]">
-						<dragula-element id="dragula" container-class="container" drake="[[drake]]">
-								<div class="container" on-group-delete="innerDelete" on-service-delete="deleteService">
-										<!-- <template is="dom-repeat" items="[[group.content]]">
-												<div class="wrapp" item$="[[item]]">
-														<template is="dom-if" if="[[isGroup(item)]]">
-																<group-shower class="taped column" group="[[groupById(item)]]" services="[[services]]" groups="[[groups]]" drake="[[drake]]"></group-shower>
-														</template>
 
-														<template is="dom-if" if="[[!isGroup(item)]]">
-																<div class="taped" id$="[[item]]">
-																		[[translateService(item)]]
-																		<paper-icon-button icon="delete" on-tap="deleteService"></paper-icon-button>
-																</div>
-														</template>
-												</div>
-										</template> -->
-								</div>
+						<dragula-element id="dragula" container-class="container" drake="[[drake]]">
+								<div class="container" on-group-delete="innerDelete" on-service-delete="deleteService"></div>
 						</dragula-element>
+
 						<paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
 								<h2>[[header]]</h2>
 								<paper-dialog-scrollable>
@@ -67,6 +54,18 @@
 		<script>
 
 				(function () {
+						const fnCancel = (context) => (el, target, source) => {
+								if (context.cnt !== source) {
+										return;
+								}
+								const cnt = context.cnt;
+								const item = el.getAttribute('item');
+								const newItem = context.createElement(item);
+								const old = context.group.content.indexOf(item);
+								Polymer.dom(cnt).insertBefore(newItem, el);
+								Polymer.dom(cnt).removeChild(el);
+						};
+
 						const fn = (context) => (el, target, source, sibling) => {
 								const cnt = context.cnt;
 								const els = Polymer.dom(context.root).querySelectorAll('.wrapp');
@@ -76,26 +75,22 @@
 								if (target == source && target == cnt) {
 										const old = context.group.content.indexOf(item);
 										const index = els.indexOf(el);
-										if (~ index) {
-
-												// console.log('!!!', newItem);
-												Polymer.dom(cnt).insertBefore(newItem, els[index + 1]);
-												Polymer.dom(cnt).removeChild(el);
-
-												context.splice('group.content', index, 0, item);
-										} else {
-												context.push('group.content', item);
+										const hasPos = ! !~ index;
+										if (!hasPos) {
+												return;
 										}
+										Polymer.dom(cnt).insertBefore(newItem, els[index + 1]);
+										Polymer.dom(cnt).removeChild(el);
 
-										context.group.content.splice(index >= old
-												? old
-												: old + 1, 1);
-										// context.async(() => Polymer.dom(cnt).removeChild(el));
+										context.splice('group.content', old, 1);
+										context.splice('group.content', index, 0, item);
+
 										return;
 								}
 
 								if (target === null || target == source || target != cnt)
 										return;
+
 								const index = els.indexOf(sibling);
 								if (~ index) {
 										context.splice('group.content', index, 0, item);
@@ -132,22 +127,22 @@
 										}
 
 								},
-
 								_drakeChanged() {
 										this.listener = this.listener || fn(this);
+										this.cancel = this.cancel || fnCancel(this);
 										this.drake.on('drop', this.listener);
+										this.drake.on('cancel', this.cancel);
 								},
 								detached: function () {
 										this.drake && this.drake.off('drop', this.listener)
+										this.drake && this.drake.off('cancel', this.cancel)
 								},
 								ready: function () {
-										this.cnt = Polymer.dom(this.root).querySelector('.container');
 										this.options = {
 												name: Math.random(),
 												pull: false,
 												put: ['main']
 										};
-
 								},
 								isGroup(item) {
 										return !!_.find(this.groups, {"@id": item});
@@ -184,7 +179,8 @@
 										this.set('open', !this.open);
 
 										(!this.drawn) && this.async(() => {
-												this.cnt.innerHTML = "";
+												this.cnt = this.cnt || Polymer.dom(this.root).querySelector('.container');
+												Polymer.dom(this.cnt).innerHTML = '';
 												this.drawn = true;
 												const pcnt = Polymer.dom(this.cnt);
 

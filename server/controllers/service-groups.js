@@ -4,13 +4,10 @@ const Basic = require('./basic.js');
 
 class ServiceGroups extends Basic {
 	save() {
-		const {data} = this.req.body;
+		const {data} = _.castArray(this.req.body);
 		const {cb} = this.req;
-		const id = data["@id"];
 
-		return cb
-			.upsert(id, data)
-			.then(data => this.res.json(data));
+		return Promise.map(data, item => cb.upsert(item["@id"], item).then(data => this.res.json(data)));
 	}
 	delete() {
 		const {data} = this.req.body;

@@ -125,6 +125,7 @@
 												<group-shower topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
 										</template>
 										<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+										<paper-fab id="save" mini icon="save" hidden$="[[!listchanged]]" on-tap="saveDiff"></paper-fab>
 								</div>
 						</div>
 				</template>
@@ -140,6 +141,10 @@
 								<div page="common">
 										<paper-input label="Наименование" value="{{item.label}}"></paper-input>
 										<paper-input label="Кнопок на странице" value="{{item.items_per_page}}"></paper-input>
+										<div class="line">
+												<label>Корневая группа</label>
+												<paper-toggle-button checked="{{item._root}}"></paper-toggle-button>
+										</div>
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
@@ -182,7 +187,32 @@
 				Polymer({
 						is: 'my-service-groups',
 						behaviors: [ListBehavior],
-						_correct() {},
+						observers: ['_listChanged(app.list)'],
+						_listChanged(list) {
+								this.listClone = _.cloneDeep(this.app.list);
+						},
+						compare() {
+								const diff = _.reduce(this.app.list, (acc, item, index) => {
+										const cloned = this.listClone[index];
+										!_.isEqual(cloned, item) && acc.push(item);
+										return acc;
+								}, []);
+								return diff;
+						},
+						_correct() {
+								if (!this.item)
+										return;
+								this.item._root = this.item.view_order === 0 || this.item.view_order === "0";
+						},
+						presave() {
+								if (this.item._root) {
+										this.item.view_order = "0";
+								}
+								_.unset(this.item, '_root');
+						},
+						_redrawTable() {
+								this.toggler = !this.toggler;
+						},
 						filter(data) {
 								const result = _.filter(data, {view_order: "0"});
 
@@ -190,7 +220,6 @@
 
 						},
 						mainGroupDelete(e) {
-								console.log('outter delete');
 								this.toDeleteId = e.detail;
 								this.isDeleteDialog = true;
 						},
@@ -201,6 +230,24 @@
 								const item = _.find(this.app.list, {"@id": this.toDeleteId});
 								delete item.view_order;
 								this.toggler = !this.toggler;
+						},
+						saveDiff() {
+								const diff = this.compare();
+								window.api.saveEntity(this.entityName, diff).then(() => {
+										this.listchanged = false;
+										this.listClone = _.cloneDeep(this.app.list);
+								});
+						},
+						makeEntity() {
+								const item = {
+										"@id": `sg-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+										"@type": "ServiceGroup",
+										"items_per_page": "12",
+										"content": [],
+										"label": "Наименование",
+										"view_name": "base"
+								};
+								return item;
 						},
 						toggleSamples() {
 								this.state = this.state == "open"
@@ -232,6 +279,14 @@
 								this.menuIcon = "chevron-left";
 								this.orientationIcon = "view-stream";
 								this.toggler = true;
+								this.listchanged = false;
+
+								setInterval(() => {
+										const diff = this.compare();
+										if (diff.length)
+												this.listchanged = true;
+										}
+								, 1000)
 						}
 				});
 		</script>
