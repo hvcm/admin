@@ -5,14 +5,24 @@
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
 <link rel="import" href="./components/group-shower/group-shower.html">
+<link rel="import" href="./components/service-groups/service-groups.html">
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/polymer-sortablejs/polymer-sortablejs.html"/>
 
 <dom-module id="my-service-groups">
 		<template>
 				<style include="shared-styles">
+						*::-webkit-scrollbar {
+								width: 5px;
+						}
+						*::-webkit-scrollbar-thumb {
+								background: #666;
+						}
 						:host {
 								display: block;
 								padding: 10px;
+								height: calc(100vh - 88px);
+								overflow: hidden;
 						}
 						iris-table {
 								max-height: 80vh;
@@ -23,17 +33,100 @@
 						paper-fab#delete {
 								bottom: 10px;
 						}
+						.wrap {
+								display: flex;
+								height: 100%;
+								overflow: hidden;
+						}
+						.wrap.column {
+								flex-direction: column;
+						}
+						.wrap.row {
+								flex-direction: row;
+						}
+						.list {
+								transition: 1s ease-out 0s;
+								overflow: auto;
+						}
+						.closed .list {
+								overflow: hidden;
+						}
+						.row .list.tree {
+								flex: 1;
+						}
+						.column .list {
+								height: 50%;
+								transition: 1s ease-out 0s;
+						}
+						.menu {
+								display: flex;
+								flex-direction: row;
+						}
+						.menu paper-input {
+								flex: 1;
+						}
+						.samples {
+								padding-right: 5px;
+						}
+						.row .samples {
+								margin-right: 25px;
+								width: 30%;
+								max-width: 550px;
+								min-width: 300px;
+						}
+						.wrap.row .samples {
+								border-right: 2px solid #ccc;
+						}
+						.wrap.column .tree {
+								margin-top: 25px;
+								border-top: 2px solid #ccc;
+						}
+						.wrap.row.open {}
+						.wrap service-groups {
+								transition: visibility 0s ease-out 1s;
+						}
+						.wrap.closed service-groups {
+								visibility: hidden;
+								transition: visibility 0s ease-out 0s;
+						}
+						.wrap.closed .hidden-closed {
+								display: none;
+						}
+						.wrap.row.closed .samples {
+								width: 50px;
+								min-width: 50px;
+						}
+						.wrap.column.closed .samples {
+								height: 50px;
+						}
+						.wrap.column.closed paper-icon-button {
+								margin-left: auto;
+						}
+						.column .menu paper-icon-button {
+								transform: rotate(90deg);
+						}
 
 				</style>
 
 				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
-
 				<template is="dom-if" if="[[listVisible]]">
-						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-						<template is="dom-repeat" items="[[filter(app.list,searchString)]]" as="group">
-								<group-shower group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap"></group-shower>
-						</template>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+						<div class$="wrap [[orientation]] [[state]]">
+								<div class="list samples">
+										<div class="menu">
+												<paper-input class="hidden-closed" label="Поиск" value="{{groupSearch}}"></paper-input>
+												<paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
+												<paper-icon-button icon="[[menuIcon]]" on-tap="toggleSamples"></paper-icon-button>
+										</div>
+										<service-groups drake="{{drake}}" services="{{app.helpers.services}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
+								</div>
+
+								<div class="list tree">
+										<template is="dom-repeat" items="[[filter(app.list, toggler)]]" as="group">
+												<group-shower topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
+										</template>
+										<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+								</div>
+						</div>
 				</template>
 				<template is="dom-if" if="[[!listVisible]]">
 						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
@@ -73,6 +166,16 @@
 								<paper-button dialog-confirm>Да</paper-button>
 						</div>
 				</paper-dialog>
+				<paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
+						<h2>Удаление корневой группы</h2>
+						<paper-dialog-scrollable>
+								Вы действительно хотите удалить эту группу?
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
 		</template>
 
 		<script>
@@ -80,14 +183,40 @@
 						is: 'my-service-groups',
 						behaviors: [ListBehavior],
 						_correct() {},
-						filter(data, searchString) {
+						filter(data) {
 								const result = _.filter(data, {view_order: "0"});
-								if (!searchString)
-										return result;
 
-								return _.filter(result, item => ~ (item.label || '').indexOf(searchString));
+								return result;
+
 						},
+						mainGroupDelete(e) {
+								console.log('outter delete');
+								this.toDeleteId = e.detail;
+								this.isDeleteDialog = true;
+						},
+						deleteRootGroup(e) {
+								if (!e.detail.confirmed)
+										return;
 
+								const item = _.find(this.app.list, {"@id": this.toDeleteId});
+								delete item.view_order;
+								this.toggler = !this.toggler;
+						},
+						toggleSamples() {
+								this.state = this.state == "open"
+										? "closed"
+										: "open";
+								this.menuIcon = this.state == "open"
+										? "chevron-left"
+										: "chevron-right";
+						},
+						toggleOrientation() {
+								this.orientation = this.orientation == 'row'
+										? 'column'
+										: 'row';
+
+						},
+						toggle() {},
 						ready: function () {
 								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
@@ -98,6 +227,11 @@
 												field: "label"
 										}
 								];
+								this.state = "open";
+								this.orientation = "row";
+								this.menuIcon = "chevron-left";
+								this.orientationIcon = "view-stream";
+								this.toggler = true;
 						}
 				});
 		</script>

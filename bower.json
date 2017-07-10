@@ -24,7 +24,8 @@
 		"blueimp-md5": "^2.7.0",
 		"fetch": "^2.0.3",
 		"bluebird": "^3.5.0",
-		"lodash": "^4.17.4"
+		"lodash": "^4.17.4",
+		"dragula-element": "https://github.com/txsmith/dragula-element.git"
 	},
 	"devDependencies": {
 		"web-component-tester": "^4.0.0"

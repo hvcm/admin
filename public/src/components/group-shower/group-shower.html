@@ -1,8 +1,10 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/polymer-sortablejs/polymer-sortablejs.html"/>
+<link rel="import" href="../../../bower_components/dragula-element/dragula-element.html">
 
 <dom-module id="group-shower">
 		<template>
-				<style>
+				<style include="dragula-styles">
 						:host {
 								display: block;
 						}
@@ -12,55 +14,224 @@
 						.no-button {
 								padding-left: 65px;
 						}
+						.dragged-item {
+								display: none;
+						}
+						.dragged-item.gu-transit {
+								display: block;
+								padding-left: 40px;
+						}
+						.dragged-item.gu-transit::before {
+								content: "+";
+						}
+						.name {
+								text-decoration: underline;
+								cursor: pointer;
+						}
+
 				</style>
 				<paper-icon-button icon="arrow-drop-down" on-tap="expand"></paper-icon-button>
-				<span on-tap="cellTap">[[group.label]]</span>
+				<span class="name" on-tap="cellTap">[[group.label]]</span>
 				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
-				<template is="dom-if" if="[[open]]">
-						<template is="dom-repeat" items="[[findGroup(open, group.content)]]">
-								<group-shower class="taped" group="[[item]]" services="[[services]]" groups="[[groups]]"></group-shower>
-						</template>
-						<service-group class="taped no-button" services="[[services]]" selected="{{group.content}}"></service-group>
-						<div class="taped">
-								<paper-icon-button icon="add" on-tap="add"></paper-icon-button>
-						</div>
+				<template id="list" is="dom-if" if="[[open]]">
+						<dragula-element id="dragula" container-class="container" drake="[[drake]]" createMirror="[[createMirror]]">
+								<div class="container" on-group-delete="innerDelete">
+										<!-- <template is="dom-repeat" items="[[group.content]]">
+												<div class="wrapp" item$="[[item]]">
+														<template is="dom-if" if="[[isGroup(item)]]">
+																<group-shower class="taped column" group="[[groupById(item)]]" services="[[services]]" groups="[[groups]]" drake="[[drake]]"></group-shower>
+														</template>
+
+														<template is="dom-if" if="[[!isGroup(item)]]">
+																<div class="taped" id$="[[item]]">
+																		[[translateService(item)]]
+																		<paper-icon-button icon="delete" on-tap="deleteService"></paper-icon-button>
+																</div>
+														</template>
+												</div>
+										</template> -->
+								</div>
+						</dragula-element>
+						<paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
+								<h2>[[header]]</h2>
+								<paper-dialog-scrollable>
+										[[message]]
+								</paper-dialog-scrollable>
+								<div class="buttons">
+										<paper-button dialog-dismiss>Нет</paper-button>
+										<paper-button dialog-confirm>Да</paper-button>
+								</div>
+						</paper-dialog>
 				</template>
 		</template>
 		<script>
-				Polymer({
-						is: 'group-shower',
-						properties: {
-								group: {
-										type: Object
-								},
-								services: {
-										type: Object,
-										value: () => {}
-								},
-								groups: {
-										type: Array
-								},
-								open: {
-										type: Boolean,
-										value: false
-								}
-						},
-						ready: function () {
-								console.log(this.group);
-						},
-						cellTap() {
-								this.fire('cell-tap', {row_data: this.group});
-						},
-						expand() {
-								this.set('open', !this.open)
-						},
-						findGroup(open, content) {
-								if (!open)
-										return [];
 
-								return _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]));
-						}
-				});
+				(function () {
+						const fn = (context) => (el, target, source, sibling) => {
+								const cnt = Polymer.dom(context.root).querySelector('.container');
+								const els = Polymer.dom(context.root).querySelectorAll('.wrapp');
+
+								const item = el.getAttribute('item');
+								const newItem = context.createElement(item);
+								if (target == source && target == cnt) {
+										const old = context.group.content.indexOf(item);
+										const index = els.indexOf(el);
+
+										if (~ index) {
+
+												// console.log('!!!', newItem);
+												Polymer.dom(cnt).insertBefore(newItem, els[index + 1]);
+												Polymer.dom(cnt).removeChild(el);
+
+												context.splice('group.content', index, 0, item);
+										} else {
+												context.push('group.content', item);
+										}
+
+										context.group.content.splice(index >= old
+												? old
+												: old + 1, 1);
+										// context.async(() => Polymer.dom(cnt).removeChild(el));
+										return;
+								}
+
+								if (target == source || target != cnt)
+										return;
+								const index = els.indexOf(sibling);
+								if (~ index) {
+										context.splice('group.content', index, 0, item);
+								} else {
+										context.push('group.content', item);
+								}
+								Polymer.dom(cnt).insertBefore(newItem, els[index]);
+								context.async(() => Polymer.dom(cnt).removeChild(el))
+						};
+						Polymer({
+								is: 'group-shower',
+								properties: {
+										group: {
+												type: Object
+										},
+										services: {
+												type: Object,
+												value: () => {}
+										},
+										groups: {
+												type: Array
+										},
+										open: {
+												type: Boolean,
+												value: false
+										},
+										drake: {
+												type: Object,
+												observer: "_drakeChanged"
+										},
+										topLevel: {
+												type: Boolean,
+												value: false
+										}
+
+								},
+
+								_drakeChanged() {
+										this.listener = this.listener || fn(this);
+										this.drake.on('drop', this.listener);
+								},
+								attached: function () {},
+								createMirror(originalElement) {
+										console.log('EL', originalElement);
+										var m = document.createElement('div');
+										var originalRect = originalElement.getBoundingClientRect();
+										return m;
+								},
+								detached: function () {
+										this.drake && this.drake.off('drop', this.listener)
+								},
+								ready: function () {
+										// console.log(this.group);
+										this.options = {
+												name: Math.random(),
+												pull: false,
+												put: ['main']
+										};
+
+								},
+								isGroup(item) {
+										return !!_.find(this.groups, {"@id": item});
+								},
+								groupById(id) {
+										return _.find(this.groups, {"@id": id});
+								},
+								translateService(item) {
+										const serv = this.services || {};
+										return serv[item] || '';
+								},
+								cellTap() {
+										this.fire('cell-tap', {row_data: this.group});
+								},
+								createElement(item) {
+										let el;
+										if (this.isGroup(item)) {
+												el = document.createElement('group-shower');
+												el.group = this.groupById(item);
+												el.services = this.services;
+												el.groups = this.groups;
+												el.drake = this.drake;
+										} else {
+												el = document.createElement('div');
+												el.innerHTML = this.translateService(item);
+										}
+										el.setAttribute('item', item);
+										el.classList.add('wrapp')
+										el.classList.add('taped')
+										return el;
+								},
+								expand() {
+										this.set('open', !this.open);
+										this.async(() => {
+												const cnt = Polymer.dom(this.root).querySelector('.container');
+												cnt.innerHTML = "";
+												_.map(this.group.content, item => {
+														return this.createElement(item);
+												}).map(item => {
+														Polymer.dom(cnt).appendChild(item);
+												});
+										});
+								},
+								findGroup(open, content) {
+										if (!open)
+												return [];
+
+										return _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]));
+								},
+								innerDelete(e) {
+										e.stopPropagation();
+										this.toDeleteId = e.detail;
+										this.header = "Удаление группы";
+										this.message = "Вы действительно хотите удалить эту группу из дерева?";
+										this.isDeleteDialog = true;
+								},
+								deleteRootGroup(e) {
+										if (!e.detail.confirmed)
+												return;
+
+										const id = _.indexOf(this.group.content, this.toDeleteId);
+
+										this.splice('group.content', id, 1);
+								},
+								delete(e) {
+										this.fire('group-delete', this.group["@id"]);
+								},
+								deleteService(e) {
+										const id = e.model.item;
+										this.toDeleteId = id;
+										this.isDeleteDialog = true;
+										this.header = "Удаление услуги";
+										this.message = "Вы действительно хотите удалить эту услугу из дерева?";
+								}
+						});
+				})();
 		</script>
 </dom-module>
 

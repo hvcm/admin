@@ -1,0 +1,119 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/dragula-element/dragula-element.html">
+
+<dom-module id="service-groups">
+		<template>
+				<style include="dragula-styles">
+						:host {
+								display: block;
+								overflow-x: hidden;
+								--paper-tabs: {
+										background-color: var(--mydoc-brown-800);
+										font-size: 16px;
+										flex-direction: row;
+								};
+								--paper-tabs-selection-bar: {
+										height: 4px;
+								};
+								--paper-tabs-selection-bar-color: var(--mydoc-beige-600);
+						}
+						.shadow {
+								margin: 2px 0;
+								padding: 7px 5px;
+								background-color: white;
+								box-shadow: 0 1px 6px 0 #3c3c3c;
+								cursor: grab;
+								cursor: -webkit-grab;
+						}
+						.dragged-item {
+								overflow: hidden;
+						}
+						.container {
+								padding-top: 2px;
+						}
+						*[hidden] {
+								display: none;
+						}
+
+				</style>
+				<paper-tabs selected="{{page}}">
+						<paper-tab >
+								Группы
+						</paper-tab>
+						<paper-tab >
+								Услуги
+						</paper-tab>
+				</paper-tabs>
+				<iron-pages selected="{{page}}">
+						<div>
+								<dragula-element copy container-class="container" drake="{{drake}}">
+										<div class="container" hidden$="[[!groupsVisible]]">
+												<template is="dom-repeat" items="[[groupsToID(groups)]]">
+														<div class="dragged-item" item$="[[item]]">
+																<div class="shadow">
+																		[[translateID(item)]]
+																</div>
+														</div>
+												</template>
+										</div>
+								</dragula-element>
+						</div>
+						<div>
+								<dragula-element copy container-class="container" drake="{{drake}}">
+										<div class="container" hidden$="[[!servicesVisible]]">
+												<template is="dom-repeat" items="[[servicesToID(services)]]">
+														<div class="dragged-item" item$="[[item]]">
+																<div class="shadow">
+																		[[translateServiceID(item)]]
+																</div>
+														</div>
+												</template>
+										</div>
+								</dragula-element>
+						</div>
+				</iron-pages>
+
+		</template>
+		<script>
+				Polymer({
+						is: 'service-groups',
+						properties: {
+								groups: {
+										type: Array
+								},
+								sevices: {
+										type: Object
+								},
+								drake: {
+										type: Object,
+										notify: true
+								}
+
+						},
+
+						ready: function () {
+								this.options = {
+										name: 'main',
+										pull: 'clone',
+										revertClone: true,
+										put: false
+								};
+								this.sort = false;
+								this.page = 0;
+						},
+						groupsToID(groups) {
+								return _.map(groups, '@id');
+						},
+						servicesToID(services) {
+								return _.map(services, (it, index) => index);
+						},
+						translateID(item) {
+								return (_.find(this.groups, {"@id": item}) || {}).label;
+						},
+						translateServiceID(item) {
+								return this.services[item];
+						}
+
+				});
+		</script>
+</dom-module>
