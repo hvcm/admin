@@ -34,8 +34,8 @@
 				<span class="name" on-tap="cellTap">[[group.label]]</span>
 				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
 				<template id="list" is="dom-if" if="[[open]]">
-						<dragula-element id="dragula" container-class="container" drake="[[drake]]" createMirror="[[createMirror]]">
-								<div class="container" on-group-delete="innerDelete">
+						<dragula-element id="dragula" container-class="container" drake="[[drake]]">
+								<div class="container" on-group-delete="innerDelete" on-service-delete="deleteService">
 										<!-- <template is="dom-repeat" items="[[group.content]]">
 												<div class="wrapp" item$="[[item]]">
 														<template is="dom-if" if="[[isGroup(item)]]">
@@ -68,7 +68,7 @@
 
 				(function () {
 						const fn = (context) => (el, target, source, sibling) => {
-								const cnt = Polymer.dom(context.root).querySelector('.container');
+								const cnt = context.cnt;
 								const els = Polymer.dom(context.root).querySelectorAll('.wrapp');
 
 								const item = el.getAttribute('item');
@@ -76,7 +76,6 @@
 								if (target == source && target == cnt) {
 										const old = context.group.content.indexOf(item);
 										const index = els.indexOf(el);
-
 										if (~ index) {
 
 												// console.log('!!!', newItem);
@@ -95,7 +94,7 @@
 										return;
 								}
 
-								if (target == source || target != cnt)
+								if (target === null || target == source || target != cnt)
 										return;
 								const index = els.indexOf(sibling);
 								if (~ index) {
@@ -138,18 +137,11 @@
 										this.listener = this.listener || fn(this);
 										this.drake.on('drop', this.listener);
 								},
-								attached: function () {},
-								createMirror(originalElement) {
-										console.log('EL', originalElement);
-										var m = document.createElement('div');
-										var originalRect = originalElement.getBoundingClientRect();
-										return m;
-								},
 								detached: function () {
 										this.drake && this.drake.off('drop', this.listener)
 								},
 								ready: function () {
-										// console.log(this.group);
+										this.cnt = Polymer.dom(this.root).querySelector('.container');
 										this.options = {
 												name: Math.random(),
 												pull: false,
@@ -179,8 +171,9 @@
 												el.groups = this.groups;
 												el.drake = this.drake;
 										} else {
-												el = document.createElement('div');
-												el.innerHTML = this.translateService(item);
+												el = document.createElement('service-group');
+												el.service = this.translateService(item);
+												el.item = item;
 										}
 										el.setAttribute('item', item);
 										el.classList.add('wrapp')
@@ -189,21 +182,19 @@
 								},
 								expand() {
 										this.set('open', !this.open);
-										this.async(() => {
-												const cnt = Polymer.dom(this.root).querySelector('.container');
-												cnt.innerHTML = "";
-												_.map(this.group.content, item => {
-														return this.createElement(item);
-												}).map(item => {
-														Polymer.dom(cnt).appendChild(item);
-												});
+
+										(!this.drawn) && this.async(() => {
+												this.cnt.innerHTML = "";
+												this.drawn = true;
+												const pcnt = Polymer.dom(this.cnt);
+
+												_.map(this.group.content, item => this.createElement(item)).forEach(item => pcnt.appendChild(item));
 										});
 								},
 								findGroup(open, content) {
-										if (!open)
-												return [];
-
-										return _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]));
+										return open
+												? _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]))
+												: [];
 								},
 								innerDelete(e) {
 										e.stopPropagation();
@@ -219,12 +210,14 @@
 										const id = _.indexOf(this.group.content, this.toDeleteId);
 
 										this.splice('group.content', id, 1);
+										const wrapp = Polymer.dom(this.root).querySelectorAll('.wrapp');
+										Polymer.dom(this.cnt).removeChild(wrapp[id]);
 								},
 								delete(e) {
 										this.fire('group-delete', this.group["@id"]);
 								},
 								deleteService(e) {
-										const id = e.model.item;
+										const id = e.detail;
 										this.toDeleteId = id;
 										this.isDeleteDialog = true;
 										this.header = "Удаление услуги";
@@ -243,22 +236,14 @@
 						}
 
 				</style>
-				<template is="dom-repeat" items="[[filter(selected)]]">
-						<div class="">
-								<span>[[item]]</span>
-								<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
-						</div>
-				</template>
+				<span>[[service]]</span>
+				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
 		</template>
 		<script>
 				Polymer({
 						is: 'service-group',
-
-						filter(items) {
-								const serv = this.services || {};
-								return _.transform(items, (acc, item) => {
-										serv[item] && acc.push(serv[item]);
-								}, [])
+						delete() {
+								this.fire('service-delete', this.item)
 						}
 				});
 		</script>
