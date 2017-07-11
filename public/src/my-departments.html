@@ -5,6 +5,7 @@
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/route-selector/route-selector.html">
 <link rel="import" href="./components/placeholder-checkbox/placeholder-checkbox.html">
+<link rel="import" href="./components/level-editor/level-editor.html">
 <link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
 <link rel="import" href="shared-styles.html">
 
@@ -42,16 +43,14 @@
 								max-width: 480px;
 								margin: 0 auto;
 						}
-						iron-icon {
-								width: 30px;
-								height: 30px;
-								border: 2px solid white;
-						}
 						paper-fab#delete {
 								bottom: 60px;
 						}
 						paper-fab#save {
 								bottom: 10px;
+						}
+						iron-pages > div {
+								padding: 5px 15px;
 						}
 
 				</style>
@@ -113,11 +112,8 @@
 
 										<h3>Сообщения</h3>
 										<div class="notifications">
-												<template is="dom-repeat" items="[[item.notification_levels.max-waiting-time]]" as="not">
-														<paper-input label="Значение" value="{{not.value}}"></paper-input>
-														<paper-input label="Время скрывания сообщения" value="{{not.dnd}}"></paper-input>
-														<paper-input label="Сообщение" value="{{not.message}}"></paper-input>
-												</template>
+												<level-editor value="[[item.notification_levels.max-waiting-time]]" parent="[[parentOfItem.notification_levels.max-waiting-time]]"></level-editor>
+
 										</div>
 
 										<h3>Приоритеты</h3>
@@ -156,10 +152,9 @@
 				Polymer({
 						is: 'my-departments',
 						behaviors: [ListBehavior],
-						_correct() {},
+
 						ready: function () {
 								this.entityName = 'departments';
-								this.listVisible = true;
 								this.fieldsModel = [
 										{
 												field: 'label',
@@ -171,6 +166,36 @@
 												transform: (item) => item || "-"
 										}
 								];
+						},
+						_itemChanged(id, pid) {
+								ListBehavior._itemChanged.call(this, id, pid);
+								if (!id) {
+										return;
+								}
+								const parent_id = this.item.unit_of;
+								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id});
+
+						},
+						_correct() {
+								this.item.priority_description = this.item.priority_description || {
+										veteran: {},
+										invalid: {}
+								};
+								this.item.routes = this.item.routes || {
+										routes: {
+												include: [],
+												exclude: []
+										}
+								};
+								this.item.qa_design = this.item.qa_design || {
+										hold_screen_design: ''
+								};
+								this.item.oper_design = this.item.oper_design || {
+										hold_screen_design: ''
+								};
+								this.item.notification_levels = this.item.notification_levels || {
+										"max-waiting-time": [{}, {}, {}]
+								}
 						},
 						getPlaceholder(field, item) {
 								const {unit_of} = item;

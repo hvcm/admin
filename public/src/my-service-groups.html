@@ -25,7 +25,7 @@
 								overflow: hidden;
 						}
 						iris-table {
-								max-height: 80vh;
+								max-height: calc(100vh - 155px);
 						}
 						.line {
 								align-items: center;
@@ -117,7 +117,7 @@
 												<paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
 												<paper-icon-button icon="[[menuIcon]]" on-tap="toggleSamples"></paper-icon-button>
 										</div>
-										<service-groups drake="{{drake}}" services="{{app.helpers.services}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
+										<service-groups drake="{{drake}}" services="{{app.helpers.services}}" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
 								</div>
 
 								<div class="list tree">
@@ -191,6 +191,7 @@
 						_listChanged(list) {
 								this.listClone = _.cloneDeep(this.app.list);
 						},
+
 						compare() {
 								const diff = _.reduce(this.app.list, (acc, item, index) => {
 										const cloned = this.listClone[index];
@@ -212,6 +213,9 @@
 						},
 						_redrawTable() {
 								this.toggler = !this.toggler;
+								const t = this.groupSearch;
+								this.groupSearch = '';
+								this.async(() => this.groupSearch = t);
 						},
 						filter(data) {
 								const result = _.filter(data, {view_order: "0"});

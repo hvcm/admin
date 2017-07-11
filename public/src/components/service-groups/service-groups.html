@@ -48,7 +48,7 @@
 						<div>
 								<dragula-element copy container-class="container" drake="{{drake}}">
 										<div class="container" hidden$="[[!groupsVisible]]">
-												<template is="dom-repeat" items="[[groupsToID(groups)]]">
+												<template is="dom-repeat" items="[[groupsToID(groups,search)]]">
 														<div class="dragged-item" item$="[[item]]">
 																<div class="shadow">
 																		[[translateID(item)]]
@@ -61,7 +61,7 @@
 						<div>
 								<dragula-element copy container-class="container" drake="{{drake}}">
 										<div class="container" hidden$="[[!servicesVisible]]">
-												<template is="dom-repeat" items="[[servicesToID(services)]]">
+												<template is="dom-repeat" items="[[servicesToID(services,search)]]">
 														<div class="dragged-item" item$="[[item]]">
 																<div class="shadow">
 																		[[translateServiceID(item)]]
@@ -87,6 +87,10 @@
 								drake: {
 										type: Object,
 										notify: true
+								},
+								search: {
+										type: String,
+										value: ''
 								}
 
 						},
@@ -101,11 +105,15 @@
 								this.sort = false;
 								this.page = 0;
 						},
-						groupsToID(groups) {
-								return _.map(groups, '@id');
+						groupsToID(groups, search) {
+								if (!search)
+										return _.map(groups, '@id');
+								return _.chain(groups).filter(i => ~ i.label.indexOf(search)).map('@id').value();
 						},
-						servicesToID(services) {
-								return _.map(services, (it, index) => index);
+						servicesToID(services, search) {
+								if (!search)
+										return _.map(services, (it, index) => index);
+								return _.reduce(services, (acc, i, index) => (~ i.indexOf(search) && acc.push(index), acc), [])
 						},
 						translateID(item) {
 								return (_.find(this.groups, {"@id": item}) || {}).label;

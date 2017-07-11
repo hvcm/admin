@@ -6,6 +6,12 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="shared-styles.html">
 
 <dom-module id="my-globals">
 		<template>
@@ -36,12 +42,36 @@
 						paper-fab#add {
 								bottom: 10px;
 						}
+						iris-table {
+								max-height: calc(100vh - 155px);
+						}
+						.line {
+								align-items: center;
+						}
+						paper-fab#delete {
+								bottom: 10px;
+						}
 
 				</style>
-				<div id="globals">
 
-						<template is="dom-repeat" items="[[app.list]]">
-								<div class="field">
+				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+
+				<template is="dom-if" if="[[listVisible]]">
+						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
+						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+				</template>
+				<template is="dom-if" if="[[!listVisible]]">
+						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+								<paper-tab on-tap="back" style="max-width:50px;">
+										<iron-icon icon="chevron-left"></iron-icon>
+								</paper-tab>
+								<paper-tab page="common">Основные параметры</paper-tab>
+
+						</paper-tabs>
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+								<div page=""></div>
+								<div page="common">
 										<paper-input label="Ключ" value="{{item.key}}"></paper-input>
 										<paper-input label="ID" value="{{item.__index}}"></paper-input>
 										<paper-input label="Значение по умолчанию" value="{{item.default}}"></paper-input>
@@ -50,6 +80,7 @@
 										<paper-input label="Порядок" value="{{item.order}}"></paper-input>
 										<paper-input label="Количество символов" value="{{item.length}}"></paper-input>
 										<paper-input label="Максимальное значение" value="{{item.max-value}}"></paper-input>
+										<paper-input label="Маска" value="{{item.mask}}"></paper-input>
 										<div class="toggle">
 												<label>Обязательное поле</label>
 												<paper-toggle-button label="Обязательное поле" checked="{{item.required}}"></paper-toggle-button>
@@ -81,24 +112,34 @@
 														</template>
 												</paper-listbox>
 										</paper-dropdown-menu>
-										<paper-button raised on-tap="deleteDialog">Удалить</paper-button>
 								</div>
 
-						</template>
-						<paper-fab id="save" mini icon="save" on-tap="saveAll"></paper-fab>
-						<paper-fab id="add" mini icon="add" on-tap="addField"></paper-fab>
-				</div>
+						</iron-pages>
+						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+				</template>
 
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление поля</h2>
+						<h2>Удаление</h2>
 						<paper-dialog-scrollable>
-								Вы действительно хотите удалить это поле
+								[[deleteMessage]]
 						</paper-dialog-scrollable>
 						<div class="buttons">
 								<paper-button dialog-dismiss>Нет</paper-button>
 								<paper-button dialog-confirm>Да</paper-button>
 						</div>
 				</paper-dialog>
+				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+						<h2>Изменения будут потеряны</h2>
+						<paper-dialog-scrollable>
+								[[discardMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+
 		</template>
 
 		<script>
@@ -106,7 +147,6 @@
 						default: '',
 						description: "Введите описание",
 						include: true,
-						key: "random-key-",
 						label: "Введите подпись",
 						layout: "ru-layout",
 						length: 100,
@@ -114,65 +154,27 @@
 						method: "live",
 						order: 0,
 						required: true,
-						type: "input",
-						__index: "random-key-"
+						type: "input"
 				};
 				Polymer({
 						is: 'my-globals',
-						properties: {
-								app: {
-										type: Object
-								},
-								types: {
-										type: Array,
-										value: [
-												{
-														id: 'input',
-														label: 'Текстовое поле'
-												}, {
-														id: 'date-picker',
-														label: 'Выбор даты'
-												}, {
-														id: 'input-number',
-														label: 'Цифровое поле'
-												}
-										]
-								},
-								layouts: {
-										type: Array,
-										value: [
-												{
-														id: "email",
-														label: "e-mail"
-												}, {
-														id: "en-layout",
-														label: "Английская"
-												}, {
-														id: "numeric",
-														label: "Цифровая"
-												}, {
-														id: "ru-layout",
-														label: "Русская"
-												}, {
-														id: "ru-letnum",
-														label: "Русская цифры и буквы"
-												}, {
-														id: "ru-letters",
-														label: "Русская буквы"
-												}
-										]
-								}
-						},
-						addField() {
+
+						behaviors: [ListBehavior],
+						makeEntity() {
 								const field = _.clone(defaultField);
 								const rnd = Math.ceil(Math.random() * 100000);
-								field.key = field.key + rnd;
-								field.__index = field.__index + rnd;
-								this.push('app.list', field);
-								this.debounce('xx', () => {
-										const last = _.last(this.$.globals.querySelectorAll('.field'));
-										last.scrollIntoView();
-								}, 300);
+								const id = `global-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+								field.key = id;
+								field.__index = id;
+
+								return field;
+						},
+						addEntity() {
+								const entity = this.makeEntity();
+								const id = entity.__index;
+								const row = this.push('app.list', entity);
+
+								this.routeToID(id, row);
 						},
 						saveAll() {
 								window.api.saveEntity('fields', _.chain(this.app.list).keyBy('__index').value())
@@ -180,6 +182,74 @@
 						deleteDialog(e) {
 								this.toDelete = e.model.index;
 								this.isOpen = true;
+						},
+						_itemChanged(id, pid) {
+								if (!id) {
+										this.listVisible = true;
+										this.changed = false;
+
+								} else {
+
+										this.listVisible = false;
+										this.item = _.find(this.app.list, {'__index': id});
+										this._correct();
+								}
+						},
+						cellTap(e) {
+								const id = e.detail.row_data.__index;
+
+								const row = _.findIndex(this.app.list, {"__index": id});
+								this.routeToID(id, row);
+						},
+						ready: function () {
+								this.entityName = 'globals';
+								this.deleteMessage = "Вы действительно хотите удалить это поле?";
+								this.discardMessage = "	Вы действительно хотите отменить изменения?";
+								this.fieldsModel = [
+										{
+												field: 'label',
+												label: 'Наименование',
+												transform: (item) => item || "-"
+										}, {
+												field: 'description',
+												label: 'Описание',
+												transform: (item) => item || "-"
+										}
+								];
+								this.types = [
+										{
+												id: 'input',
+												label: 'Текстовое поле'
+										}, {
+												id: 'date-picker',
+												label: 'Выбор даты'
+										}, {
+												id: 'input-number',
+												label: 'Цифровое поле'
+										}
+								];
+								this.layouts = [
+										{
+												id: "email",
+												label: "e-mail"
+										}, {
+												id: "en-layout",
+												label: "Английская"
+										}, {
+												id: "numeric",
+												label: "Цифровая"
+										}, {
+												id: "ru-layout",
+												label: "Русская"
+										}, {
+												id: "ru-letnum",
+												label: "Русская цифры и буквы"
+										}, {
+												id: "ru-letters",
+												label: "Русская буквы"
+										}
+								];
+
 						},
 						delete(e) {
 								if (!e.detail.confirmed)

@@ -35,7 +35,7 @@
 						if (!searchString)
 								return data;
 
-						return _.filter(data, item => ~ (item.label || '').indexOf(searchString));
+						return _.filter(data, item => ~ (item.label || '').toLowerCase().indexOf(searchString.toLowerCase()));
 				},
 				cellTap(e) {
 						const id = e.detail.row_data['@id'];

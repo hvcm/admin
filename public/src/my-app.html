@@ -130,7 +130,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</app-header>
 
 								<iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
-										<my-globals name="globals" app="{{app}}"></my-globals>
+										<my-globals name="globals" app="{{app}}" route="{{subroute}}"></my-globals>
 										<my-globals-priority name="globals-priority" app="{{app}}"></my-globals-priority>
 										<my-departments name="departments" app="{{app}}" route="{{subroute}}"></my-departments>
 										<my-workstations name="workstations" app="{{app}}" route="{{subroute}}"></my-workstations>
