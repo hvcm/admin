@@ -1,0 +1,16 @@
+{
+	"views": {
+		"history": {
+			"map": "function (doc, meta) {\n  if( doc[\"@type\"] == \"Ticket\")\n  {\n\t\t\t\tvar history = doc.history || [];\n\t\t\t\tvar department = doc.org_destination;    \n    var date = doc.dedicated_date;\n    history.forEach(function(item){\n      item.code = doc.code;      \n      item.label = doc.label;\n      item.user_info = doc.user_info;\n      item.user_info_description = doc.user_info_description;\n \n      item.service = doc.service;\n      item.session = doc.pack_member ? doc.session : undefined;\n      if (doc.inheritance_level) { \n        item.label  = item.label  + ' / ' +doc.inheritance_level;\n      }\n      emit([department],item);\n    });\n    \n  }\n}"
+		},
+		"departments": {
+			"map": "function (doc, meta) {\n  if (Array.isArray(doc.content) && meta.id.indexOf('cache'))emit(meta.id, null);\n}"
+		},
+		"schedule": {
+			"map": "function (doc, meta) {\n  if (doc['@type'] == 'Schedule') emit(meta.id, doc.label);\n}"
+		},
+		"service_group": {
+			"map": "function (doc, meta) {\n  if (doc[\"@type\"] === \"ServiceGroup\") emit(meta.id, doc.label);\n}"
+		}
+	}
+}
