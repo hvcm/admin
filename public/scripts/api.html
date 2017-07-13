@@ -19,6 +19,9 @@
 								? res
 								: Promise.reject(new Error(res.reason)));
 				},
+				logout(user, password) {
+						return this.request('/logout').then(res => window.location.replace('/login'));
+				},
 				preparePage(entity, department) {
 						return this.request(`/entity-list/${entity}`, {department});
 				},

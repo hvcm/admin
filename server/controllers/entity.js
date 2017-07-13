@@ -104,6 +104,11 @@ class Entity extends Basic {
 		return cb
 			.get('global_priority_description')
 			.then(data => {
+				const helpers = Promise.props({
+					canedit: this
+						.util
+						.canEdit()
+				});
 				const list = _
 					.chain(data)
 					.get([
@@ -114,7 +119,7 @@ class Entity extends Basic {
 						return item;
 					})
 					.value();
-				return {list};
+				return Promise.props({list, helpers});
 			});
 	}
 	_getListGlobals() {
@@ -123,6 +128,11 @@ class Entity extends Basic {
 		return cb
 			.get('user_info_fields')
 			.then(data => {
+				const helpers = Promise.props({
+					canedit: this
+						.util
+						.canEdit()
+				});
 				const list = _
 					.chain(data)
 					.get([
@@ -133,7 +143,8 @@ class Entity extends Basic {
 						return item;
 					})
 					.value();
-				return {list};
+
+				return Promise.props({list, helpers});
 			});
 	}
 	_getListDepartments() {
@@ -195,10 +206,10 @@ class Entity extends Basic {
 						return _
 							.chain(data)
 							.map(item => [
-								item
-									.value['@id']
-									.substr(17),
-								item.value.content
+								_
+									.get(item, 'value.@id', '')
+									.substr(17) || 'not-found',
+								_.get(item, 'value.content', [])
 							])
 							.fromPairs()
 							.value();

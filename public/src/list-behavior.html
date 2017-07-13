@@ -46,7 +46,7 @@
 						const entity = this.makeEntity();
 						const id = entity['@id'];
 						const row = this.push('app.list', entity);
-
+						this.changed = true;
 						this.routeToID(id, row);
 				},
 				routeToID(id, row) {

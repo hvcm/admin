@@ -18,6 +18,11 @@ class Util {
 				return workstation_id;
 			})
 	}
+	canEdit() {
+		return this
+			.getOffices()
+			.then(content => _.reduce(this.permissions, (acc, item) => (_.get(_.find(content, {"@id": item}), '@type') == 'Office') || acc, false))
+	}
 	getServiceMaps() {
 		const {cb} = this.req;
 

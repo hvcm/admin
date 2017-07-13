@@ -59,7 +59,7 @@
 				<template is="dom-if" if="[[listVisible]]">
 						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+						<paper-fab id="add" mini hidden$="[[canAddDepartment(app.list)]]" icon="add" on-tap="addEntityDialog"></paper-fab>
 				</template>
 
 				<template is="dom-if" if="[[!listVisible]]">
@@ -68,9 +68,9 @@
 										<iron-icon icon="chevron-left"></iron-icon>
 								</paper-tab>
 								<paper-tab page="common">Основные параметры</paper-tab>
-								<paper-tab page="services">Услуги</paper-tab>
-								<paper-tab page="routes">Маршруты</paper-tab>
-								<paper-tab page="satelites">Дизайн</paper-tab>
+								<paper-tab disabled="[[isOffice(item)]]" page="services">Услуги</paper-tab>
+								<paper-tab disabled="[[isOffice(item)]]" page="routes">Маршруты</paper-tab>
+								<paper-tab disabled="[[isOffice(item)]]" page="satelites">Дизайн</paper-tab>
 						</paper-tabs>
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
 								<div page=""></div>
@@ -134,12 +134,36 @@
 						</iron-pages>
 
 						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
-						<paper-fab id="save" mini icon="save" on-tap="saveAll"></paper-fab>
+						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
 				</template>
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
 						<h2>Удаление отдела</h2>
 						<paper-dialog-scrollable>
 								Вы действительно хотите этот отдел?
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+				<paper-dialog opened="{{addDialog}}" on-iron-overlay-closed="addEntityComplete">
+						<h2>Выберите родительский офис</h2>
+						<paper-dialog-scrollable>
+								<paper-listbox selected="{{selectedUnitId}}">
+										<template is="dom-repeat" items="[[avOffices]]">
+												<paper-item >[[item.label]]</paper-item>
+										</template>
+								</paper-listbox>
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Отмена</paper-button>
+								<paper-button dialog-confirm>Ок</paper-button>
+						</div>
+				</paper-dialog>
+				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+						<h2>Изменения будут потеряны</h2>
+						<paper-dialog-scrollable>
+								[[discardMessage]]
 						</paper-dialog-scrollable>
 						<div class="buttons">
 								<paper-button dialog-dismiss>Нет</paper-button>
@@ -155,6 +179,7 @@
 
 						ready: function () {
 								this.entityName = 'departments';
+								this.discardMessage = "	Вы действительно хотите отменить изменения?";
 								this.fieldsModel = [
 										{
 												field: 'label',
@@ -175,6 +200,20 @@
 								const parent_id = this.item.unit_of;
 								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id});
 
+						},
+						addEntityDialog() {
+								this.addDialog = true;
+								this.avOffices = _.filter(this.app.list, {'@type': "Office"});
+						},
+						isOffice(item) {
+								return item["@type"] === "Office";
+						},
+						addEntityComplete(e) {
+
+								this.selectedUnit = _.get(this.avOffices[this.selectedUnitId], '@id');
+								if (e.detail.confirmed && this.selectedUnit) {
+										this.addEntity();
+								}
 						},
 						_correct() {
 								this.item.priority_description = this.item.priority_description || {
@@ -197,16 +236,21 @@
 										"max-waiting-time": [{}, {}, {}]
 								}
 						},
+						canAddDepartment(list) {
+
+								return !_.find(list, {'@type': "Office"});
+						},
 						getPlaceholder(field, item) {
 								const {unit_of} = item;
 								const {office} = this.app.helpers;
-								return _.get(_.find(office, {"@id": unit_of}), field);
+								return _.get(this.parentOfItem, field);
 						},
 						makeEntity() {
 								return {
 										label: '',
 										"@id": `department-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
 										formatted_address: '',
+										unit_of: this.selectedUnit,
 										priority_description: {
 												veteran: {
 														value: 1

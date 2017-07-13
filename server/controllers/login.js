@@ -4,12 +4,14 @@ const Basic = require('./basic');
 const cfg = require('../../config/default');
 
 const auth = require("iris-auth-util");
+const _ = require('lodash');
 auth.configure({data: cfg.buckets.main, session: cfg.buckets.auth});
 
 class Login extends Basic {
 	login() {
 		const user = this.req.body.user;
 		const password_hash = this.req.body.password;
+
 		auth
 			.authorize({user, password_hash})
 			.then(res => {
@@ -34,6 +36,18 @@ class Login extends Basic {
 							'permissions', 'can-admin'
 						], {});
 						const admins = _.reduce(permissions, (acc, item, index) => ((item && acc.push(index)), acc), []);
+						const opts = {
+							expires: new Date(Date.now() + 900000)
+						};
+						this
+							.res
+							.cookie('permissions', admins, opts);
+						this
+							.res
+							.cookie('user', user["@id"], opts);
+						this
+							.res
+							.cookie('username', this.getUsername(user), opts);
 
 						return cb
 							.get('global_org_structure')
@@ -47,6 +61,17 @@ class Login extends Basic {
 			})
 			.then(res => this.res.status(200).send(res));
 
+	}
+	getUsername(user) {
+		const name = _.isString(user.first_name)
+			? user.first_name[0] + '.'
+			: '';
+		const middle = _.isString(user.middle_name)
+			? user.middle_name[0] + '.'
+			: '';
+		const last = user.last_name;
+
+		return `${last} ${name} ${middle}`;
 	}
 }
 

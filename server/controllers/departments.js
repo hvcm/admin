@@ -238,8 +238,12 @@ class Departments extends Basic {
 
 						const list = _.map(permissions, (permission, index) => {
 							const dep = _.find(content, {'@id': permission});
+							if (dep["@type"] == "Office") 
+								return dep;
 							dep.services = res.services[index];
-							dep.qa_design = res.qa_design[index].value;
+							dep.qa_design = _.get(res, [
+								'qa_design', index, 'value'
+							], {});
 							dep.oper_design = _.get(res.oper_design[index], 'value', {});
 							dep.routes = _.get(res.routes[index], 'value', {});
 							return dep;

@@ -91,28 +91,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<!-- Drawer content -->
 						<app-drawer id="drawer">
 								<app-toolbar>
-										Сущности системы
+										Панель Администратора
 								</app-toolbar>
-								<paper-dropdown-menu id="selector" label="Офис" no-label-float>
-										<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{app.global.department}}">
-												<template is="dom-repeat" items="[[admins]]">
-														<paper-item val="[[item.id]]">[[item.label]]</paper-item>
-												</template>
-										</paper-listbox>
-								</paper-dropdown-menu>
+
 								<iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-										<a name="globals" href$="/{{app.global.department}}/globals">Поля</a>
-										<a name="globals-priority" href$="/{{app.global.department}}/globals-priority">Настройки приоритета</a>
-										<a name="departments" href$="/{{app.global.department}}/departments">Отделы</a>
-										<a name="workstations" href$="/{{app.global.department}}/workstations">Рабочие места</a>
-										<a name="system-workstations" href$="/{{app.global.department}}/system-workstations">Служебные рабочие места</a>
-										<a name="services" href$="/{{app.global.department}}/services">Услуги</a>
-										<a name="service-groups" href$="/{{app.global.department}}/service-groups">Группы услуг</a>
-										<a name="humans" href$="/{{app.global.department}}/humans">Сотрудники</a>
-										<a name="terminals" href$="/{{app.global.department}}/terminals">Терминалы</a>
-										<a name="roomdisplays" href$="/{{app.global.department}}/roomdisplays">Табло</a>
-										<a name="digital-displays" href$="/{{app.global.department}}/digital-displays">Цифровые табло</a>
-										<a name="schedules" href$="/{{app.global.department}}/schedules">Расписания</a>
+										<a name="globals" href$="/{{app.global.namespace}}/globals">Поля</a>
+										<a name="globals-priority" href$="/{{app.global.namespace}}/globals-priority">Настройки приоритета</a>
+										<a name="departments" href$="/{{app.global.namespace}}/departments">Отделы</a>
+										<a name="workstations" href$="/{{app.global.namespace}}/workstations">Рабочие места</a>
+										<a name="system-workstations" href$="/{{app.global.namespace}}/system-workstations">Служебные рабочие места</a>
+										<a name="services" href$="/{{app.global.namespace}}/services">Услуги</a>
+										<a name="service-groups" href$="/{{app.global.namespace}}/service-groups">Группы услуг</a>
+										<a name="humans" href$="/{{app.global.namespace}}/humans">Сотрудники</a>
+										<a name="terminals" href$="/{{app.global.namespace}}/terminals">Терминалы</a>
+										<a name="roomdisplays" href$="/{{app.global.namespace}}/roomdisplays">Табло</a>
+										<a name="digital-displays" href$="/{{app.global.namespace}}/digital-displays">Цифровые табло</a>
+										<a name="schedules" href$="/{{app.global.namespace}}/schedules">Расписания</a>
 								</iron-selector>
 						</app-drawer>
 
@@ -123,8 +117,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<app-toolbar>
 												<paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
 												<div main-title>
-														Панель Администратора
+														[[username]]
 												</div>
+												<paper-icon-button icon="exit-to-app" on-tap="logout"></paper-icon-button>
 										</app-toolbar>
 										<paper-progress indeterminate="[[inProgress]]" class="blue"></paper-progress>
 								</app-header>
@@ -146,6 +141,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</iron-pages>
 						</app-header-layout>
 				</app-drawer-layout>
+
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="forceLogout">
+						<h2>Выход</h2>
+						<paper-dialog-scrollable>
+								Вы действительно хотите выйти без сохранения изменений?
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
 		</template>
 
 		<script>
@@ -182,21 +188,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const {type, value} = e.detail;
 								this.dispatch(type, value);
 						},
+						logout() {
+								const changed = Polymer.dom(this.$.pages).querySelectorAll('*').reduce((acc, item) => item.changed || item.listchanged || acc, false);
+
+								if (!changed) {
+										window.api.logout();
+										return;
+								}
+
+								this.isOpen = true;
+						},
+						forceLogout(e) {
+								if (e.detail.confirmed) {
+										window.api.logout();
+								}
+						},
 						ready() {
 								const user = getCookie('user');
 								const admins = _.split(getCookie('admins'), '$$$');
-								const permissions = _.split(getCookie('permissions'), ',');
-								this.admins = _.reduce(admins, (acc, item, index) => {
-										acc.push({id: permissions[index], label: item})
-										return acc;
-								}, []);
-								const firstOffice = _.head(permissions);
-								if (!user || !firstOffice) {
+
+								this.username = getCookie('username');
+								if (!user) {
 										window.location.replace('/login');
 								}
 								this.page = this.page || "globals";
 								this.selectedPage = this.page;
-								this.set('app.global.department', firstOffice);
+								this.set('app.global.namespace', 'namespace');
 						},
 						dispatch(type, value) {
 								this.app = _.cloneDeep(window.reducers[type](this.app, value));

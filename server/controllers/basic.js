@@ -9,8 +9,10 @@ class Basic {
 		this.next = next;
 
 		const permissions = _.get(this.req, 'cookies.permissions', '');
-
-		this.permissions = permissions.split(',');
+		console.log('permissions', permissions);
+		this.permissions = _.isArray(permissions)
+			? permissions
+			: permissions.split(',');
 		this.util = new Util(req, this.permissions);
 	}
 	entity() {
