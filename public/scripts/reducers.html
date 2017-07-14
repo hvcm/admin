@@ -4,9 +4,12 @@
 				state.user = value;
 				return state;
 		};
-		reducers.list = (state, value) => {
-				state.list = value.list;
-				state.helpers = value.helpers;
+		reducers.list = (state, {list, helpers, entity}) => {
+				state[entity] = {
+						list,
+						helpers
+				};
+				console.log(state);
 				return state;
 		};
 </script>

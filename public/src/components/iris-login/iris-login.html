@@ -127,14 +127,13 @@
 										}
 								},
 								useLogin() {
-										if (!this.$.login.validate() || !this.$.password.validate())
+										if (!this.$.login.validate() || !this.$.password.validate()) 
 												return;
 
 										this.processing = true;
 										api.login(this.login, this.password).then(result => {
 												this.processing = false;
 												this.error_happens = false;
-												console.log(result);
 												this.fire('action', {
 														value: result.value,
 														type: 'auth-success'

@@ -125,18 +125,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</app-header>
 
 								<iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
-										<my-globals name="globals" app="{{app}}" route="{{subroute}}"></my-globals>
-										<my-globals-priority name="globals-priority" app="{{app}}"></my-globals-priority>
-										<my-departments name="departments" app="{{app}}" route="{{subroute}}"></my-departments>
-										<my-workstations name="workstations" app="{{app}}" route="{{subroute}}"></my-workstations>
-										<my-humans name="humans" app="{{app}}" route="{{subroute}}"></my-humans>
-										<my-terminals name="terminals" app="{{app}}" route="{{subroute}}"></my-terminals>
-										<my-roomdisplays name="roomdisplays" app="{{app}}" route="{{subroute}}"></my-roomdisplays>
-										<my-services name="services" app="{{app}}" route="{{subroute}}"></my-services>
-										<my-schedules name="schedules" app="{{app}}" route="{{subroute}}"></my-schedules>
-										<my-digital-displays name="digital-displays" app="{{app}}" route="{{subroute}}"></my-digital-displays>
-										<my-system-workstations name="system-workstations" app="{{app}}" route="{{subroute}}"></my-system-workstations>
-										<my-service-groups name="service-groups" app="{{app}}" route="{{subroute}}"></my-service-groups>
+										<my-globals name="globals" app="{{app.globals}}" route="{{subroute}}"></my-globals>
+										<my-globals-priority name="globals-priority" app="{{app.globals-priority}}"></my-globals-priority>
+										<my-departments name="departments" app="{{app.departments}}" route="{{subroute}}"></my-departments>
+										<my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
+										<my-humans name="humans" app="{{app.humans}}" route="{{subroute}}"></my-humans>
+										<my-terminals name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>
+										<my-roomdisplays name="roomdisplays" app="{{app.roomdisplays}}" route="{{subroute}}"></my-roomdisplays>
+										<my-services name="services" app="{{app.services}}" route="{{subroute}}"></my-services>
+										<my-schedules name="schedules" app="{{app.schedules}}" route="{{subroute}}"></my-schedules>
+										<my-digital-displays name="digital-displays" app="{{app.digital-displays}}" route="{{subroute}}"></my-digital-displays>
+										<my-system-workstations name="system-workstations" app="{{app.system-workstations}}" route="{{subroute}}"></my-system-workstations>
+										<my-service-groups name="service-groups" app="{{app.service-groups}}" route="{{subroute}}"></my-service-groups>
 										<my-view404 name="view404"></my-view404>
 								</iron-pages>
 						</app-header-layout>
@@ -217,7 +217,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						},
 						dispatch(type, value) {
 								this.app = _.cloneDeep(window.reducers[type](this.app, value));
-								console.log('state', this.app);
 						},
 						_routePageChanged: function (page) {
 								this.page = page || 'login';
