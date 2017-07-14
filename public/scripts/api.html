@@ -3,14 +3,17 @@
 				request(url, data) {
 						myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
 
-						console.log('request', url, data);
+						console.log('request:', url, data);
 						return Promise.resolve(fetch(url, {
 								method: 'POST',
 								headers: myHeaders,
 								credentials: 'same-origin',
 								body: JSON.stringify(data)
 						}).then(res => res.json())).then(res => {
-								console.log('result', res);
+								console.log('result:', res);
+								if (res.authfailed === true) {
+										return window.location.replace('/login');
+								}
 								return res;
 						}).timeout(40000);
 				},

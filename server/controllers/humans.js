@@ -52,18 +52,19 @@ class Humans extends Basic {
 			.then(data => this.res.json(data));
 	}
 	list() {
-		const {department} = this.req.body;
 		const {cb} = this.req;
-		console.log('list');
+
 		return cb
 			.get('global_membership_description')
 			.then(({value}) => {
 				const {content} = value;
 				const ids = _
 					.chain(content)
-					.filter({organization: department})
+					.filter(item => this.permissions.includes(item.organization))
 					.map('member')
+					.uniq()
 					.value();
+
 				const offices = cb
 					.get('global_org_structure')
 					.then(data => _.get(data, 'value.content'));

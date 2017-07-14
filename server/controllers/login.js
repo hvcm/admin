@@ -37,7 +37,7 @@ class Login extends Basic {
 						], {});
 						const admins = _.reduce(permissions, (acc, item, index) => ((item && acc.push(index)), acc), []);
 						const opts = {
-							expires: new Date(Date.now() + 900000)
+							expires: new Date(Date.now() + 12 * 60 * 60 * 1000)
 						};
 						this
 							.res

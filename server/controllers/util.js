@@ -26,7 +26,9 @@ class Util {
 	getServiceMaps() {
 		const {cb} = this.req;
 
-		return Promise.map(this.permissions, department => cb.get(`registry_service_${department}`).catch(e => {}));
+		return Promise
+			.map(this.permissions, department => cb.get(`registry_service_${department}`).catch(e => {}))
+			.then(res => _.compact(res));
 	}
 	removeEveryWhere(id, device_type, registry = false) {
 		const {cb, params} = this.req;

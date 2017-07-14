@@ -33,7 +33,7 @@
 				<template is="dom-if" if="[[listVisible]]">
 						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+						<paper-fab id="add" mini icon="add" on-tap="addEntityDialog"></paper-fab>
 				</template>
 				<template is="dom-if" if="[[!listVisible]]">
 						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
@@ -101,6 +101,20 @@
 								<paper-button dialog-confirm>Да</paper-button>
 						</div>
 				</paper-dialog>
+				<paper-dialog opened="{{isAddEntity}}" on-iron-overlay-closed="addEntityClosed">
+						<h2>Выберите родительский офис</h2>
+						<paper-dialog-scrollable>
+								<paper-listbox selected-values="{{selectedUnitId}}" multi>
+										<template is="dom-repeat" items="[[app.helpers.offices]]">
+												<paper-item >[[item.label]]</paper-item>
+										</template>
+								</paper-listbox>
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Отмена</paper-button>
+								<paper-button dialog-confirm>Ок</paper-button>
+						</div>
+				</paper-dialog>
 		</template>
 
 		<script>
@@ -111,6 +125,20 @@
 								if (!this.item)
 										return;
 								this.item.custom_fields = this.item.custom_fields || {};
+						},
+						addEntityDialog() {
+								this.isAddEntity = true;
+						},
+						addEntityClosed(e) {
+								if (!e.detail.confirmed) {
+										return;
+								}
+								const offices = this.app.helpers.offices || [];
+								this.linked_to = _.map(this.selectedUnitId, id => _.get(offices, [id, "@id"]));
+								if (!_.size(this.linked_to)) {
+										return;
+								}
+								this.addEntity();
 						},
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
@@ -127,6 +155,7 @@
 						},
 						makeEntity() {
 								return {
+										"linked_to": this.linked_to,
 										"@id": `service-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
 										"@type": "Service",
 										"code_frgu": "0",
@@ -161,13 +190,16 @@
 								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
 								this.entityName = 'services';
+								const transform = item => item || '---';
 								this.fieldsModel = [
 										{
 												label: "Наименование",
-												field: "label"
+												field: "label",
+												transform
 										}, {
 												label: "Короткое наименование",
-												field: "short_label"
+												field: "short_label",
+												transform
 										}
 								];
 						}
