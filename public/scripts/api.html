@@ -10,7 +10,7 @@
 								credentials: 'same-origin',
 								body: JSON.stringify(data)
 						}).then(res => res.json())).then(res => {
-								console.log('result:', res);
+								localStorage.getItem('is_dev') && console.log('result:', res);
 								if (res.authfailed === true) {
 										return window.location.replace('/login');
 								}
