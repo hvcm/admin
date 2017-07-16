@@ -10,6 +10,9 @@ class Logout extends Basic {
 			.clearCookie('user');
 		this
 			.res
+			.clearCookie('server');
+		this
+			.res
 			.json({status: 'success'});
 	}
 }

@@ -9,7 +9,6 @@ class Basic {
 		this.next = next;
 
 		const permissions = _.get(this.req, 'cookies.permissions', '');
-		console.log('permissions', permissions);
 		this.permissions = _.isArray(permissions)
 			? permissions
 			: permissions.split(',');

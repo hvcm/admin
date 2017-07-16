@@ -3,63 +3,56 @@
 const Basic = require('./basic');
 const cfg = require('../../config/default');
 
-const auth = require("iris-auth-util");
+const User = require("./utils/users");
 const _ = require('lodash');
-auth.configure({data: cfg.buckets.main, session: cfg.buckets.auth});
 
 class Login extends Basic {
 	login() {
 		const user = this.req.body.user;
 		const password_hash = this.req.body.password;
+		const opts = {
+			expires: new Date(Date.now() + 12 * 60 * 60 * 1000)
+		};
 
-		auth
-			.authorize({user, password_hash})
-			.then(res => {
-				if (!res.state) {
-					return res;
-				}
+		const db_main = this.req.cb;
 
-				const {user_id} = res.value;
-				const {cb} = this.req;
+		User.authorize({
+			user,
+			password_hash
+		}, {db_main}).then(res => {
+			if (!res.state) {
+				return res;
+			}
+			const user_id = res.value;
+			const {cb} = this.req;
+			const response = this.res;
 
-				return cb
-					.get(user_id)
-					.then(data => {
-						const user = data && data.value;
+			return cb
+				.get(user_id)
+				.then(data => {
+					const user = data && data.value;
 
-						if (!_.get(user, ['permissions', 'can-admin'])) {
-							return res;
-						}
+					if (!_.get(user, ['permissions', 'can-admin'])) {
+						return res;
+					}
 
-						res.value.user = user;
-						const permissions = _.get(user, [
-							'permissions', 'can-admin'
-						], {});
-						const admins = _.reduce(permissions, (acc, item, index) => ((item && acc.push(index)), acc), []);
-						const opts = {
-							expires: new Date(Date.now() + 12 * 60 * 60 * 1000)
-						};
-						this
-							.res
-							.cookie('permissions', admins, opts);
-						this
-							.res
-							.cookie('user', user["@id"], opts);
-						this
-							.res
-							.cookie('username', this.getUsername(user), opts);
+					const permissions = _.get(user, 'permissions.can-admin', {});
+					const admins = _.reduce(permissions, (acc, item, index) => ((item && acc.push(index)), acc), []);
 
-						return cb
-							.get('global_org_structure')
-							.then(structure => _.chain(structure.value.content).filter(item => ~ admins.indexOf(item['@id'])).map(Util.mapID).value())
-							.then(globals => {
-								res.value.admins = globals;
-								return res;
-							})
+					response.cookie('permissions', admins, opts);
+					response.cookie('user', user["@id"], opts);
+					response.cookie('username', this.getUsername(user), opts);
+					response.cookie('server', this.req.server_id, opts);
 
-					})
-			})
-			.then(res => this.res.status(200).send(res));
+					return cb
+						.get('global_org_structure')
+						.then(structure => _.chain(structure.value.content).filter(item => ~ admins.indexOf(item['@id'])).map(Util.mapID).value())
+						.then(() => {
+							return user;
+						})
+
+				})
+		}).then(res => this.res.status(200).send(res));
 
 	}
 	getUsername(user) {

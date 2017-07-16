@@ -2,6 +2,9 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
 <dom-module id="iris-login">
 		<template>
@@ -58,6 +61,9 @@
 						#progress {
 								width: 100%;
 						}
+						paper-dropdown-menu {
+								width: 100%;
+						}
 
 				</style>
 				<div error$="[[error_happens]]" id="greeting">
@@ -68,6 +74,13 @@
 
 				<div class="login-panel" disabled$="[[loginPanelVisibility(processing,logged_in)]]">
 						<form id="login-form">
+								<paper-dropdown-menu label="Сервер" hidden$="[[!hasVariants(servers)]]">
+										<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{server}}">
+												<template is="dom-repeat" items="[[servers]]" as="srv">
+														<paper-item val="[[srv.id]]">[[srv.label]]</paper-item>
+												</template>
+										</paper-listbox>
+								</paper-dropdown-menu>
 								<paper-input id="login" on-keypress="kp" label="Логин" value="{{login}}" error-message="Введите логин" required auto-validate></paper-input>
 								<paper-input id="password" on-keypress="kp" label="Пароль" type="password" error-message="Введите пароль" required auto-validate value="{{password}}"></paper-input>
 						</form>
@@ -93,13 +106,34 @@
 								'already occupied': 'рабочее место занято другим оператором'
 						};
 
+						function getCookie(cname) {
+								var name = cname + "=";
+								var decodedCookie = decodeURIComponent(document.cookie);
+								var ca = decodedCookie.split(';');
+								for (var i = 0; i < ca.length; i++) {
+										var c = ca[i];
+										while (c.charAt(0) == ' ') {
+												c = c.substring(1);
+										}
+										if (c.indexOf(name) == 0) {
+												return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
+										}
+								}
+								return "";
+						};
+
 						Polymer({
 								is: 'iris-login',
-
+								hasVariants(servers) {
+										return servers.length;
+								},
 								ready() {
 										this.processing = false;
 										this.error_happens = false;
 										this.error_text = '';
+										const labels = getCookie('labels');
+										this.servers = _.map(getCookie('servers'), (server, index) => ({id: server, label: labels[index]}));
+										this.server = _.head(this.servers).id;
 								},
 								kp(e) {
 										(e.keyCode === 13 && !this.processing) && this.useLogin();
@@ -127,11 +161,11 @@
 										}
 								},
 								useLogin() {
-										if (!this.$.login.validate() || !this.$.password.validate()) 
+										if (!this.$.login.validate() || !this.$.password.validate())
 												return;
 
 										this.processing = true;
-										api.login(this.login, this.password).then(result => {
+										api.login(this.login, this.password, this.server).then(result => {
 												this.processing = false;
 												this.error_happens = false;
 												this.fire('action', {

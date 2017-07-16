@@ -96,6 +96,7 @@ class Util {
 
 	getSchedules() {
 		const {cb, params} = this.req;
+
 		return cb
 			.view(this.req.query('schedule'))
 			.then(items => _.map(items, 'id'))

@@ -3,7 +3,7 @@
 				request(url, data) {
 						myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
 
-						console.log('request:', url, data);
+						localStorage.getItem('is_dev') && console.log('request:', url, data);
 						return Promise.resolve(fetch(url, {
 								method: 'POST',
 								headers: myHeaders,
@@ -17,10 +17,13 @@
 								return res;
 						}).timeout(40000);
 				},
-				login(user, password) {
-						return this.request('/login', {user, password}).then(res => res.state
+				login(user, password, server) {
+						return this.request('/login', {user, password, server}).then(res => res.state
 								? res
 								: Promise.reject(new Error(res.reason)));
+				},
+				reload(server_id) {
+						return this.request('/servers/reload', {server_id})
 				},
 				logout(user, password) {
 						return this.request('/logout').then(res => window.location.replace('/login'));
