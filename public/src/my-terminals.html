@@ -46,12 +46,12 @@
 								<paper-tab page="info">Информационные поля</paper-tab>
 								<paper-tab page="sg">Базовая группа услуг</paper-tab>
 						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
 								<div page=""></div>
 								<div page="common">
 										<paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
 
-										<paper-dropdown-menu label="Офис" on-tap="actionHappens">
+										<paper-dropdown-menu label="Офис">
 												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.attached_to}}">
 														<template is="dom-repeat" items="[[departments]]" as="dep">
 																<paper-item val="[[dep.id]]">[[dep.label]]</paper-item>
@@ -60,7 +60,7 @@
 										</paper-dropdown-menu>
 										<paper-input label="Время простоя до возврата «Домой»" value="{{item.reload_interval}}"></paper-input>
 										<paper-input label="Шаблон талона" value="{{item.ticket_design}}"></paper-input>
-										<paper-dropdown-menu label="Типы записи" on-tap="actionHappens">
+										<paper-dropdown-menu label="Типы записи">
 												<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="[[transformBM(item.booking_methods)]]" on-iron-select="selectedBM">
 														<paper-item val="*">Все</paper-item>
 														<paper-item val="live">Живая очередь</paper-item>
@@ -137,14 +137,10 @@
 						behaviors: [ListBehavior],
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
-								if (!id) {
+								if (!id || !this.item) {
 										return;
 								}
 								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
-								this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
-										item.__index = index;
-										return item;
-								});
 						},
 						selectedBM(e) {
 								const selected = Polymer.dom(this.root).querySelector('#bookingMethods').selected;
@@ -155,6 +151,13 @@
 						_correct() {
 								if (!this.item.custom_fields) {
 										this.set('item.custom_fields', {});
+								}
+								this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
+										item.__index = index;
+										return item;
+								});
+								if (!this.item.booking_methods) {
+										this.set('item.booking_methods', ['live', 'prebook']);
 								}
 						},
 						presave() {

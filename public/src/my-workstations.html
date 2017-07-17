@@ -159,7 +159,7 @@
 						},
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);;
-								if (id) {
+								if (id && this.item) {
 										this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
 								}
 						},
@@ -184,7 +184,6 @@
 								// this.listVisible = true;
 								const sortable = true;
 								this.entityName = 'workstation';
-								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
 
 								this.fieldsModel = [
 										{

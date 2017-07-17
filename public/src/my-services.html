@@ -142,11 +142,9 @@
 						},
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
-								if (!id) {
+								if (!id || !this.item) {
 										return;
 								}
-								if (!this.item)
-										return;
 								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
 								this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
 										item.__index = index;

@@ -38,7 +38,7 @@
 						<paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!canAdd(filter_type)]]"></paper-fab>
 				</template>
 				<template is="dom-if" if="[[!listVisible]]">
-						<div on-change="actionHappens" on-keydown="actionHappens">
+						<div>
 								<paper-icon-button icon="chevron-left" on-tap="back"></paper-icon-button>
 								<paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
 								<paper-dropdown-menu label="Офис" on-tap="actionHappens">
@@ -83,9 +83,9 @@
 						behaviors: [ListBehavior],
 						_correct() {},
 						filter(data, searchString, device_type) {
-								if (!searchString)
+								if (!searchString) {
 										return _.filter(data, {device_type});
-
+								}
 								return _.chain(data).filter({device_type}).filter(item => ~ (item.label || '').indexOf(searchString)).value();
 						},
 						canAdd(device_type) {
@@ -105,18 +105,17 @@
 										"label": ""
 								};
 						},
-						_itemChanged(id, pid) {
-								ListBehavior._itemChanged.call(this, id, pid);
-								if (id) {
+						_itemChanged(id) {
+								ListBehavior._itemChanged.call(this, id);
+								if (id && this.item) {
 										this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
 								}
 						},
 						ready: function () {
-								this.listVisible = true;
 								this.deleteMessage = "Вы действительно хотите удалить это служебное рабочее место?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
 								this.entityName = 'system-workstation';
-								this.filter_type = "call-center";
+								this.filter_type = 'call-center';
 								const sortable = true;
 								this.fieldsModel = [
 										{

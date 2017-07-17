@@ -61,7 +61,7 @@
 								<paper-tab page="schedules">Расиписания</paper-tab>
 								<paper-tab page="permissions">Права</paper-tab>
 						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
 								<div page=""></div>
 								<div page="common">
 										<paper-input label="Фамилия" value="{{item.last_name}}" placeholder="Фамилия"></paper-input>
@@ -69,7 +69,7 @@
 										<paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество"></paper-input>
 										<paper-input label="Логин" value="{{item.login}}" placeholder="Логин"></paper-input>
 										<paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль"></paper-input>
-										<paper-dropdown-menu label="Тип приема" on-tap="actionHappens">
+										<paper-dropdown-menu label="Тип приема">
 												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
 														<paper-item val="*">Все</paper-item>
 														<paper-item val="live">Живая очередь</paper-item>

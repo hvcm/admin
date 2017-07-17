@@ -181,7 +181,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						},
 
 						observers: [
-								'_routePageChanged(routeData.page)', '_routeDepChanged(routeData.department)', '_pageChanged(page,department)'
+								'_routePageChanged(routeData.page)', '_routeDepChanged(routeData.department)', '_pageChanged(page)'
 						],
 						initAction(e) {
 								const {type, value} = e.detail;
@@ -218,6 +218,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								this.app = _.cloneDeep(window.reducers[type](this.app, value));
 						},
 						_routePageChanged: function (page) {
+
 								this.page = page || 'login';
 
 								if (!this.$.drawer.persistent) {
@@ -233,17 +234,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						},
 
 						_pageChanged: function (page, department) {
-								// Load page import on demand. Show 404 page if fails
-								var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
-								this.set('inProgress', true);
+								this.debounce('ps', () => {
+										var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+										this.set('inProgress', true);
 
-								(page && department) && api.preparePage(page, department).then(value => {
-										this.dispatch('list', value);
-										this.set('inProgress', false);
-										this.importHref(resolvedPageUrl, null, this._showPage404, true);
-										this.selectedPage = this.page;
-								})
-
+										(page) && api.preparePage(page, department).then(value => {
+												this.dispatch('list', value);
+												this.set('inProgress', false);
+												this.importHref(resolvedPageUrl, null, this._showPage404, true);
+												this.selectedPage = this.page;
+										})
+								}, 300);
 						},
 
 						_showPage404: function () {

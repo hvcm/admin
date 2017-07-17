@@ -157,7 +157,12 @@
 				};
 				Polymer({
 						is: 'my-globals',
-
+						properties: {
+								idField: {
+										type: String,
+										value: '__index'
+								}
+						},
 						behaviors: [ListBehavior],
 						makeEntity() {
 								const field = _.clone(defaultField);
@@ -184,18 +189,6 @@
 						deleteDialog(e) {
 								this.toDelete = e.model.index;
 								this.isOpen = true;
-						},
-						_itemChanged(id, pid) {
-								if (!id) {
-										this.listVisible = true;
-										this.changed = false;
-
-								} else {
-
-										this.listVisible = false;
-										this.item = _.find(this.app.list, {'__index': id});
-										this._correct();
-								}
 						},
 						cellTap(e) {
 								const id = e.detail.row_data.__index;

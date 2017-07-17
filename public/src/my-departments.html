@@ -72,7 +72,7 @@
 								<paper-tab disabled="[[isOffice(item)]]" page="routes">Маршруты</paper-tab>
 								<paper-tab disabled="[[isOffice(item)]]" page="satelites">Дизайн</paper-tab>
 						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
 								<div page=""></div>
 								<div page="common">
 										<paper-input label="Наименование" value="{{item.label}}"></paper-input>
@@ -192,14 +192,13 @@
 										}
 								];
 						},
-						_itemChanged(id, pid) {
-								ListBehavior._itemChanged.call(this, id, pid);
-								if (!id) {
+						_itemChanged(id) {
+								ListBehavior._itemChanged.call(this, id);
+								if (!id || this.item) {
 										return;
 								}
 								const parent_id = this.item.unit_of;
 								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id});
-
 						},
 						addEntityDialog() {
 								this.addDialog = true;
@@ -237,7 +236,6 @@
 								}
 						},
 						canAddDepartment(list) {
-
 								return !_.find(list, {'@type': "Office"});
 						},
 						getPlaceholder(field, item) {
