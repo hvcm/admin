@@ -34,7 +34,10 @@
 								<div>
 										[[getMemory(app.helpers,index)]]MB
 								</div>
-								<paper-icon-button icon="refresh" on-tap="openDialog"></paper-icon-button>
+								<div hidden$="[[isAvailable(app.helpers,index)]]">
+										Недоступен
+								</div>
+								<paper-icon-button icon="refresh" on-tap="openDialog" hidden$="[[!isAvailable(app.helpers,index)]]"></paper-icon-button>
 						</div>
 				</template>
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="reload">
@@ -63,6 +66,9 @@
 												this.set('app.helpers', res.helpers);
 										})
 								}, 15000);
+						},
+						isAvailable(helpers, index) {
+								return !!helpers[index];
 						},
 						openDialog(e) {
 								this.isOpen = true;
