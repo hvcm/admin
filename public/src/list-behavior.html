@@ -10,11 +10,20 @@
 								value: "@id"
 						}
 				},
-				observers: ['_itemChanged(routeData.itemId)'],
+				observers: [
+						'_itemChanged(routeData.itemId)', '_appListChanged(app.list)'
+				],
+				_appListChanged(list) {
+						const id = _.get(this, 'routeData.itemId', false);
+
+						id && this._itemChanged(id);
+				},
 				actionHappens(e) {
 						this.changed = true;
 				},
-				_correct() {},
+				_correct(item) {
+						return item;
+				},
 				compare() {
 						if (!this.item) {
 								return true;
@@ -33,7 +42,6 @@
 
 						this.intID = setInterval(() => {
 								this.changed = !this.compare();
-								console.log('int', this.intID, this.changed);
 						}, this.intervalTime || 1000);
 				},
 				_redrawTable() {
@@ -47,7 +55,7 @@
 								return;
 						}
 
-						if (this.entityName && !this.route.prefix.includes(`/${this.entityName}`)) {
+						if (!this.classList.contains('iron-selected')) {
 								return (this.intID) && clearInterval(this.intID);
 						}
 
@@ -58,8 +66,11 @@
 						}
 
 						this.listVisible = false;
-						this.item = _.find(_.get(this, 'app.list', []), item => item[this.idField] === id);
-						this.item && this._correct();
+						const item = _.find(_.get(this, 'app.list', []), item => item[this.idField] === id);
+
+						if (item) {
+								this.item = this._correct(item);
+						}
 						this.changed = false;
 						this.clone = _.cloneDeep(this.item);
 						this.setInterval();

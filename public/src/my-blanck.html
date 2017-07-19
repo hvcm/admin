@@ -77,8 +77,9 @@
 				Polymer({
 						is: 'my-blanck',
 						behaviors: [ListBehavior],
-						_correct() {},
-
+						_correct(item) {
+								return item;
+						},
 						ready: function () {
 								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";

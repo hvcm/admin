@@ -125,7 +125,6 @@
 				Polymer({
 						is: 'my-digital-displays',
 						behaviors: [ListBehavior],
-						_correct() {},
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
 								if (!id || !this.item) {

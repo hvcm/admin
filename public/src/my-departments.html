@@ -214,26 +214,28 @@
 										this.addEntity();
 								}
 						},
-						_correct() {
-								this.item.priority_description = this.item.priority_description || {
+						_correct(item) {
+								item.priority_description = item.priority_description || {
 										veteran: {},
 										invalid: {}
 								};
-								this.item.routes = this.item.routes || {
+								item.routes = item.routes || {
 										routes: {
 												include: [],
 												exclude: []
 										}
 								};
-								this.item.qa_design = this.item.qa_design || {
+								item.qa_design = item.qa_design || {
 										hold_screen_design: ''
 								};
-								this.item.oper_design = this.item.oper_design || {
+								item.oper_design = item.oper_design || {
 										hold_screen_design: ''
 								};
-								this.item.notification_levels = this.item.notification_levels || {
+								item.notification_levels = item.notification_levels || {
 										"max-waiting-time": [{}, {}, {}]
 								}
+
+								return item;
 						},
 						canAddDepartment(list) {
 								return !_.find(list, {'@type': "Office"});

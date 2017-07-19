@@ -17,7 +17,7 @@
 				</div>
 				<template is="dom-repeat" items="[[types]]" as="type">
 						<h2>[[type.label]]</h2>
-						<template is="dom-repeat" items="[[departments]]">
+						<template is="dom-repeat" items="[[filter(departments, type)]]">
 								<div class="">
 										<paper-checkbox on-tap="toggle" checked="[[getChecked(value,type.id,item.id)]]" type="{{type}}">[[item.label]]</paper-checkbox>
 								</div>
@@ -36,7 +36,12 @@
 										notify: true
 								}
 						},
-
+						filter(departments, type) {
+								if (type.id !== 'can-admin') {
+										return _.chain(departments).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+								}
+								return _.map(departments, item => ({id: item["@id"], label: item.label}));
+						},
 						toggle(e) {
 								const type = e.model.type;
 								const dep = e.model.item;
@@ -47,7 +52,7 @@
 								this.set(`value.${type.id}.${dep.id}`, !temp);
 						},
 						getChecked(value, type, dep) {
-								return _.get(value, [
+								return !!_.get(value, [
 										type, dep
 								], false);
 						},

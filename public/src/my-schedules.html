@@ -84,10 +84,12 @@
 				Polymer({
 						is: 'my-schedules',
 						behaviors: [ListBehavior],
-						_correct() {
-								this.item.label = this.item.label || (this.item["@id"] == 'schedule-0'
+						_correct(item) {
+								item.label = item.label || (item["@id"] == 'schedule-0'
 										? 'Основное расписание'
-										: this.item["@id"].replace('schedule-', 'Расписание '))
+										: item["@id"].replace('schedule-', 'Расписание '));
+
+								return item;
 						},
 						makeEntity() {
 								return {

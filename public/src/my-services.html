@@ -121,10 +121,9 @@
 				Polymer({
 						is: 'my-services',
 						behaviors: [ListBehavior],
-						_correct() {
-								if (!this.item)
-										return;
-								this.item.custom_fields = this.item.custom_fields || {};
+						_correct(item) {
+								item.custom_fields = item.custom_fields || {};
+								return item;
 						},
 						addEntityDialog() {
 								this.isAddEntity = true;

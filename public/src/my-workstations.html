@@ -146,21 +146,22 @@
 										? indexes
 										: provides;
 						},
-						_correct() {
-								this.set('item.device_placement', {});
-								if (!this.item.provides) {
-										this.set('item.provides', []);
+						_correct(item) {
+								item.device_placement = {};
+								if (!item.provides) {
+										item.provides = [];
 								}
 
-								if (!this.item.has_schedule.resource) {
-										this.item.has_schedule.resource = [];
+								if (!item.has_schedule.resource) {
+										item.has_schedule.resource = [];
 								}
-								if (!this.item.has_schedule.live) {
-										this.item.has_schedule.live = [];
+								if (!item.has_schedule.live) {
+										item.has_schedule.live = [];
 								}
-								if (!this.item.has_schedule.prebook) {
-										this.item.has_schedule.prebook = [];
+								if (!item.has_schedule.prebook) {
+										item.has_schedule.prebook = [];
 								}
+								return item;
 						},
 						provides(count) {
 								return count === '*'

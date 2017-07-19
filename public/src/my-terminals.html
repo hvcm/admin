@@ -148,17 +148,21 @@
 										? ['live', 'prebook']
 										: [selected]);
 						},
-						_correct() {
-								if (!this.item.custom_fields) {
-										this.set('item.custom_fields', {});
+						_correct(item) {
+								if (!item.custom_fields) {
+										item.custom_fields = {};
 								}
-								this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
+
+								this.transformedFields = _.map(item.custom_fields, (item, index) => {
 										item.__index = index;
 										return item;
 								});
-								if (!this.item.booking_methods) {
-										this.set('item.booking_methods', ['live', 'prebook']);
+
+								if (!item.booking_methods) {
+										item.booking_methods = ['live', 'prebook'];
 								}
+
+								return item;
 						},
 						presave() {
 								this.item.custom_fields = _.keyBy(this.transformedFields, '__index');

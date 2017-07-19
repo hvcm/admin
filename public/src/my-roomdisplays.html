@@ -86,7 +86,6 @@
 				Polymer({
 						is: 'my-roomdisplays',
 						behaviors: [ListBehavior],
-						_correct() {},
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);
 								if (id && this.item) {

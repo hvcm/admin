@@ -81,7 +81,6 @@
 				Polymer({
 						is: 'my-system-workstations',
 						behaviors: [ListBehavior],
-						_correct() {},
 						filter(data, searchString, device_type) {
 								if (!searchString) {
 										return _.filter(data, {device_type});

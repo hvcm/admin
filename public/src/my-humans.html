@@ -92,7 +92,7 @@
 										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
 								</div>
 								<div page="permissions">
-										<permissions-picker departments="{{transformDep(app.helpers.offices)}}" value="{{item.permissions}}"></permissions-picker>
+										<permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}"></permissions-picker>
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
@@ -125,14 +125,25 @@
 				Polymer({
 						is: 'my-humans',
 						behaviors: [ListBehavior],
-						_correct() {
-								this.item.has_schedule = this.item.has_schedule || {};
+						_correct(item) {
+								item.has_schedule = item.has_schedule || {};
+
+								if (!item.has_schedule.resource) {
+										item.has_schedule.resource = [];
+								}
+								if (!item.has_schedule.live) {
+										item.has_schedule.live = [];
+								}
+								if (!item.has_schedule.prebook) {
+										item.has_schedule.prebook = [];
+								}
+								return item;
 						},
 						transformWS(ws) {
 								return _.chain(ws).map(item => [item["@id"], item.label]).fromPairs().value();
 						},
 						transformDep(dep) {
-								return _.chain(dep).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+								return _.map(dep, item => ({id: item["@id"], label: item.label}));
 						},
 						randomString(number) {
 								let text = "";
