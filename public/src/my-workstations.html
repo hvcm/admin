@@ -39,7 +39,7 @@
 								</paper-tab>
 								<paper-tab page="common">Основные параметры</paper-tab>
 								<paper-tab page="services">Услуги</paper-tab>
-								<paper-tab page="schedules">Расиписания</paper-tab>
+								<paper-tab page="schedules">Расписания</paper-tab>
 						</paper-tabs>
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
 								<div page=""></div>
@@ -150,6 +150,16 @@
 								this.set('item.device_placement', {});
 								if (!this.item.provides) {
 										this.set('item.provides', []);
+								}
+
+								if (!this.item.has_schedule.resource) {
+										this.item.has_schedule.resource = [];
+								}
+								if (!this.item.has_schedule.live) {
+										this.item.has_schedule.live = [];
+								}
+								if (!this.item.has_schedule.prebook) {
+										this.item.has_schedule.prebook = [];
 								}
 						},
 						provides(count) {

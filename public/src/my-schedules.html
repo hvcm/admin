@@ -44,13 +44,14 @@
 						</paper-tabs>
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
 								<div page=""></div>
+
 								<div page="common">
 										<paper-input value="{{item.label}}" label="Наименование"></paper-input>
-										<range-picker intervals="{{item.has_time_description.data}}" on-tap="actionHappens"></range-picker>
+										<range-picker intervals="{{item.has_time_description.data}}"></range-picker>
 								</div>
+
 								<div page="days">
 										<days-picker value="{{item.has_day}}"></days-picker>
-
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>

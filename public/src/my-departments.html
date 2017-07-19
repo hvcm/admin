@@ -194,7 +194,7 @@
 						},
 						_itemChanged(id) {
 								ListBehavior._itemChanged.call(this, id);
-								if (!id || this.item) {
+								if (!id || !this.item) {
 										return;
 								}
 								const parent_id = this.item.unit_of;

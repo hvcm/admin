@@ -27,8 +27,8 @@
 				<div class="line">
 						<template is="dom-repeat" items="[[intervals]]">
 								<div class="interval">
-										<range-item value="[[item.0]]"></range-item>
-										<range-item value="[[item.1]]"></range-item>
+										<range-item value="{{item.0}}"></range-item>
+										<range-item value="{{item.1}}"></range-item>
 										<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
 								</div>
 						</template>
@@ -54,6 +54,7 @@
 						},
 						add() {
 								this.push('intervals', [0, 0]);
+								console.log(this.intervals);
 						}
 				});
 		</script>

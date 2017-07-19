@@ -192,7 +192,9 @@
 						},
 
 						compare() {
-								const diff = _.reduce(this.app.list, (acc, item, index) => {
+								if (!this.app) 
+										console.warn('app is undefined');
+								const diff = _.reduce(_.get(this, 'app.list', []), (acc, item, index) => {
 										const cloned = this.listClone[index];
 										!_.isEqual(cloned, item) && acc.push(item);
 										return acc;

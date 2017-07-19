@@ -236,18 +236,26 @@ class Departments extends Basic {
 					.then(({value}) => {
 						const {content} = value;
 
-						const list = _.map(permissions, (permission, index) => {
-							const dep = _.find(content, {'@id': permission});
-							if (dep["@type"] == "Office") 
+						const list = _
+							.chain(permissions)
+							.map((permission, index) => {
+
+								const dep = _.find(content, {'@id': permission});
+								if (!dep)
+									return undefined;
+
+								if (dep["@type"] == "Office")
+									return dep;
+								dep.services = res.services[index];
+								dep.qa_design = _.get(res, [
+									'qa_design', index, 'value'
+								], {});
+								dep.oper_design = _.get(res.oper_design[index], 'value', {});
+								dep.routes = _.get(res.routes[index], 'value', {});
 								return dep;
-							dep.services = res.services[index];
-							dep.qa_design = _.get(res, [
-								'qa_design', index, 'value'
-							], {});
-							dep.oper_design = _.get(res.oper_design[index], 'value', {});
-							dep.routes = _.get(res.routes[index], 'value', {});
-							return dep;
-						});
+							})
+							.compact()
+							.value();
 
 						const helpers = {
 							office: value.content,

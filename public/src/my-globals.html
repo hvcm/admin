@@ -184,7 +184,10 @@
 								return !a || !b;
 						},
 						saveAll() {
-								window.api.saveEntity('fields', _.chain(this.app.list).keyBy('__index').value())
+								this.changed = false;
+
+								window.api.saveEntity('fields', _.chain(this.app.list).keyBy('__index').value());
+								this._back();
 						},
 						deleteDialog(e) {
 								this.toDelete = e.model.index;
