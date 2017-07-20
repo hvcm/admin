@@ -3,6 +3,11 @@
 const Basic = require('./basic.js');
 
 class Schedules extends Basic {
+	update() {
+		const {cb} = this.req;
+
+		return cb.view(this.req.query('schedule').stale(3))
+	}
 	save() {
 		const {data} = this.req.body;
 		const {cb} = this.req;
@@ -10,6 +15,7 @@ class Schedules extends Basic {
 
 		return cb
 			.upsert(id, data)
+			.then(() => this.update())
 			.then(data => this.res.json(data));
 	}
 	delete() {
@@ -20,6 +26,7 @@ class Schedules extends Basic {
 
 		return cb
 			.remove(id)
+			.then(() => this.update())
 			.then(data => this.res.json(data));
 	}
 	list() {
@@ -32,8 +39,11 @@ class Schedules extends Basic {
 			.then(data => {
 				return {
 					list: _
-						.map(data, 'value')
+						.chain(data)
+						.map('value')
+						.compact()
 						.filter(item => item["@id"] !== "schedule-0")
+						.value()
 				};
 			})
 			.then(data => this.res.json(data));

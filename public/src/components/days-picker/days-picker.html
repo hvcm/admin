@@ -14,7 +14,7 @@
 				</style>
 
 				<template is="dom-repeat" items="[[days]]" as="day">
-						<paper-checkbox checked="[[isChecked(day,index)]]" on-tap="dayTap">[[getLabetl(index)]]</paper-checkbox>
+						<paper-checkbox checked="[[isChecked(day,value)]]" on-tap="dayTap">[[getLabetl(index)]]</paper-checkbox>
 				</template>
 		</template>
 		<script>
@@ -27,17 +27,16 @@
 								}
 						},
 						dayTap(e) {
-								const i = e.model.index;
-								const day = this.days[i];
-								const dp = this.value.indexOf(day);
-								if (dp === -1) {
+								const day = e.model.day;
+								const dp = this.value.includes(day);
+								if (!dp) {
 										this.push('value', day);
 								} else {
-										this.splice('value', dp, 1);
+										this.splice('value', this.value.indexOf(day), 1);
 								}
 						},
 						isChecked(day, index) {
-								return ~ this.value.indexOf(day);
+								return this.value.includes(day);
 						},
 						getLabetl(index) {
 								return this.labels[index];

@@ -214,13 +214,21 @@ class Entity extends Basic {
 							.fromPairs()
 							.value();
 					}),
-					service_config: cb
-						.get('iris_config_service_groups')
-						.then(data => _.chain(data).get('value.main_group.roomdisplay.params.direction_types', {}).map((label, id) => ({label, id})).value())
+					service_config: _.map({
+						"okno": "окно",
+						"kabinet": "кабинет",
+						"kassa": "касса"
+					}, (label, id) => ({label, id}))
 				});
 
 				return Promise.props({list, helpers})
 			});
+	}
+	getServiceConnfigForWs() {
+		return this
+			.cb
+			.get('iris_config_service_groups')
+			.then(data => _.chain(data).get('value.main_group.roomdisplay.params.direction_types', {}).map((label, id) => ({label, id})).value())
 	}
 }
 

@@ -84,8 +84,8 @@
 										<service-selector services="[[transformWS(app.helpers.workstations)]]" selected="{{item.available_workstation}}"></service-selector>
 								</div>
 								<div page="schedules">
-										<h3>Ресурсное расписание</h3>
-										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker>
+										<!-- <h3>Ресурсное расписание</h3>
+										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker> -->
 										<h3>Живая очередь</h3>
 										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
 										<h3>Предварительная запись</h3>

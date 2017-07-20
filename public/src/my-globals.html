@@ -51,6 +51,14 @@
 						paper-fab#delete {
 								bottom: 10px;
 						}
+						.drops {
+								display: flex;
+								flex-direction: column;
+						}
+						.drops > paper-dropdown-menu {
+								width: 50%;
+								min-width: 350px;
+						}
 
 				</style>
 
@@ -71,8 +79,7 @@
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
 								<div page=""></div>
 								<div page="common">
-										<paper-input label="Ключ" value="{{item.key}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="ID" value="{{item.__index}}" disabled="[[!app.helpers.canedit]]"></paper-input>
+										<paper-input label="ID" value="{{item.key}}" placeholder="[[item.__index]]" disabled="[[!app.helpers.canedit]]"></paper-input>
 										<paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!app.helpers.canedit]]"></paper-input>
 										<paper-input label="Описание" value="{{item.description}}" disabled="[[!app.helpers.canedit]]"></paper-input>
 										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!app.helpers.canedit]]"></paper-input>
@@ -89,28 +96,31 @@
 												<paper-toggle-button label="Включено" checked="{{item.include}}" disabled="[[!app.helpers.canedit]]"></paper-toggle-button>
 										</div>
 
-										<paper-dropdown-menu label="Клавиатура" disabled="[[!app.helpers.canedit]]">
-												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.layout}}">
-														<template is="dom-repeat" items="[[layouts]]" as="keyboard">
-																<paper-item val="[[keyboard.id]]">[[keyboard.label]]</paper-item>
-														</template>
-												</paper-listbox>
-										</paper-dropdown-menu>
+										<div class="drops">
+												<paper-dropdown-menu label="Клавиатура" disabled="[[!app.helpers.canedit]]" vertical-align="bottom" horizontal-align="left">
+														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.layout}}">
+																<template is="dom-repeat" items="[[layouts]]" as="keyboard">
+																		<paper-item val="[[keyboard.id]]">[[keyboard.label]]</paper-item>
+																</template>
+														</paper-listbox>
+												</paper-dropdown-menu>
 
-										<paper-dropdown-menu label="Метод регистрацияя" disabled="[[!app.helpers.canedit]]">
-												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.method}}">
-														<paper-item val="live">Живая очередь</paper-item>
-														<paper-item val="prebook">Предварительная запись</paper-item>
-												</paper-listbox>
-										</paper-dropdown-menu>
+												<paper-dropdown-menu label="Метод регистрацияя" disabled="[[!app.helpers.canedit]]" vertical-align="bottom" horizontal-align="left">
+														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.method}}">
+																<paper-item val="*">Все</paper-item>
+																<paper-item val="live">Живая очередь</paper-item>
+																<paper-item val="prebook">Предварительная запись</paper-item>
+														</paper-listbox>
+												</paper-dropdown-menu>
 
-										<paper-dropdown-menu label="Тип поля" disabled="[[!app.helpers.canedit]]">
-												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.type}}">
-														<template is="dom-repeat" items="[[types]]" as="type">
-																<paper-item val="[[type.id]]">[[type.label]]</paper-item>
-														</template>
-												</paper-listbox>
-										</paper-dropdown-menu>
+												<paper-dropdown-menu label="Тип поля" disabled="[[!app.helpers.canedit]]" vertical-align="bottom" horizontal-align="left">
+														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.type}}">
+																<template is="dom-repeat" items="[[types]]" as="type">
+																		<paper-item val="[[type.id]]">[[type.label]]</paper-item>
+																</template>
+														</paper-listbox>
+												</paper-dropdown-menu>
+										</div>
 								</div>
 
 						</iron-pages>
@@ -164,10 +174,22 @@
 								}
 						},
 						behaviors: [ListBehavior],
+						_correct(item) {
+								item.method = item.method || '*';
+								return item;
+						},
+						presave() {
+								if (this.item.method === '*') {
+										_.unset(this.item, 'method');
+								}
+								if ((this.item.order || '').length) {
+										this.item.order = parseInt(this.item.order, 10);
+								}
+						},
 						makeEntity() {
 								const field = _.clone(defaultField);
 								const rnd = Math.ceil(Math.random() * 100000);
-								const id = `global-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+								const id = `field-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
 								field.key = id;
 								field.__index = id;
 
@@ -185,7 +207,7 @@
 						},
 						saveAll() {
 								this.changed = false;
-
+								this.presave();
 								window.api.saveEntity('fields', _.chain(this.app.list).keyBy('__index').value());
 								this._back();
 						},

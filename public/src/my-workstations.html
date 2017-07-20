@@ -84,8 +84,8 @@
 										<service-selector id="services" services="[[getServiceMap(item.attached_to)]]" selected="[[transformProvides(item.provides)]]" on-tap="changeProvides"></service-selector>
 								</div>
 								<div page="schedules" on-change="actionHappens">
-										<h3>Ресурсное расписание</h3>
-										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker>
+										<!-- <h3>Ресурсное расписание</h3>
+										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker> -->
 										<h3>Живая очередь</h3>
 										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
 										<h3>Предварительная запись</h3>

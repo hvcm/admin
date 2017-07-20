@@ -25,55 +25,82 @@
 				</template>
 		</template>
 		<script>
-				Polymer({
-						is: 'permissions-picker',
-						properties: {
-								departments: {
-										type: Array
-								},
-								value: {
-										type: Object,
-										notify: true
-								}
-						},
-						filter(departments, type) {
-								if (type.id !== 'can-admin') {
-										return _.chain(departments).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
-								}
-								return _.map(departments, item => ({id: item["@id"], label: item.label}));
-						},
-						toggle(e) {
-								const type = e.model.type;
-								const dep = e.model.item;
-								const temp = this.get(`value.${type.id}.${dep.id}`) || false;
-								if (!temp) {
-										_.set(this.value, `${type.id}.${dep.id}`, false);
-								}
-								this.set(`value.${type.id}.${dep.id}`, !temp);
-						},
-						getChecked(value, type, dep) {
-								return !!_.get(value, [
-										type, dep
-								], false);
-						},
-						ready() {
-								this.types = [
-										{
-												id: 'can-report',
-												label: 'Отчеты'
-										}, {
-												id: 'can-manage',
-												label: 'Респшен'
-										}, {
-												id: 'can-book',
-												label: 'Запись'
-										}, {
-												id: 'can-admin',
-												label: 'Администратор'
+				(function () {
+						function getCookie(cname) {
+								var name = cname + "=";
+								var decodedCookie = decodeURIComponent(document.cookie);
+								var ca = decodedCookie.split(';');
+								for (var i = 0; i < ca.length; i++) {
+										var c = ca[i];
+										while (c.charAt(0) == ' ') {
+												c = c.substring(1);
 										}
-								];
+										if (c.indexOf(name) == 0) {
+												return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
+										}
+								}
+								return "";
+						};
 
-						}
-				});
+						Polymer({
+								is: 'permissions-picker',
+								properties: {
+										departments: {
+												type: Array
+										},
+										value: {
+												type: Object,
+												notify: true
+										}
+								},
+								filter(departments, type) {
+										const permissions = getCookie('permissions');
+										if (type.id !== 'can-admin') {
+												return _.chain(departments).filter({"@type": 'Department'}).filter(item => {
+														const id = item["@id"];
+														const unit_of = item.unit_of;
+														return permissions.includes(id) || permissions.includes(unit_of);
+												}).map(item => ({id: item["@id"], label: item.label})).value();
+										}
+										return _.chain(departments).filter(item => {
+												const id = item["@id"];
+												const unit_of = item.unit_of;
+												return permissions.includes(id) || permissions.includes(unit_of);
+										}).map(item => ({id: item["@id"], label: item.label})).value();
+								},
+								toggle(e) {
+										const type = e.model.type;
+										const dep = e.model.item;
+										const temp = this.get(`value.${type.id}.${dep.id}`) || false;
+										if (!temp) {
+												_.set(this.value, `${type.id}.${dep.id}`, false);
+										}
+										this.set(`value.${type.id}.${dep.id}`, !temp);
+								},
+								getChecked(value, type, dep) {
+										return !!_.get(value, [
+												type, dep
+										], false);
+								},
+								ready() {
+										this.types = [
+												{
+														id: 'can-report',
+														label: 'Отчеты'
+												}, {
+														id: 'can-manage',
+														label: 'Респшен'
+												}, {
+														id: 'can-book',
+														label: 'Запись'
+												}, {
+														id: 'can-admin',
+														label: 'Администратор'
+												}
+										];
+
+								}
+						});
+				})();
 		</script>
 </dom-module>

@@ -95,15 +95,14 @@
 										<paper-input label="Время для перерасчета слотов ПЗ" value="{{item.auto_warmup_time}}" placeholder="{{getPlaceholder('auto_warmup_time',item)}}"></paper-input>
 										<paper-input label="Время автозавершения необработанных талонов" value="{{item.auto_expire_time}}" placeholder="{{getPlaceholder('auto_expire_time',item)}}"></paper-input>
 										<paper-input label="Назначенный промежуток приема ЖО перед ПЗ" value="{{item.prebook_separation_interval}}" placeholder="{{getPlaceholder('prebook_separation_interval',item)}}"></paper-input>
-
+										<placeholder-checkbox label="Режим приема ЖО за назначенный промежуток перед ПЗ" checked="{{item.separate_prebook_ordering}}" placeholder="{{getPlaceholder('separate_prebook_ordering',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Оценка качества" checked="{{item.qa_enabled}}" placeholder="{{getPlaceholder('qa_enabled',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Запись логов МКГУ" checked="{{item.logs.mkgu}}" placeholder="{{getPlaceholder('logs.mkgu',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Отображение талонов в АРМ согласно настройки рабочих мест" checked="{{item.workstation_filtering_enabled}}" placeholder="{{getPlaceholder('workstation_filtering_enabled',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Отображение талонов в АРМ согласно настройки сотрудников" checked="{{item.employee_filtering_enabled}}" placeholder="{{getPlaceholder(employee_filtering_enabled',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Расчет талонов согласно настройки рабочих мест" checked="{{item.workstation_resource_enabled}}" placeholder="{{getPlaceholder('workstation_resource_enabled',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Расчет талонов согласно настройки сотрудников" checked="{{item.employee_resource_enabled}}" placeholder="{{getPlaceholder('employee_resource_enabled',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Режим приема ЖО за назначенный промежуток перед" checked="{{item.separate_prebook_ordering}}" placeholder="{{getPlaceholder('separate_prebook_ordering',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Льготные талоны идут перед" checked="{{item.live_priority_ordering}}" placeholder="{{getPlaceholder('live_priority_ordering',item)}}"></placeholder-checkbox>
+										<placeholder-checkbox label="Льготные талоны идут перед ПЗ" checked="{{item.live_priority_ordering}}" placeholder="{{getPlaceholder('live_priority_ordering',item)}}"></placeholder-checkbox>
 										<placeholder-checkbox label="Выдавать талоны ЖО согласно расписанию, без учета работы АРМ" checked="{{item.ignore_agent_state}}" placeholder="{{getPlaceholder('ignore_agent_state',item)}}"></placeholder-checkbox>
 										<booking-method-selector methods="{{item.booking_methods }}"></booking-method-selector>
 
@@ -113,7 +112,6 @@
 										<h3>Сообщения</h3>
 										<div class="notifications">
 												<level-editor value="[[item.notification_levels.max-waiting-time]]" parent="[[parentOfItem.notification_levels.max-waiting-time]]"></level-editor>
-
 										</div>
 
 										<h3>Приоритеты</h3>
