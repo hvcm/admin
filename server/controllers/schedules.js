@@ -31,7 +31,9 @@ class Schedules extends Basic {
 			.getSchedules()
 			.then(data => {
 				return {
-					list: _.map(data, 'value')
+					list: _
+						.map(data, 'value')
+						.filter(item => item["@id"] !== "schedule-0")
 				};
 			})
 			.then(data => this.res.json(data));
