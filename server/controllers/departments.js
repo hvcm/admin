@@ -25,7 +25,7 @@ class Departments extends Basic {
 			.then(data => this.res.json(data));;
 	}
 	removeFields(data) {
-		['services', 'qa_design', 'oper_design', 'routes'].map(item => _.unset(data, item));
+		['services', 'qa_design', 'oper_design', 'routes', '__fresh'].map(item => _.unset(data, item));
 	}
 	updateSatelite(...designs) {
 		const {cb} = this.req;
@@ -48,26 +48,31 @@ class Departments extends Basic {
 			services: this.makeServiceRegistry(id, services)
 		});
 	}
-
+	makeOffice(office_id, department_id) {
+		return {"@id": office_id, "@type": "Office", "has_unit": [department_id]};
+	}
 	create(data, value) {
 		const {cb} = this.req;
 		const id = data["@id"];
+		const office_id = data.__fresh;
+		const office = this.makeOffice(office_id, id);
+		const {content} = value;
 
 		const {services, qa_design, oper_design, routes} = data;
 		this.removeFields(data);
 
-		value
-			.content
-			.push(data);
+		content.push(office);
+		content.push(data);
 
 		return Promise.props({
 			upsert: cb.upsert('global_org_structure', value),
-			update_user: this.updateUser(id),
+			update_user: this.updateUser(id, office_id),
 			satelites: this.makeSatelites(id, qa_design, oper_design),
 			routing_map: this.makeServiceRoutingMap(id, routes),
 			services: this.makeServiceRegistry(id, services)
 		}).then(data => this.res.json(data));
 	}
+
 	setCookie(value) {
 		const p = _.get(value, 'permissions.can-admin', {});
 		const permissions = _.transform(p, (acc, item, index) => {
@@ -90,7 +95,7 @@ class Departments extends Basic {
 				return cb.upsert(user, value);
 			});
 	}
-	updateUser(id) {
+	updateUser(id, office_id) {
 		const {user} = this.req.cookies;
 		const {cb} = this.req;
 
@@ -98,6 +103,7 @@ class Departments extends Basic {
 			.get(user)
 			.then(({value}) => {
 				_.set(value, 'permissions.can-admin.' + id, true);
+				(!!office_id) && _.set(value, 'permissions.can-admin.' + office_id, true);
 				this.setCookie(value);
 				return cb.upsert(user, value);
 			});

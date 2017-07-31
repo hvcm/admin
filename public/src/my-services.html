@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="./components/field-editor/field-editor.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-services">
@@ -52,10 +53,9 @@
 										<paper-input label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="Код услуги ФРГУ"></paper-input>
 										<paper-input label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="Код ведомства ФРГУ"></paper-input>
 										<paper-input label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="Код услуги ЕПГУ"></paper-input>
-										<paper-input label="" value="{{item.prebook_offset}}" placeholder=""></paper-input>
+										<paper-input label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="Промежуток ограничения времени до ближайшего слота предзаписи"></paper-input>
 										<paper-input label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="Время обслуживания по ЖО"></paper-input>
 										<paper-input label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="Время обслуживания по ПЗ"></paper-input>
-										<paper-input label="" value="{{item.ordering}}" placeholder=""></paper-input>
 										<paper-input label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="Количество дней по ПЗ"></paper-input>
 										<paper-input label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="Процент талонов по ПЗ"></paper-input>
 										<paper-input label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="Процент талонов по ПЗ на текущий день"></paper-input>
@@ -178,6 +178,7 @@
 						},
 						addField() {
 								const editor = Polymer.dom(this.root).querySelector('#peditor');
+								console.log(editor);
 								editor.addField();
 						},
 						presave() {

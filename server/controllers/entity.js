@@ -36,13 +36,6 @@ class Entity extends Basic {
 
 		this[method](data).then(res => this.res.json(res));
 	}
-	_saveEntitySystemWorkstation(data) {
-		return this._saveEntityWorkstation(data);
-	}
-	_deleteEntitySystemWorkstation(data) {
-		return this._deleteEntityWorkstation(data);
-	}
-
 	_saveEntityFields(data) {
 		const {entity} = this.req.params;
 		const {cb} = this.req;
@@ -64,40 +57,6 @@ class Entity extends Basic {
 		});
 	}
 
-	_getListSystemWorkstations() {
-		const {cb, cookies} = this.req;
-		const permissions = this.permissions;
-		const registries = _.map(permissions, item => `registry_workstation_${item}`);
-
-		return Promise.props({
-			reg: this
-				.util
-				.getWorkstationsId('call-center', 'registry'),
-			webterm: cb.get('megatron-6')
-		}).then(({reg, webterm}) => {
-			const workstation_id = _
-				.chain(reg)
-				.concat(_.get(webterm, 'value.available_workstation', []))
-				.value();
-
-			const list = cb
-				.getMulti(workstation_id)
-				.then(data => _.map(data, 'value'));
-			const helpers = Promise.props({
-				offices: this
-					.util
-					.getOffices(),
-				terminals: this
-					.util
-					.getWorkstationsId('terminal')
-					.then(ids => cb.getMulti(ids).then(res => _.chain(res).map(({
-						value = {}
-					}) => [value["@id"], value.label]).fromPairs().value()))
-			});
-			return Promise.props({list, helpers})
-		});
-
-	}
 	_getListGlobalsPriority() {
 		const {cb} = this.req;
 
@@ -177,14 +136,9 @@ class Entity extends Basic {
 					.util
 					.getServiceMaps();
 
-				const schedule = cb
-					.view(this.req.query('schedule'))
-					.then(items => _.map(items, item => ({
-						id: item.id,
-						label: item.value || (item.id == 'schedule-0'
-							? 'Основное расписание'
-							: item.id.replace('schedule-', 'Расписание '))
-					})));
+				const schedule = this
+					.util
+					.getSchedulesByView();
 
 				const helpers = Promise.props({
 					schedule,

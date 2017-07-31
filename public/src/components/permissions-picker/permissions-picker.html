@@ -10,7 +10,7 @@
 				</style>
 				<h2>Прием</h2>
 				<div class="">
-						<paper-checkbox checked="{{value.ticket-by-id.registered}}">Прием</paper-checkbox>
+						<paper-checkbox checked="{{value.ticket-by-id.registered}}">Внеочередной прием</paper-checkbox>
 				</div>
 				<div class="">
 						<paper-checkbox checked="{{value.ticket-by-id.postponed}}">Прием из отложенных</paper-checkbox>
@@ -55,13 +55,19 @@
 								},
 								filter(departments, type) {
 										const permissions = getCookie('permissions');
-										if (type.id !== 'can-admin') {
-												return _.chain(departments).filter({"@type": 'Department'}).filter(item => {
-														const id = item["@id"];
-														const unit_of = item.unit_of;
-														return permissions.includes(id) || permissions.includes(unit_of);
-												}).map(item => ({id: item["@id"], label: item.label})).value();
+										if (!this.superadmin && type.id === 'can-admin') {
+												return [];
 										}
+										if (this.superadmin) {
+												return _.chain(departments).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+										}
+										// if (type.id !== 'can-admin') {
+										return _.chain(departments).filter({"@type": 'Department'}).filter(item => {
+												const id = item["@id"];
+												const unit_of = item.unit_of;
+												return permissions.includes(id) || permissions.includes(unit_of);
+										}).map(item => ({id: item["@id"], label: item.label})).value();
+										// }
 										return _.chain(departments).filter(item => {
 												const id = item["@id"];
 												const unit_of = item.unit_of;

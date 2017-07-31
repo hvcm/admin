@@ -41,6 +41,10 @@ class Util {
 				return true;
 			}
 
+			if (toDelete.includes('registry_workstation_office')) {
+				return true;
+			}
+
 			return cb
 				.get(toDelete)
 				.then((data) => {
@@ -93,7 +97,17 @@ class Util {
 			.get('global_org_structure')
 			.then(data => _.get(data, 'value.content'))
 	}
-
+	getSchedulesByView() {
+		const {cb} = this.req;
+		return cb
+			.view(this.req.query('schedule'))
+			.then(items => _.chain(items).filter(item => item.id !== "schedule-0").map(item => ({
+				id: item.id,
+				label: item.value || item
+					.id
+					.replace('schedule-', 'Расписание ')
+			})).value());
+	}
 	getSchedules() {
 		const {cb, params} = this.req;
 

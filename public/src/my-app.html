@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								</app-toolbar>
 
 								<iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-										<a name="globals" href$="/{{app.global.namespace}}/globals">Поля</a>
+										<a name="globals" href$="/{{app.global.namespace}}/globals">Информационные поля</a>
 										<a name="globals-priority" href$="/{{app.global.namespace}}/globals-priority">Настройки приоритета</a>
 										<a name="departments" href$="/{{app.global.namespace}}/departments">Отделы</a>
 										<a name="workstations" href$="/{{app.global.namespace}}/workstations">Рабочие места</a>
@@ -125,9 +125,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
 										<my-globals name="globals" app="{{app.globals}}" route="{{subroute}}"></my-globals>
 										<my-globals-priority name="globals-priority" app="{{app.globals-priority}}"></my-globals-priority>
-										<my-departments name="departments" app="{{app.departments}}" route="{{subroute}}"></my-departments>
+										<my-departments name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
 										<my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
-										<my-humans name="humans" app="{{app.humans}}" route="{{subroute}}"></my-humans>
+										<my-humans name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>
 										<my-terminals name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>
 										<my-roomdisplays name="roomdisplays" app="{{app.roomdisplays}}" route="{{subroute}}"></my-roomdisplays>
 										<my-services name="services" app="{{app.services}}" route="{{subroute}}"></my-services>
@@ -207,6 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								const admins = _.split(getCookie('admins'), '$$$');
 
 								this.username = getCookie('username');
+								this.superadmin = getCookie('superadmin') || false;
 								if (!user) {
 										window.location.replace('/login');
 								}

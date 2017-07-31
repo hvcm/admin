@@ -38,7 +38,7 @@
 								<paper-dropdown-menu label="Права">
 										<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{permissionfilter}}">
 												<paper-item val="*">Любые</paper-item>
-												<paper-item val="ticket-by-id-registered">Прием</paper-item>
+												<paper-item val="ticket-by-id-registered">Внеочередной прием</paper-item>
 												<paper-item val="ticket-by-id-postponed">Прием из отложенных</paper-item>
 												<paper-item val="can-admin">Администратор</paper-item>
 												<paper-item val="can-report">Отчеты</paper-item>
@@ -69,13 +69,7 @@
 										<paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество"></paper-input>
 										<paper-input label="Логин" value="{{item.login}}" placeholder="Логин"></paper-input>
 										<paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль"></paper-input>
-										<paper-dropdown-menu label="Тип приема">
-												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
-														<paper-item val="*">Все</paper-item>
-														<paper-item val="live">Живая очередь</paper-item>
-														<paper-item val="prebook">Предварительная запись</paper-item>
-												</paper-listbox>
-										</paper-dropdown-menu>
+
 								</div>
 								<div page="provides">
 										<service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>
@@ -92,7 +86,19 @@
 										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
 								</div>
 								<div page="permissions">
-										<permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}"></permissions-picker>
+										<div class="line" hidden$="[[superadmin]]">
+												<label>Суперадмин</label>
+												<paper-toggle-button checked="{{item.permissions.superadmin}}"></paper-toggle-button>
+										</div>
+
+										<paper-dropdown-menu label="Тип приема">
+												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
+														<paper-item val="*">Все</paper-item>
+														<paper-item val="live">Живая очередь</paper-item>
+														<paper-item val="prebook">Предварительная запись</paper-item>
+												</paper-listbox>
+										</paper-dropdown-menu>
+										<permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></permissions-picker>
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
@@ -217,7 +223,7 @@
 										case 'ticket-by-id':
 												return [
 														{
-																label: 'Прием',
+																label: 'Внеочередной прием',
 																value: data.registered
 																		? '+'
 																		: '-'
@@ -263,6 +269,14 @@
 										}, {
 												field: 'login',
 												label: 'Логин'
+										}, {
+												field: '@id',
+												label: 'Отдел',
+												sortable: true,
+												transform: (id) => {
+														const offices = this.app.helpers.offices;
+														return _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization").map(id => _.find(offices, {"@id": id})).map('label').value().join(',   ');
+												}
 										}
 								];
 						}

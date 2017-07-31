@@ -37,20 +37,20 @@ class Login extends Basic {
 					}
 
 					const permissions = _.get(user, 'permissions.can-admin', {});
+					const superadmin = _.get(user, 'permissions.superadmin', false);
 					const admins = _.reduce(permissions, (acc, item, index) => ((item && acc.push(index)), acc), []);
+					const user_id = user["@id"];
 
 					response.cookie('permissions', admins, opts);
-					response.cookie('user', user["@id"], opts);
+					response.cookie('superadmin', superadmin, opts);
+					response.cookie('user', user_id, opts);
 					response.cookie('username', this.getUsername(user), opts);
 					response.cookie('server', this.req.server_id, opts);
 
 					return cb
 						.get('global_org_structure')
 						.then(structure => _.chain(structure.value.content).filter(item => ~ admins.indexOf(item['@id'])).map(Util.mapID).value())
-						.then(() => {
-							return user;
-						})
-
+						.then(() => user);
 				})
 		}).then(res => this.res.status(200).send(res));
 

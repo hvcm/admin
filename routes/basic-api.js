@@ -16,7 +16,8 @@ const entities = [
 	'service-groups',
 	'departments',
 	'digital-displays',
-	'servers'
+	'servers',
+	'system-workstations'
 ];
 
 const actions = ['delete', 'save', 'list'];
@@ -26,9 +27,8 @@ const options = {
 module.exports = app => {
 
 	entities.forEach(name => {
-		const module = discover(name);
 		actions.forEach(action => {
-			router.post(app, `/entity-${action}/${name}`, module, action, options);
+			router.post(app, `/entity-${action}/${name}`, discover(name), action, options);
 		})
 	});
 

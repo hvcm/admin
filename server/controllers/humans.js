@@ -58,6 +58,7 @@ class Humans extends Basic {
 			.get('global_membership_description')
 			.then(({value}) => {
 				const {content} = value;
+				const membership = content;
 				const ids = _
 					.chain(content)
 					.filter(item => this.permissions.includes(item.organization))
@@ -76,19 +77,15 @@ class Humans extends Basic {
 					.then(data => cb.getMulti(data))
 					.then(items => _.mapValues(items, 'value.label'));
 
-				const schedule = cb
-					.view(this.req.query('schedule'))
-					.then(items => _.map(items, item => ({
-						id: item.id,
-						label: item.value || (item.id == 'schedule-0'
-							? 'Основное расписание'
-							: item.id.replace('schedule-', 'Расписание '))
-					})));
+				const schedule = this
+					.util
+					.getSchedulesByView();
 
 				const helpers = Promise.props({
 					offices,
 					services,
 					schedule,
+					membership,
 					workstations: this
 						.util
 						.getWorkstationsId('control-panel', 'reports', 'reception', 'call-center', 'registry')

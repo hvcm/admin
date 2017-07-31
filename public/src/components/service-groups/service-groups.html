@@ -52,6 +52,8 @@
 														<div class="dragged-item" item$="[[item]]">
 																<div class="shadow">
 																		[[translateID(item)]]
+																		<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
+																		<paper-icon-button icon="icons:create" on-tap="edit"></paper-icon-button>
 																</div>
 														</div>
 												</template>
@@ -108,7 +110,7 @@
 						groupsToID(groups, search) {
 								if (!search)
 										return _.map(groups, '@id');
-								return _.chain(groups).filter(i => ~ i.label.indexOf(search)).map('@id').value();
+								return _.chain(groups).filter(i => ~ (i.label || '').toLowerCase().indexOf((search || '').toLowerCase())).map('@id').value();
 						},
 						servicesToID(services, search) {
 								if (!search)
@@ -120,6 +122,12 @@
 						},
 						translateServiceID(item) {
 								return this.services[item];
+						},
+						delete(e) {
+								this.fire('delete', _.find(this.groups, {"@id": e.model.item}));
+						},
+						edit(e) {
+								this.fire('edit', _.find(this.groups, {"@id": e.model.item}));
 						}
 
 				});

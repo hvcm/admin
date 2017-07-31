@@ -140,12 +140,16 @@
 										? '*'
 										: selected;
 						},
+
 						transformProvides(provides) {
+								if (!provides)
+										return undefined;
 								const indexes = this.app.helpers.service_map[this.item.attached_to];
 								return provides === '*'
 										? indexes
 										: provides;
 						},
+
 						_correct(item) {
 								item.device_placement = {};
 								if (!item.provides) {
@@ -163,17 +167,20 @@
 								}
 								return item;
 						},
+
 						provides(count) {
 								return count === '*'
 										? "Все"
 										: (count || []).length
 						},
+
 						_itemChanged(id, pid) {
 								ListBehavior._itemChanged.call(this, id, pid);;
 								if (id && this.item) {
 										this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
 								}
 						},
+
 						makeEntity() {
 								const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
 								return {
@@ -191,7 +198,8 @@
 										"short_label": ""
 								};
 						},
-						ready: function () {
+
+						ready() {
 								// this.listVisible = true;
 								const sortable = true;
 								this.entityName = 'workstation';

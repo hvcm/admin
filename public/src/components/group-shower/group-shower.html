@@ -27,9 +27,12 @@
 								text-decoration: underline;
 								cursor: pointer;
 						}
+						.container {
+								min-height: 50px;
+						}
 
 				</style>
-				<paper-icon-button icon="arrow-drop-down" on-tap="expand"></paper-icon-button>
+				<paper-icon-button icon="[[icon]]" on-tap="expand"></paper-icon-button>
 				<span class="name" on-tap="cellTap">[[group.label]]</span>
 				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
 				<template id="list" is="dom-if" if="[[open]]">
@@ -137,6 +140,7 @@
 										this.drake && this.drake.off('cancel', this.cancel)
 								},
 								ready: function () {
+										this.icon = "arrow-drop-down";
 										this.options = {
 												name: Math.random(),
 												pull: false,
@@ -176,7 +180,9 @@
 								},
 								expand() {
 										this.set('open', !this.open);
-
+										this.icon = this.open
+												? "arrow-drop-up"
+												: "arrow-drop-down";
 										(!this.drawn) && this.async(() => {
 												this.cnt = this.cnt || Polymer.dom(this.root).querySelector('.container');
 												Polymer.dom(this.cnt).innerHTML = '';

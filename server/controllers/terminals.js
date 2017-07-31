@@ -15,16 +15,16 @@ class Terminals extends Basic {
 		const {cb} = this.req;
 		const id = data['@id'];
 		const hiddentype = data.__hidden_type;
-		console.log(id, hiddentype);
+
 		const field = hiddentype.indexOf('megatron') === 0
 			? 'available_workstation'
-			: 'attached_terminal'
+			: 'attached_terminal';
+
 		return cb
 			.get(hiddentype)
 			.then(res => {
 				const item = res.value;
 				const workstations = item[field];
-				console.log(item);
 				workstations.push(id);
 				item[field] = _.uniq(workstations)
 				return cb.upsert(item["@id"], item);
@@ -34,10 +34,11 @@ class Terminals extends Basic {
 		const {cb} = this.req;
 		const id = data['@id'];
 		const hiddentype = data.__hidden_type;
-		console.log(id, hiddentype);
+
 		const field = hiddentype.indexOf('megatron') === 0
 			? 'available_workstation'
-			: 'attached_terminal'
+			: 'attached_terminal';
+
 		return cb
 			.get(hiddentype)
 			.then(res => {

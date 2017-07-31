@@ -77,14 +77,9 @@ class Services extends Basic {
 			.util
 			.getServiceMaps();
 
-		const schedule = cb
-			.view(this.req.query('schedule'))
-			.then(items => _.map(items, item => ({
-				id: item.id,
-				label: item.value || (item.id == 'schedule-0'
-					? 'Основное расписание'
-					: item.id.replace('schedule-', 'Расписание '))
-			})));
+		const schedule = this
+			.util
+			.getSchedulesByView();
 
 		const helpers = Promise.props({
 			schedule,

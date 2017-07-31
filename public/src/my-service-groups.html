@@ -110,7 +110,7 @@
 				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 				<template is="dom-if" if="[[listVisible]]">
 						<div class$="wrap [[orientation]] [[state]]">
-								<div class="list samples">
+								<div class="list samples" on-delete="deleteFromList" on-edit="editFromList">
 										<div class="menu">
 												<paper-input class="hidden-closed" label="Поиск" value="{{groupSearch}}"></paper-input>
 												<paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
@@ -140,10 +140,6 @@
 								<div page="common">
 										<paper-input label="Наименование" value="{{item.label}}"></paper-input>
 										<paper-input label="Кнопок на странице" value="{{item.items_per_page}}"></paper-input>
-										<div class="line">
-												<label>Корневая группа</label>
-												<paper-toggle-button checked="{{item._root}}"></paper-toggle-button>
-										</div>
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
@@ -171,7 +167,7 @@
 						</div>
 				</paper-dialog>
 				<paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
-						<h2>Удаление корневой группы</h2>
+						<h2>[[groupDelete]]</h2>
 						<paper-dialog-scrollable>
 								Вы действительно хотите удалить эту группу?
 						</paper-dialog-scrollable>
@@ -220,14 +216,12 @@
 								this.async(() => this.groupSearch = t);
 						},
 						filter(data) {
-								const result = _.filter(data, {view_order: "0"});
-
-								return result;
-
+								return _.filter(data, {view_order: "0"});
 						},
 						mainGroupDelete(e) {
 								this.toDeleteId = e.detail;
 								this.isDeleteDialog = true;
+								this.groupDelete = "Удаление корневой группы";
 						},
 						setInterval() {
 								//noop
@@ -239,6 +233,20 @@
 								const item = _.find(this.app.list, {"@id": this.toDeleteId});
 								delete item.view_order;
 								this.toggler = !this.toggler;
+						},
+						deleteFromList(e) {
+								const item = (e.detail);
+
+								this.toDeleteId = item["@id"];
+								this.isDeleteDialog = true;
+								this.groupDelete = "Удаление группы";
+						},
+						editFromList(e) {
+								const item = (e.detail);
+
+								const id = item["@id"];
+								const row = _.findIndex(this.app.list, {"@id": id});
+								this.routeToID(id, row);
 						},
 						saveDiff() {
 								const diff = this.compare();

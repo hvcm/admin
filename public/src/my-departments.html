@@ -59,7 +59,7 @@
 				<template is="dom-if" if="[[listVisible]]">
 						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini hidden$="[[canAddDepartment(app.list)]]" icon="add" on-tap="addEntityDialog"></paper-fab>
+						<paper-fab id="add" mini hidden$="[[!superadmin]]" icon="add" on-tap="addEntity"></paper-fab>
 				</template>
 
 				<template is="dom-if" if="[[!listVisible]]">
@@ -144,20 +144,7 @@
 								<paper-button dialog-confirm>Да</paper-button>
 						</div>
 				</paper-dialog>
-				<paper-dialog opened="{{addDialog}}" on-iron-overlay-closed="addEntityComplete">
-						<h2>Выберите родительский офис</h2>
-						<paper-dialog-scrollable>
-								<paper-listbox selected="{{selectedUnitId}}">
-										<template is="dom-repeat" items="[[avOffices]]">
-												<paper-item >[[item.label]]</paper-item>
-										</template>
-								</paper-listbox>
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Отмена</paper-button>
-								<paper-button dialog-confirm>Ок</paper-button>
-						</div>
-				</paper-dialog>
+
 				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
 						<h2>Изменения будут потеряны</h2>
 						<paper-dialog-scrollable>
@@ -175,7 +162,7 @@
 						is: 'my-departments',
 						behaviors: [ListBehavior],
 
-						ready: function () {
+						ready() {
 								this.entityName = 'departments';
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
 								this.fieldsModel = [
@@ -190,28 +177,29 @@
 										}
 								];
 						},
+						filter(data, searchString) {
+								data = _.filter(data, {"@type": "Department"});
+
+								if (!searchString)
+										return data;
+
+								searchString = searchString.toLowerCase();
+
+								return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
+						},
 						_itemChanged(id) {
 								ListBehavior._itemChanged.call(this, id);
 								if (!id || !this.item) {
 										return;
 								}
 								const parent_id = this.item.unit_of;
-								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id});
+								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id}) || {};
 						},
-						addEntityDialog() {
-								this.addDialog = true;
-								this.avOffices = _.filter(this.app.list, {'@type': "Office"});
-						},
+
 						isOffice(item) {
 								return item["@type"] === "Office";
 						},
-						addEntityComplete(e) {
 
-								this.selectedUnit = _.get(this.avOffices[this.selectedUnitId], '@id');
-								if (e.detail.confirmed && this.selectedUnit) {
-										this.addEntity();
-								}
-						},
 						_correct(item) {
 								item.priority_description = item.priority_description || {
 										veteran: {},
@@ -244,11 +232,14 @@
 								return _.get(this.parentOfItem, field);
 						},
 						makeEntity() {
+								const id = `${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
 								return {
+										__fresh: `office-${id}`,
 										label: '',
-										"@id": `department-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+										"@id": `department-${id}`,
+										"@type": "Department",
 										formatted_address: '',
-										unit_of: this.selectedUnit,
+										unit_of: `office-${id}`,
 										priority_description: {
 												veteran: {
 														value: 1
@@ -269,23 +260,23 @@
 														exclude: []
 												}
 										},
-										"notification_levels": {
+										notification_levels: {
 												"max-waiting-time": [
 														{
-																"code": "high",
-																"value": 3600,
-																"dnd": 60,
-																"message": "Красный уровень"
+																code: "high",
+																value: 3600,
+																dnd: 60,
+																message: "Красный уровень"
 														}, {
-																"code": "normal",
-																"value": 1800,
-																"dnd": 60,
-																"message": "Желтый уровень"
+																code: "normal",
+																value: 1800,
+																dnd: 60,
+																message: "Желтый уровень"
 														}, {
-																"code": "low",
-																"value": 900,
-																"dnd": 60,
-																"message": "Зеленый уровень"
+																code: "low",
+																value: 900,
+																dnd: 60,
+																message: "Зеленый уровень"
 														}
 												]
 										}

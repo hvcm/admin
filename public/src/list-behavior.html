@@ -107,8 +107,8 @@
 				},
 				saveAll() {
 						this.changed = false;
-						if (this.presave)
-								this.presave();
+						(this.presave) && this.presave();
+
 						window.api.saveEntity(this.entityName, this.item);
 						this._back();
 				},
