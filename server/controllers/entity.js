@@ -128,6 +128,7 @@ class Entity extends Basic {
 			.util
 			.getWorkstationsId('control-panel')
 			.then(workstation_id => {
+				console.log('workstation_id',workstation_id);
 				const list = cb
 					.getMulti(workstation_id)
 					.then(data => _.map(data, 'value'));
@@ -150,6 +151,7 @@ class Entity extends Basic {
 							.chain(data)
 							.flatMap(item => item.value.content)
 							.uniq()
+							.compact()
 							.value();
 					}).then(data => {
 						return cb

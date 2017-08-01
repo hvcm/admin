@@ -43,16 +43,16 @@
 				<div id="globals">
 						<template is="dom-repeat" items="[[app.list]]">
 								<div class="priority">
-										<paper-input label="Ключ" value="{{item.__index}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Описание" value="{{item.description}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Префикс" value="{{item.params.prefix}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Значение" value="{{item.params.value}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-button raised on-tap="deleteDialog" hidden$="[[!app.helpers.canedit]]">Удалить</paper-button>
+										<paper-input label="Ключ" value="{{item.__index}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Префикс" value="{{item.params.prefix}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Значение" value="{{item.params.value}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-button raised on-tap="deleteDialog" hidden$="[[!superadmin]]">Удалить</paper-button>
 								</div>
 						</template>
-						<paper-fab id="save" mini icon="save" on-tap="saveAll" hidden$="[[!app.helpers.canedit]]"></paper-fab>
-						<paper-fab id="add" mini icon="add" on-tap="addPriority" hidden$="[[!app.helpers.canedit]]"></paper-fab>
+						<paper-fab id="save" mini icon="save" on-tap="saveAll" hidden$="[[!superadmin]]"></paper-fab>
+						<paper-fab id="add" mini icon="add" on-tap="addPriority" hidden$="[[!superadmin]]"></paper-fab>
 				</div>
 
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">

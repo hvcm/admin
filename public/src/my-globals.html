@@ -67,7 +67,7 @@
 				<template is="dom-if" if="[[listVisible]]">
 						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!app.helpers.canedit]]"></paper-fab>
+						<paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!superadmin]]"></paper-fab>
 				</template>
 				<template is="dom-if" if="[[!listVisible]]">
 						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
@@ -79,25 +79,25 @@
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
 								<div page=""></div>
 								<div page="common">
-										<paper-input label="ID" value="{{item.key}}" placeholder="[[item.__index]]" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Описание" value="{{item.description}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Порядок" value="{{item.order}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Количество символов" value="{{item.length}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Максимальное значение" value="{{item.max-value}}" disabled="[[!app.helpers.canedit]]"></paper-input>
-										<paper-input label="Маска" value="{{item.mask}}" disabled="[[!app.helpers.canedit]]"></paper-input>
+										<paper-input label="ID" value="{{item.key}}" placeholder="[[item.__index]]" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Порядок" value="{{item.order}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Количество символов" value="{{item.length}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Максимальное значение" value="{{item.max-value}}" disabled="[[!superadmin]]"></paper-input>
+										<paper-input label="Маска" value="{{item.mask}}" disabled="[[!superadmin]]"></paper-input>
 										<div class="toggle">
 												<label>Обязательное поле</label>
-												<paper-toggle-button label="Обязательное поле" checked="{{item.required}}" disabled="[[!app.helpers.canedit]]"></paper-toggle-button>
+												<paper-toggle-button label="Обязательное поле" checked="{{item.required}}" disabled="[[!superadmin]]"></paper-toggle-button>
 										</div>
 										<div class="toggle">
 												<label>Включено по умолчанию</label>
-												<paper-toggle-button label="Включено" checked="{{item.include}}" disabled="[[!app.helpers.canedit]]"></paper-toggle-button>
+												<paper-toggle-button label="Включено" checked="{{item.include}}" disabled="[[!superadmin]]"></paper-toggle-button>
 										</div>
 
 										<div class="drops">
-												<paper-dropdown-menu label="Клавиатура" disabled="[[!app.helpers.canedit]]" vertical-align="bottom" horizontal-align="left">
+												<paper-dropdown-menu label="Клавиатура" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
 														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.layout}}">
 																<template is="dom-repeat" items="[[layouts]]" as="keyboard">
 																		<paper-item val="[[keyboard.id]]">[[keyboard.label]]</paper-item>
@@ -105,7 +105,7 @@
 														</paper-listbox>
 												</paper-dropdown-menu>
 
-												<paper-dropdown-menu label="Метод регистрацияя" disabled="[[!app.helpers.canedit]]" vertical-align="bottom" horizontal-align="left">
+												<paper-dropdown-menu label="Метод регистрацияя" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
 														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.method}}">
 																<paper-item val="*">Все</paper-item>
 																<paper-item val="live">Живая очередь</paper-item>
@@ -113,7 +113,7 @@
 														</paper-listbox>
 												</paper-dropdown-menu>
 
-												<paper-dropdown-menu label="Тип поля" disabled="[[!app.helpers.canedit]]" vertical-align="bottom" horizontal-align="left">
+												<paper-dropdown-menu label="Тип поля" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
 														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.type}}">
 																<template is="dom-repeat" items="[[types]]" as="type">
 																		<paper-item val="[[type.id]]">[[type.label]]</paper-item>
@@ -125,7 +125,7 @@
 
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[select(changed,app.helpers.canedit)]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!app.helpers.canedit]]"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
 				</template>
 
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
