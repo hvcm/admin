@@ -115,8 +115,8 @@
 								</app-header>
 
 								<iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
-										<my-globals name="globals" app="{{app.globals}}" route="{{subroute}}"></my-globals>
-										<my-globals-priority name="globals-priority" app="{{app.globals-priority}}"></my-globals-priority>
+										<my-globals name="globals" app="{{app.globals}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-globals>
+										<my-globals-priority name="globals-priority" app="{{app.globals-priority}}" superadmin="[[superadmin]]"></my-globals-priority>
 										<my-departments name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
 										<my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
 										<my-humans name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>

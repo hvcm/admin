@@ -13,6 +13,9 @@ class Logout extends Basic {
 			.clearCookie('server');
 		this
 			.res
+			.clearCookie('superadmin');
+		this
+			.res
 			.json({status: 'success'});
 	}
 }

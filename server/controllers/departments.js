@@ -148,7 +148,7 @@ class Departments extends Basic {
 			"@id": `registry_service_${id}`,
 			"@type": "Registry",
 			"@content_type": "Service",
-			"content": value
+			"content": value || []
 		};
 
 		return cb.upsert(map["@id"], map);
