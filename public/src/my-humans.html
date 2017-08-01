@@ -86,7 +86,7 @@
 										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
 								</div>
 								<div page="permissions">
-										<div class="line" hidden$="[[superadmin]]">
+										<div class="line" hidden$="[[!superadmin]]">
 												<label>Суперадмин</label>
 												<paper-toggle-button checked="{{item.permissions.superadmin}}"></paper-toggle-button>
 										</div>
