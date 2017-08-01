@@ -199,7 +199,8 @@
 								const admins = _.split(getCookie('admins'), '$$$');
 
 								this.username = getCookie('username');
-								this.superadmin = getCookie('superadmin') || false;
+								this.superadmin = getCookie('superadmin') === 'true';
+								console.log('superadmin',this.superadmin);
 								if (!user) {
 										window.location.replace('/login');
 								}
