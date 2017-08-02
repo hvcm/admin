@@ -26,6 +26,9 @@
 						paper-fab#add-field {
 								bottom: 110px;
 						}
+						*[hidden] {
+								display: none;
+						}
 
 				</style>
 
@@ -34,7 +37,7 @@
 				<template is="dom-if" if="[[listVisible]]">
 						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
 						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntityDialog"></paper-fab>
+						<paper-fab id="add" mini icon="add" on-tap="addEntityDialog" hidden$="[[!superadmin]]"></paper-fab>
 				</template>
 				<template is="dom-if" if="[[!listVisible]]">
 						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
@@ -78,7 +81,7 @@
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
 				</template>
 
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">

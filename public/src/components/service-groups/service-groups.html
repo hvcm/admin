@@ -52,8 +52,10 @@
 														<div class="dragged-item" item$="[[item]]">
 																<div class="shadow">
 																		[[translateID(item)]]
-																		<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
-																		<paper-icon-button icon="icons:create" on-tap="edit"></paper-icon-button>
+																		<!-- <paper-icon-button icon="delete" on-tap="delete"></paper-icon-button> -->
+																		<a href$="service-groups/[[item]]/common">
+																				<paper-icon-button icon="icons:create" on-tap="edit"></paper-icon-button>
+																		</a>
 																</div>
 														</div>
 												</template>
@@ -127,7 +129,7 @@
 								this.fire('delete', _.find(this.groups, {"@id": e.model.item}));
 						},
 						edit(e) {
-								this.fire('edit', _.find(this.groups, {"@id": e.model.item}));
+								// this.fire('edit', _.find(this.groups, {"@id": e.model.item}));
 						}
 
 				});

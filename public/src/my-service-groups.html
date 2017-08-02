@@ -281,7 +281,7 @@
 
 						},
 						toggle() {},
-						ready: function () {
+						ready() {
 								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
 								this.entityName = 'service-groups';
@@ -303,7 +303,7 @@
 										if (diff.length)
 												this.listchanged = true;
 										}
-								, 1000)
+								, 1000);
 						}
 				});
 		</script>

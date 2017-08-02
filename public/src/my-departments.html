@@ -10,7 +10,7 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-departments">
-	<template>
+		<template>
 				<style include="shared-styles">
 						:host {
 								display: block;
@@ -62,7 +62,7 @@
 						<paper-fab id="add" mini hidden$="[[!isVisible(superadmin)]]" icon="add" on-tap="addEntity"></paper-fab>
 				</template>
 
-	<template is="dom-if" if="[[!listVisible]]">
+				<template is="dom-if" if="[[!listVisible]]">
 						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
 								<paper-tab on-tap="back" style="max-width:50px;">
 										<iron-icon icon="chevron-left"></iron-icon>
@@ -131,167 +131,161 @@
 								</div>
 						</iron-pages>
 
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!isVisible(superadmin)]]"></paper-fab>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
 				</template>
-	<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-		<h2>Удаление отдела</h2>
-		<paper-dialog-scrollable>
-			Вы действительно хотите этот отдел?
-		</paper-dialog-scrollable>
-		<div class="buttons">
-			<paper-button dialog-dismiss>Нет</paper-button>
-			<paper-button dialog-confirm>Да</paper-button>
-		</div>
-	</paper-dialog>
+				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+						<h2>Удаление отдела</h2>
+						<paper-dialog-scrollable>
+								Вы действительно хотите этот отдел?
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
 
-	<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-		<h2>Изменения будут потеряны</h2>
-		<paper-dialog-scrollable>
-			[[discardMessage]]
-		</paper-dialog-scrollable>
-		<div class="buttons">
-			<paper-button dialog-dismiss>Нет</paper-button>
-			<paper-button dialog-confirm>Да</paper-button>
-		</div>
-	</paper-dialog>
-	</template>
+				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+						<h2>Изменения будут потеряны</h2>
+						<paper-dialog-scrollable>
+								[[discardMessage]]
+						</paper-dialog-scrollable>
+						<div class="buttons">
+								<paper-button dialog-dismiss>Нет</paper-button>
+								<paper-button dialog-confirm>Да</paper-button>
+						</div>
+				</paper-dialog>
+		</template>
 
-	<script>
-		Polymer({
-			is: 'my-departments',
-			behaviors: [ListBehavior],
-			isVisible(superadmin) {
+		<script>
+				Polymer({
+						is: 'my-departments',
+						behaviors: [ListBehavior],
+						isVisible(superadmin) {
 
-				return !!superadmin;
-			},
-			ready() {
-				this.entityName = 'departments';
-				this.discardMessage = "	Вы действительно хотите отменить изменения?";
-				this.fieldsModel = [{
-					field: 'label',
-					label: 'Наименование',
-					transform: (item) => item || "-"
-				}, {
-					field: 'formatted_address',
-					label: 'Адрес',
-					transform: (item) => item || "-"
-				}];
-			},
-			filter(data, searchString) {
-				data = _.filter(data, {
-					"@type": "Department"
-				});
-
-				if (!searchString)
-					return data;
-
-				searchString = searchString.toLowerCase();
-
-				return _.filter(data, item => ~(_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
-			},
-			_itemChanged(id) {
-				ListBehavior._itemChanged.call(this, id);
-				if (!id || !this.item) {
-					return;
-				}
-				const parent_id = this.item.unit_of;
-				this.parentOfItem = _.find(this.app.helpers.office, {
-					"@id": parent_id
-				}) || {};
-			},
-
-			isOffice(item) {
-				return item["@type"] === "Office";
-			},
-
-			_correct(item) {
-				item.priority_description = item.priority_description || {
-					veteran: {},
-					invalid: {}
-				};
-				item.routes = item.routes || {
-					routes: {
-						include: [],
-						exclude: []
-					}
-				};
-				item.qa_design = item.qa_design || {
-					hold_screen_design: ''
-				};
-				item.oper_design = item.oper_design || {
-					hold_screen_design: ''
-				};
-				item.notification_levels = item.notification_levels || {
-					"max-waiting-time": [{}, {}, {}]
-				}
-
-				return item;
-			},
-			canAddDepartment(list) {
-				return !_.find(list, {
-					'@type': "Office"
-				});
-			},
-			getPlaceholder(field, item) {
-				const {
-					unit_of
-				} = item;
-				const {
-					office
-				} = this.app.helpers;
-				return _.get(this.parentOfItem, field);
-			},
-			makeEntity() {
-				const id = `${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
-				return {
-					__fresh: `office-${id}`,
-					label: '',
-					"@id": `department-${id}`,
-					"@type": "Department",
-					formatted_address: '',
-					unit_of: `office-${id}`,
-					services: [],
-					priority_description: {
-						veteran: {
-							value: 1
+								return !!superadmin;
 						},
-						invalid: {
-							value: 1
+						ready() {
+								this.entityName = 'departments';
+								this.discardMessage = "	Вы действительно хотите отменить изменения?";
+								this.fieldsModel = [
+										{
+												field: 'label',
+												label: 'Наименование',
+												transform: (item) => item || "-"
+										}, {
+												field: 'formatted_address',
+												label: 'Адрес',
+												transform: (item) => item || "-"
+										}
+								];
+						},
+						filter(data, searchString) {
+								data = _.filter(data, {"@type": "Department"});
+
+								if (!searchString)
+										return data;
+
+								searchString = searchString.toLowerCase();
+
+								return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
+						},
+						_itemChanged(id) {
+								ListBehavior._itemChanged.call(this, id);
+								if (!id || !this.item) {
+										return;
+								}
+								const parent_id = this.item.unit_of;
+								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id}) || {};
+						},
+
+						isOffice(item) {
+								return item && item["@type"] === "Office";
+						},
+
+						_correct(item) {
+								item.priority_description = item.priority_description || {
+										veteran: {},
+										invalid: {}
+								};
+								item.routes = item.routes || {
+										routes: {
+												include: [],
+												exclude: []
+										}
+								};
+								item.qa_design = item.qa_design || {
+										hold_screen_design: ''
+								};
+								item.oper_design = item.oper_design || {
+										hold_screen_design: ''
+								};
+								item.notification_levels = item.notification_levels || {
+										"max-waiting-time": [{}, {}, {}]
+								}
+
+								return item;
+						},
+						canAddDepartment(list) {
+								return !_.find(list, {'@type': "Office"});
+						},
+						getPlaceholder(field, item) {
+								const {unit_of} = item;
+								const {office} = this.app.helpers;
+								return _.get(this.parentOfItem, field);
+						},
+						makeEntity() {
+								const id = `${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+								return {
+										__fresh: `office-${id}`,
+										label: '',
+										"@id": `department-${id}`,
+										"@type": "Department",
+										formatted_address: '',
+										unit_of: `office-${id}`,
+										services: [],
+										priority_description: {
+												veteran: {
+														value: 1
+												},
+												invalid: {
+														value: 1
+												}
+										},
+										qa_design: {
+												hold_screen_design: ''
+										},
+										oper_design: {
+												hold_screen_design: ''
+										},
+										routes: {
+												routes: {
+														include: [],
+														exclude: []
+												}
+										},
+										notification_levels: {
+												"max-waiting-time": [
+														{
+																code: "high",
+																value: 3600,
+																dnd: 60,
+																message: "Красный уровень"
+														}, {
+																code: "normal",
+																value: 1800,
+																dnd: 60,
+																message: "Желтый уровень"
+														}, {
+																code: "low",
+																value: 900,
+																dnd: 60,
+																message: "Зеленый уровень"
+														}
+												]
+										}
+								};
 						}
-					},
-					qa_design: {
-						hold_screen_design: ''
-					},
-					oper_design: {
-						hold_screen_design: ''
-					},
-					routes: {
-						routes: {
-							include: [],
-							exclude: []
-						}
-					},
-					notification_levels: {
-						"max-waiting-time": [{
-							code: "high",
-							value: 3600,
-							dnd: 60,
-							message: "Красный уровень"
-						}, {
-							code: "normal",
-							value: 1800,
-							dnd: 60,
-							message: "Желтый уровень"
-						}, {
-							code: "low",
-							value: 900,
-							dnd: 60,
-							message: "Зеленый уровень"
-						}]
-					}
-				};
-			}
-		});
-	</script>
+				});
+		</script>
 </dom-module>

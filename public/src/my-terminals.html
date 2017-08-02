@@ -232,6 +232,14 @@
 
 								return this.names[type];
 						},
+						filter(data, searchString) {
+								if (!searchString)
+										return data;
+
+								searchString = searchString.toLowerCase();
+
+								return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)) || ~ (_.get(item, '@id', '').toLowerCase().indexOf(searchString)));
+						},
 						ready: function () {
 								this.names = {
 										"megatron-1": "Терминал",
@@ -245,6 +253,9 @@
 								const sortable = true;
 								this.fieldsModel = [
 										{
+												field: "@id",
+												label: "ID"
+										}, {
 												field: "label",
 												label: "Наименование"
 										}, {

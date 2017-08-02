@@ -27,6 +27,9 @@
 								padding-right: 15px;
 								flex: 1;
 						}
+						*[hidden] {
+								display: none;
+						}
 
 				</style>
 
@@ -56,19 +59,19 @@
 										<iron-icon icon="chevron-left"></iron-icon>
 								</paper-tab>
 								<paper-tab page="common">Основные</paper-tab>
-								<paper-tab page="provides">Услуги</paper-tab>
-								<paper-tab page="workstations">Рабочие места</paper-tab>
-								<paper-tab page="schedules">Расписания</paper-tab>
-								<paper-tab page="permissions">Права</paper-tab>
+								<paper-tab page="provides" disabled="[[cantEdit]]">Услуги</paper-tab>
+								<paper-tab page="workstations" disabled="[[cantEdit]]">Рабочие места</paper-tab>
+								<paper-tab page="schedules" disabled="[[cantEdit]]">Расписания</paper-tab>
+								<paper-tab page="permissions" disabled="[[cantEdit]]">Права</paper-tab>
 						</paper-tabs>
 						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
 								<div page=""></div>
 								<div page="common">
-										<paper-input label="Фамилия" value="{{item.last_name}}" placeholder="Фамилия"></paper-input>
-										<paper-input label="Имя" value="{{item.first_name}}" placeholder="Имя"></paper-input>
-										<paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество"></paper-input>
-										<paper-input label="Логин" value="{{item.login}}" placeholder="Логин"></paper-input>
-										<paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль"></paper-input>
+										<paper-input label="Фамилия" value="{{item.last_name}}" placeholder="Фамилия" disabled="[[cantEdit]]"></paper-input>
+										<paper-input label="Имя" value="{{item.first_name}}" placeholder="Имя" disabled="[[cantEdit]]"></paper-input>
+										<paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество" disabled="[[cantEdit]]"></paper-input>
+										<paper-input label="Логин" value="{{item.login}}" placeholder="Логин" disabled="[[cantEdit]]"></paper-input>
+										<paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль" disabled="[[cantEdit]]"></paper-input>
 
 								</div>
 								<div page="provides">
@@ -102,7 +105,7 @@
 								</div>
 						</iron-pages>
 						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[cantEdit]]"></paper-fab>
 				</template>
 
 				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
@@ -194,12 +197,16 @@
 						filter(data, searchString, filter) {
 								let result = !searchString
 										? data
-										: _.filter(data, item => ~ (item.last_name || '').indexOf(searchString));
+										: _.filter(data, item => ~ (`${item.last_name}${item.first_name}${item.middle_name}` || '').toLowerCase().indexOf(searchString.toLowerCase()));
 
 								result = (!filter || filter === '*')
 										? result
 										: _.filter(result, item => this.hasPermission(item, filter));
 								return result;
+						},
+						_itemChanged(id, pid) {
+								ListBehavior._itemChanged.call(this, id, pid);
+								this.cantEdit = _.get(this.item, 'permissions.superadmin', false) && !this.superadmin;
 						},
 						commonPermision(data, label) {
 								_.reduce(data, (acc, perm, dep) => {
@@ -247,7 +254,7 @@
 								}
 
 						},
-						ready: function () {
+						ready() {
 								this.deleteMessage = "Вы действительно хотите удалить этого сотрудника?";
 								this.discardMessage = "	Вы действительно хотите отменить изменения?";
 								this.entityName = 'humans';
