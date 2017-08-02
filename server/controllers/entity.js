@@ -36,16 +36,7 @@ class Entity extends Basic {
 
 		this[method](data).then(res => this.res.json(res));
 	}
-	_saveEntityFields(data) {
-		const {entity} = this.req.params;
-		const {cb} = this.req;
 
-		return cb.upsert('user_info_fields', {
-			"@id": "user_info_fields",
-			"@type": "Config",
-			"content": data
-		});
-	}
 	_saveEntityPriority(data) {
 		const {entity} = this.req.params;
 		const {cb} = this.req;
@@ -56,7 +47,9 @@ class Entity extends Basic {
 			"content": data
 		});
 	}
-
+	_deleteEntityPriority(data) {
+		return this._saveEntityPriority(data);
+	}
 	_getListGlobalsPriority() {
 		const {cb} = this.req;
 
@@ -128,7 +121,7 @@ class Entity extends Basic {
 			.util
 			.getWorkstationsId('control-panel')
 			.then(workstation_id => {
-				console.log('workstation_id',workstation_id);
+				console.log('workstation_id', workstation_id);
 				const list = cb
 					.getMulti(workstation_id)
 					.then(data => _.map(data, 'value'));

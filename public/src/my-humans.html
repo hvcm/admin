@@ -8,285 +8,301 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-humans">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-						}
-						iris-table {
-								max-height: calc(100vh - 155px);
-						}
-						.line {
-								align-items: center;
-						}
-						paper-fab#delete {
-								bottom: 10px;
-						}
-						.line paper-input {
-								padding-right: 15px;
-								flex: 1;
-						}
-						*[hidden] {
-								display: none;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
+      .line paper-input {
+        padding-right: 15px;
+        flex: 1;
+      }
+      *[hidden] {
+        display: none;
+      }
 
-				</style>
+    </style>
 
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
-				<template is="dom-if" if="[[listVisible]]">
-						<div class="line">
-								<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-								<paper-dropdown-menu label="Права">
-										<paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{permissionfilter}}">
-												<paper-item val="*">Любые</paper-item>
-												<paper-item val="ticket-by-id-registered">Внеочередной прием</paper-item>
-												<paper-item val="ticket-by-id-postponed">Прием из отложенных</paper-item>
-												<paper-item val="can-admin">Администратор</paper-item>
-												<paper-item val="can-report">Отчеты</paper-item>
-												<paper-item val="can-book">Запись</paper-item>
-												<paper-item val="can-manage">Ресепшен</paper-item>
-										</paper-listbox>
-								</paper-dropdown-menu>
-						</div>
-						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,permissionfilter)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
-				</template>
-				<template is="dom-if" if="[[!listVisible]]">
-						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
-								<paper-tab on-tap="back" style="max-width:50px;">
-										<iron-icon icon="chevron-left"></iron-icon>
-								</paper-tab>
-								<paper-tab page="common">Основные</paper-tab>
-								<paper-tab page="provides" disabled="[[cantEdit]]">Услуги</paper-tab>
-								<paper-tab page="workstations" disabled="[[cantEdit]]">Рабочие места</paper-tab>
-								<paper-tab page="schedules" disabled="[[cantEdit]]">Расписания</paper-tab>
-								<paper-tab page="permissions" disabled="[[cantEdit]]">Права</paper-tab>
-						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
-								<div page=""></div>
-								<div page="common">
-										<paper-input label="Фамилия" value="{{item.last_name}}" placeholder="Фамилия" disabled="[[cantEdit]]"></paper-input>
-										<paper-input label="Имя" value="{{item.first_name}}" placeholder="Имя" disabled="[[cantEdit]]"></paper-input>
-										<paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество" disabled="[[cantEdit]]"></paper-input>
-										<paper-input label="Логин" value="{{item.login}}" placeholder="Логин" disabled="[[cantEdit]]"></paper-input>
-										<paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль" disabled="[[cantEdit]]"></paper-input>
-
-								</div>
-								<div page="provides">
-										<service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>
-								</div>
-								<div page="workstations">
-										<service-selector services="[[transformWS(app.helpers.workstations)]]" selected="{{item.available_workstation}}"></service-selector>
-								</div>
-								<div page="schedules">
-										<!-- <h3>Ресурсное расписание</h3>
+    <template is="dom-if" if="[[listVisible]]">
+      <div class="line">
+        <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+        <paper-dropdown-menu label="Права">
+          <paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{permissionfilter}}">
+            <paper-item val="*">Любые</paper-item>
+            <paper-item val="ticket-by-id-registered">Внеочередной прием</paper-item>
+            <paper-item val="ticket-by-id-postponed">Прием из отложенных</paper-item>
+            <paper-item val="can-admin">Администратор</paper-item>
+            <paper-item val="can-report">Отчеты</paper-item>
+            <paper-item val="can-book">Запись</paper-item>
+            <paper-item val="can-manage">Ресепшен</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-dropdown-menu label="Офис">
+          <paper-listbox id="officeFilter" class="dropdown-content" attr-for-selected="val" selected="{{officefilter}}">
+            <paper-item val="*">Любой</paper-item>
+            <template is="dom-repeat" items="[[toLabels(app.helpers.offices)]]">
+              <paper-item val$="[[item.id]]">[[item.label]]</paper-item>
+            </template>
+          </paper-listbox>
+        </paper-dropdown-menu>
+      </div>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,permissionfilter,officefilter)]]" on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+    </template>
+    <template is="dom-if" if="[[!listVisible]]">
+      <paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+        <paper-tab on-tap="back" style="max-width:50px;">
+          <iron-icon icon="chevron-left"></iron-icon>
+        </paper-tab>
+        <paper-tab page="common">Основные</paper-tab>
+        <paper-tab page="provides" disabled="[[cantEdit]]">Услуги</paper-tab>
+        <paper-tab page="workstations" disabled="[[cantEdit]]">Рабочие места</paper-tab>
+        <paper-tab page="schedules" disabled="[[cantEdit]]">Расписания</paper-tab>
+        <paper-tab page="permissions" disabled="[[cantEdit]]">Права</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
+        <div page=""></div>
+        <div page="common">
+          <paper-input label="Фамилия" value="{{item.last_name}}" placeholder="Фамилия" disabled="[[cantEdit]]"></paper-input>
+          <paper-input label="Имя" value="{{item.first_name}}" placeholder="Имя" disabled="[[cantEdit]]"></paper-input>
+          <paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество" disabled="[[cantEdit]]"></paper-input>
+          <paper-input label="Логин" value="{{item.login}}" placeholder="Логин" disabled="[[cantEdit]]"></paper-input>
+          <paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль" disabled="[[cantEdit]]"></paper-input>
+        </div>
+        <div page="provides">
+          <service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>
+        </div>
+        <div page="workstations">
+          <service-selector services="[[transformWS(app.helpers.workstations)]]" selected="{{item.available_workstation}}"></service-selector>
+        </div>
+        <div page="schedules">
+          <!-- <h3>Ресурсное расписание</h3>
 										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker> -->
-										<h3>Живая очередь</h3>
-										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
-										<h3>Предварительная запись</h3>
-										<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
-								</div>
-								<div page="permissions">
-										<div class="line" hidden$="[[!superadmin]]">
-												<label>Суперадмин</label>
-												<paper-toggle-button checked="{{item.permissions.superadmin}}"></paper-toggle-button>
-										</div>
+          <h3>Живая очередь</h3>
+          <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
+          <h3>Предварительная запись</h3>
+          <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
+        </div>
+        <div page="permissions">
+          <div class="line" hidden$="[[!superadmin]]">
+            <label>Суперадмин</label>
+            <paper-toggle-button checked="{{item.permissions.superadmin}}"></paper-toggle-button>
+          </div>
 
-										<paper-dropdown-menu label="Тип приема">
-												<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
-														<paper-item val="*">Все</paper-item>
-														<paper-item val="live">Живая очередь</paper-item>
-														<paper-item val="prebook">Предварительная запись</paper-item>
-												</paper-listbox>
-										</paper-dropdown-menu>
-										<permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></permissions-picker>
-								</div>
-						</iron-pages>
-						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[cantEdit]]"></paper-fab>
-				</template>
+          <paper-dropdown-menu label="Тип приема">
+            <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.filtering_method}}">
+              <paper-item val="*">Все</paper-item>
+              <paper-item val="live">Живая очередь</paper-item>
+              <paper-item val="prebook">Предварительная запись</paper-item>
+            </paper-listbox>
+          </paper-dropdown-menu>
+          <permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></permissions-picker>
+        </div>
+      </iron-pages>
+      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[cantEdit]]"></paper-fab>
+    </template>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление</h2>
-						<paper-dialog-scrollable>
-								[[deleteMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление</h2>
+      <paper-dialog-scrollable>
+        [[deleteMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				Polymer({
-						is: 'my-humans',
-						behaviors: [ListBehavior],
-						_correct(item) {
-								item.has_schedule = item.has_schedule || {};
+  <script>
+    Polymer({
+      is: 'my-humans',
+      behaviors: [ListBehavior],
+      _correct(item) {
+        item.has_schedule = item.has_schedule || {};
 
-								if (!item.has_schedule.resource) {
-										item.has_schedule.resource = [];
-								}
-								if (!item.has_schedule.live) {
-										item.has_schedule.live = [];
-								}
-								if (!item.has_schedule.prebook) {
-										item.has_schedule.prebook = [];
-								}
-								return item;
-						},
-						transformWS(ws) {
-								return _.chain(ws).map(item => [item["@id"], item.label]).fromPairs().value();
-						},
-						transformDep(dep) {
-								return _.map(dep, item => ({id: item["@id"], label: item.label}));
-						},
-						randomString(number) {
-								let text = "";
-								const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        if (!item.has_schedule.resource) {
+          item.has_schedule.resource = [];
+        }
+        if (!item.has_schedule.live) {
+          item.has_schedule.live = [];
+        }
+        if (!item.has_schedule.prebook) {
+          item.has_schedule.prebook = [];
+        }
+        return item;
+      },
+      transformWS(ws) {
+        return _.chain(ws).map(item => [item["@id"], item.label]).fromPairs().value();
+      },
+      transformDep(dep) {
+        return _.map(dep, item => ({id: item["@id"], label: item.label}));
+      },
+      randomString(number) {
+        let text = "";
+        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-								for (var i = 0; i < number; i++)
-										text += possible.charAt(Math.floor(Math.random() * possible.length));
+        for (var i = 0; i < number; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-								return text;
-						},
-						makeEntity() {
+        return text;
+      },
+      toLabels(items) {
+        return _.chain(items).filter({'@type': 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+      },
+      makeEntity() {
 
-								return {
-										"@type": "Employee",
-										"@id": `human-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
-										"first_name": "Имя",
-										"last_name": "Фамилия",
-										"middle_name": "Отчество",
-										"login": this.randomString(15),
-										"password_hash": this.randomString(6),
-										"provides": [],
-										"permissions": {
-												"ticket-by-id": {
-														"registered": false,
-														"postponed": false
-												}
-										},
-										"state": "inactive",
-										"available_workstation": []
-								};
-						},
-						hasPermission(item, filter) {
-								if (filter === 'ticket-by-id-registered') {
-										return _.get(item, ['permissions', 'ticket-by-id', 'registered']) || false;
-								}
-								if (filter === 'ticket-by-id-postponed') {
-										return _.get(item, ['permissions', 'ticket-by-id', 'postponed']) || false;
-								}
-								const perm = _.get(item, ['permissions', filter]);
-								return !!_.find(perm, item => !!item);
-						},
-						filter(data, searchString, filter) {
-								let result = !searchString
-										? data
-										: _.filter(data, item => ~ (`${item.last_name}${item.first_name}${item.middle_name}` || '').toLowerCase().indexOf(searchString.toLowerCase()));
+        return {
+          "@type": "Employee",
+          "@id": `human-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+          "first_name": "Имя",
+          "last_name": "Фамилия",
+          "middle_name": "Отчество",
+          "login": this.randomString(15),
+          "password_hash": this.randomString(6),
+          "provides": [],
+          "permissions": {
+            "ticket-by-id": {
+              "registered": false,
+              "postponed": false
+            }
+          },
+          "state": "inactive",
+          "available_workstation": []
+        };
+      },
+      hasPermission(item, filter) {
+        if (filter === 'ticket-by-id-registered') {
+          return _.get(item, ['permissions', 'ticket-by-id', 'registered']) || false;
+        }
+        if (filter === 'ticket-by-id-postponed') {
+          return _.get(item, ['permissions', 'ticket-by-id', 'postponed']) || false;
+        }
+        const perm = _.get(item, ['permissions', filter]);
+        return !!_.find(perm, item => !!item);
+      },
+      filter(data, searchString, filter, officefilter) {
+        let result = !searchString
+          ? data
+          : _.filter(data, item => ~ (`${item.last_name}${item.first_name}${item.middle_name}` || '').toLowerCase().indexOf(searchString.toLowerCase()));
 
-								result = (!filter || filter === '*')
-										? result
-										: _.filter(result, item => this.hasPermission(item, filter));
-								return result;
-						},
-						_itemChanged(id, pid) {
-								ListBehavior._itemChanged.call(this, id, pid);
-								this.cantEdit = _.get(this.item, 'permissions.superadmin', false) && !this.superadmin;
-						},
-						commonPermision(data, label) {
-								_.reduce(data, (acc, perm, dep) => {
-										if (!perm)
-												return acc;
-										acc.push({value: dep, label: 'Администратор'})
-										return acc;
-								}, []);
-						},
-						permissionsToString(data, name) {
-								const commonPermision = (data, label) => {
-										return _.reduce(data, (acc, perm, value) => {
-												if (!perm) {
-														return acc;
-												}
-												acc.push({value, label})
-												return acc;
-										}, []);
-								};
-								switch (name) {
-										case 'ticket-by-id':
-												return [
-														{
-																label: 'Внеочередной прием',
-																value: data.registered
-																		? '+'
-																		: '-'
-														}, {
-																label: 'Прием из отложенных',
-																value: data.postponed
-																		? '+'
-																		: '-'
-														}
-												];
-										case 'can-report':
-												return commonPermision(data, 'Отчеты');
-										case 'can-manage':
-												return commonPermision(data, 'Респшен');
-										case 'can-book':
-												return commonPermision(data, 'Запись');
-										case 'can-admin':
-												return commonPermision(data, 'Администратор');
-										default:
-												return '';
-								}
+        result = (!filter || filter === '*')
+          ? result
+          : _.filter(result, item => this.hasPermission(item, filter));
 
-						},
-						ready() {
-								this.deleteMessage = "Вы действительно хотите удалить этого сотрудника?";
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.entityName = 'humans';
-								const transform = value => value || '-';
-								this.permissionfilter = "*";
-								this.fieldsModel = [
-										{
-												field: 'first_name',
-												label: 'Имя',
-												transform
-										}, {
-												field: 'last_name',
-												label: 'Фамилия',
-												transform
-										}, {
-												field: 'middle_name',
-												label: 'Отчество',
-												transform
-										}, {
-												field: 'login',
-												label: 'Логин'
-										}, {
-												field: '@id',
-												label: 'Отдел',
-												sortable: true,
-												transform: (id) => {
-														const offices = this.app.helpers.offices;
-														return _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization").map(id => _.find(offices, {"@id": id})).map('label').value().join(',   ');
-												}
-										}
-								];
-						}
-				});
-		</script>
+        if (officefilter && officefilter !== '*') {
+          const ids = _.chain(this.app.helpers.membership).filter({organization: officefilter}).map('member').value();
+          result = _.filter(result, item => ids.includes(item["@id"]));
+        }
+        return result;
+      },
+      _itemChanged(id, pid) {
+        ListBehavior._itemChanged.call(this, id, pid);
+        this.cantEdit = _.get(this.item, 'permissions.superadmin', false) && !this.superadmin;
+      },
+      commonPermision(data, label) {
+        _.reduce(data, (acc, perm, dep) => {
+          if (!perm)
+            return acc;
+          acc.push({value: dep, label: 'Администратор'})
+          return acc;
+        }, []);
+      },
+      permissionsToString(data, name) {
+        const commonPermision = (data, label) => {
+          return _.reduce(data, (acc, perm, value) => {
+            if (!perm) {
+              return acc;
+            }
+            acc.push({value, label})
+            return acc;
+          }, []);
+        };
+        switch (name) {
+          case 'ticket-by-id':
+            return [
+              {
+                label: 'Внеочередной прием',
+                value: data.registered
+                  ? '+'
+                  : '-'
+              }, {
+                label: 'Прием из отложенных',
+                value: data.postponed
+                  ? '+'
+                  : '-'
+              }
+            ];
+          case 'can-report':
+            return commonPermision(data, 'Отчеты');
+          case 'can-manage':
+            return commonPermision(data, 'Респшен');
+          case 'can-book':
+            return commonPermision(data, 'Запись');
+          case 'can-admin':
+            return commonPermision(data, 'Администратор');
+          default:
+            return '';
+        }
+
+      },
+      ready() {
+        this.deleteMessage = "Вы действительно хотите удалить этого сотрудника?";
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.entityName = 'humans';
+        const transform = value => value || '-';
+        this.permissionfilter = "*";
+        this.officefilter = "*";
+        this.fieldsModel = [
+          {
+            field: 'first_name',
+            label: 'Имя',
+            transform
+          }, {
+            field: 'last_name',
+            label: 'Фамилия',
+            transform
+          }, {
+            field: 'middle_name',
+            label: 'Отчество',
+            transform
+          }, {
+            field: 'login',
+            label: 'Логин'
+          }, {
+            field: '@id',
+            label: 'Отдел',
+            sortable: true,
+            transform: (id) => {
+              const offices = this.app.helpers.offices;
+              return _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization").map(id => _.find(offices, {"@id": id})).map('label').value().join(',   ');
+            }
+          }
+        ];
+      }
+    });
+  </script>
 </dom-module>

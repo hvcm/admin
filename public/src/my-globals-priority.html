@@ -8,105 +8,117 @@
 <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 
 <dom-module id="my-globals-priority">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-						}
-						iris-login {
-								background-color: white;
-								max-width: 480px;
-								margin: 0 auto;
-						}
-						.priority {
-								margin: 24px;
-								padding: 16px;
-								color: #757575;
-								border-radius: 5px;
-								background-color: #fff;
-								box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
-						}
-						paper-fab {
-								position: fixed;
-								right: 40px;
-						}
-						paper-fab#save {
-								bottom: 60px;
-						}
-						paper-fab#add {
-								bottom: 10px;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-login {
+        background-color: white;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .priority {
+        margin: 24px;
+        padding: 16px;
+        color: #757575;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+      paper-fab {
+        position: fixed;
+        right: 40px;
+      }
+      paper-fab#save {
+        bottom: 60px;
+      }
+      paper-fab#add {
+        bottom: 10px;
+      }
 
-				</style>
+    </style>
 
-				<div id="globals">
-						<template is="dom-repeat" items="[[app.list]]">
-								<div class="priority">
-										<paper-input label="Ключ" value="{{item.__index}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Префикс" value="{{item.params.prefix}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Значение" value="{{item.params.value}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-button raised on-tap="deleteDialog" hidden$="[[!superadmin]]">Удалить</paper-button>
-								</div>
-						</template>
-						<paper-fab id="save" mini icon="save" on-tap="saveAll" hidden$="[[!superadmin]]"></paper-fab>
-						<paper-fab id="add" mini icon="add" on-tap="addPriority" hidden$="[[!superadmin]]"></paper-fab>
-				</div>
+    <div id="globals">
+      <template is="dom-repeat" items="[[app.list]]">
+        <div class="priority" on-keydown="dataChanged">
+          <paper-input label="Ключ" value="{{item.__index}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Префикс" value="{{item.params.prefix}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Значение" value="{{item.params.value}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-button raised on-tap="deleteDialog" hidden$="[[!superadmin]]">Удалить</paper-button>
+        </div>
+      </template>
+      <paper-fab id="save" mini icon="save" on-tap="saveAll" hidden$="[[!isVisible(superadmin, changed)]]"></paper-fab>
+      <paper-fab id="add" mini icon="add" on-tap="addPriority" hidden$="[[!superadmin]]"></paper-fab>
+    </div>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление поля</h2>
-						<paper-dialog-scrollable>
-								Вы действительно хотите удалить это поле
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление поля</h2>
+      <paper-dialog-scrollable>
+        Вы действительно хотите удалить это поле
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				const defaultPriority = {
-						"label": "Подпись",
-						"description": "Описание",
-						"params": {
-								"prefix": "Х",
-								"value": 1
-						},
-						__index: "random-key-"
-				};
-				Polymer({
-						is: 'my-globals-priority',
-						properties: {
-								app: {
-										type: Object
-								}
-						},
-						addPriority() {
-								const field = _.clone(defaultPriority);
-								const rnd = Math.ceil(Math.random() * 100000);
-								field.key = field.key + rnd;
-								field.__index = field.__index + rnd;
-								this.push('app.list', field);
-								this.debounce('xx', () => {
-										const last = _.last(this.$.globals.querySelectorAll('.priority'));
-										last.scrollIntoView();
-								}, 300);
-						},
-						saveAll() {
-								window.api.saveEntity('priority', _.chain(this.app.list).keyBy('__index').value())
-						},
-						deleteDialog(e) {
-								this.toDelete = e.model.index;
-								this.isOpen = true;
-						},
-						delete(e) {
-								if (!e.detail.confirmed)
-										return;
-								this.splice('app.list', this.toDelete, 1);
-						}
-				});
-		</script>
+  <script>
+    const defaultPriority = {
+      "label": "Подпись",
+      "description": "Описание",
+      "params": {
+        "prefix": "Х",
+        "value": 1
+      },
+      __index: "random-key-"
+    };
+    Polymer({
+      is: 'my-globals-priority',
+      properties: {
+        app: {
+          type: Object
+        }
+      },
+      dataChanged() {
+        this.changed = true;
+      },
+      isVisible(superadmin, changed) {
+        return superadmin && changed;
+      },
+      ready() {
+        this.changed = false;
+      },
+      addPriority() {
+        const field = _.clone(defaultPriority);
+        const rnd = Math.ceil(Math.random() * 100000);
+        field.key = field.key + rnd;
+        field.__index = field.__index + rnd;
+        this.push('app.list', field);
+        this.debounce('xx', () => {
+          const last = _.last(this.$.globals.querySelectorAll('.priority'));
+          last.scrollIntoView();
+        }, 300);
+        this.changed = true;
+      },
+      saveAll() {
+        this.changed = false;
+        window.api.saveEntity('priority', _.chain(this.app.list).keyBy('__index').value())
+      },
+      deleteDialog(e) {
+        this.toDelete = e.model.index;
+        this.isOpen = true;
+      },
+      delete(e) {
+        if (!e.detail.confirmed)
+          return;
+        this.splice('app.list', this.toDelete, 1);
+        window.api.saveEntity('priority', _.chain(this.app.list).keyBy('__index').value())
+      }
+    });
+  </script>
 </dom-module>

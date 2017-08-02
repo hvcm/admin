@@ -17,7 +17,8 @@ const entities = [
 	'departments',
 	'digital-displays',
 	'servers',
-	'system-workstations'
+	'system-workstations',
+	'globals'
 ];
 
 const actions = ['delete', 'save', 'list'];

@@ -14,269 +14,272 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-globals">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-						}
-						iris-login {
-								background-color: white;
-								max-width: 480px;
-								margin: 0 auto;
-						}
-						.toggle {
-								display: flex;
-								flex-direction: row;
-						}
-						.toggle label {
-								padding-right: 25px;
-						}
-						paper-fab {
-								position: fixed;
-								right: 40px;
-						}
-						paper-fab#save {
-								bottom: 60px;
-						}
-						paper-fab#add {
-								bottom: 10px;
-						}
-						iris-table {
-								max-height: calc(100vh - 155px);
-						}
-						.line {
-								align-items: center;
-						}
-						paper-fab#delete {
-								bottom: 10px;
-						}
-						.drops {
-								display: flex;
-								flex-direction: column;
-						}
-						.drops > paper-dropdown-menu {
-								width: 50%;
-								min-width: 350px;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-login {
+        background-color: white;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .toggle {
+        display: flex;
+        flex-direction: row;
+      }
+      .toggle label {
+        padding-right: 25px;
+      }
+      paper-fab {
+        position: fixed;
+        right: 40px;
+      }
+      paper-fab#save {
+        bottom: 60px;
+      }
+      paper-fab#add {
+        bottom: 10px;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
+      .drops {
+        display: flex;
+        flex-direction: column;
+      }
+      .drops > paper-dropdown-menu {
+        width: 50%;
+        min-width: 350px;
+      }
 
-				</style>
+    </style>
 
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
-				<template is="dom-if" if="[[listVisible]]">
-						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!superadmin]]"></paper-fab>
-				</template>
-				<template is="dom-if" if="[[!listVisible]]">
-						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
-								<paper-tab on-tap="back" style="max-width:50px;">
-										<iron-icon icon="chevron-left"></iron-icon>
-								</paper-tab>
-								<paper-tab page="common">Основные параметры</paper-tab>
-						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
-								<div page=""></div>
-								<div page="common">
-										<paper-input label="ID" value="{{item.key}}" placeholder="[[item.__index]]" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Порядок" value="{{item.order}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Количество символов" value="{{item.length}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Максимальное значение" value="{{item.max-value}}" disabled="[[!superadmin]]"></paper-input>
-										<paper-input label="Маска" value="{{item.mask}}" disabled="[[!superadmin]]"></paper-input>
-										<div class="toggle">
-												<label>Обязательное поле</label>
-												<paper-toggle-button label="Обязательное поле" checked="{{item.required}}" disabled="[[!superadmin]]"></paper-toggle-button>
-										</div>
-										<div class="toggle">
-												<label>Включено по умолчанию</label>
-												<paper-toggle-button label="Включено" checked="{{item.include}}" disabled="[[!superadmin]]"></paper-toggle-button>
-										</div>
+    <template is="dom-if" if="[[listVisible]]">
+      <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!superadmin]]"></paper-fab>
+    </template>
+    <template is="dom-if" if="[[!listVisible]]">
+      <paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+        <paper-tab on-tap="back" style="max-width:50px;">
+          <iron-icon icon="chevron-left"></iron-icon>
+        </paper-tab>
+        <paper-tab page="common">Основные параметры</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+        <div page=""></div>
+        <div page="common">
+          <paper-input label="ID" value="{{item.key}}" placeholder="[[item.__index]]" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Порядок" value="{{item.order}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Количество символов" value="{{item.length}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Максимальное значение" value="{{item.max-value}}" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Маска" value="{{item.mask}}" disabled="[[!superadmin]]"></paper-input>
+          <div class="toggle">
+            <label>Обязательное поле</label>
+            <paper-toggle-button label="Обязательное поле" checked="{{item.required}}" disabled="[[!superadmin]]"></paper-toggle-button>
+          </div>
+          <div class="toggle">
+            <label>Включено по умолчанию</label>
+            <paper-toggle-button label="Включено" checked="{{item.include}}" disabled="[[!superadmin]]"></paper-toggle-button>
+          </div>
 
-										<div class="drops">
-												<paper-dropdown-menu label="Клавиатура" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
-														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.layout}}">
-																<template is="dom-repeat" items="[[layouts]]" as="keyboard">
-																		<paper-item val="[[keyboard.id]]">[[keyboard.label]]</paper-item>
-																</template>
-														</paper-listbox>
-												</paper-dropdown-menu>
+          <div class="drops">
+            <paper-dropdown-menu label="Клавиатура" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
+              <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.layout}}">
+                <template is="dom-repeat" items="[[layouts]]" as="keyboard">
+                  <paper-item val="[[keyboard.id]]">[[keyboard.label]]</paper-item>
+                </template>
+              </paper-listbox>
+            </paper-dropdown-menu>
 
-												<paper-dropdown-menu label="Метод регистрацияя" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
-														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.method}}">
-																<paper-item val="*">Все</paper-item>
-																<paper-item val="live">Живая очередь</paper-item>
-																<paper-item val="prebook">Предварительная запись</paper-item>
-														</paper-listbox>
-												</paper-dropdown-menu>
+            <paper-dropdown-menu label="Метод регистрацияя" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
+              <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.method}}">
+                <paper-item val="*">Все</paper-item>
+                <paper-item val="live">Живая очередь</paper-item>
+                <paper-item val="prebook">Предварительная запись</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
 
-												<paper-dropdown-menu label="Тип поля" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
-														<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.type}}">
-																<template is="dom-repeat" items="[[types]]" as="type">
-																		<paper-item val="[[type.id]]">[[type.label]]</paper-item>
-																</template>
-														</paper-listbox>
-												</paper-dropdown-menu>
-										</div>
-								</div>
+            <paper-dropdown-menu label="Тип поля" disabled="[[!superadmin]]" vertical-align="bottom" horizontal-align="left">
+              <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.type}}">
+                <template is="dom-repeat" items="[[types]]" as="type">
+                  <paper-item val="[[type.id]]">[[type.label]]</paper-item>
+                </template>
+              </paper-listbox>
+            </paper-dropdown-menu>
+          </div>
+        </div>
 
-						</iron-pages>
-						<paper-fab id="save" mini icon="save" hidden$="[[select(changed,app.helpers.canedit)]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
-				</template>
+      </iron-pages>
+      <paper-fab id="save" mini icon="save" hidden$="[[select(changed,app.helpers.canedit)]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
+    </template>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление</h2>
-						<paper-dialog-scrollable>
-								[[deleteMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление</h2>
+      <paper-dialog-scrollable>
+        [[deleteMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
 
-		</template>
+  </template>
 
-		<script>
-				const defaultField = {
-						default: '',
-						description: "Введите описание",
-						include: true,
-						label: "Введите подпись",
-						layout: "ru-layout",
-						length: 100,
-						"max-value": '',
-						method: "live",
-						order: 0,
-						required: true,
-						type: "input"
-				};
-				Polymer({
-						is: 'my-globals',
-						properties: {
-								idField: {
-										type: String,
-										value: '__index'
-								}
-						},
-						behaviors: [ListBehavior],
-						_correct(item) {
-								item.method = item.method || '*';
-								return item;
-						},
-						presave() {
-								if (this.item.method === '*') {
-										_.unset(this.item, 'method');
-								}
-								if ((this.item.order || '').length) {
-										this.item.order = parseInt(this.item.order, 10);
-								}
-						},
-						makeEntity() {
-								const field = _.clone(defaultField);
-								const rnd = Math.ceil(Math.random() * 100000);
-								const id = `field-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
-								field.key = id;
-								field.__index = id;
+  <script>
+    const defaultField = {
+      default: '',
+      description: "Введите описание",
+      include: true,
+      label: "Введите подпись",
+      layout: "ru-layout",
+      length: 100,
+      "max-value": '',
+      method: "live",
+      order: 0,
+      required: true,
+      type: "input"
+    };
+    Polymer({
+      is: 'my-globals',
+      properties: {
+        idField: {
+          type: String,
+          value: '__index'
+        }
+      },
+      behaviors: [ListBehavior],
+      _correct(item) {
+        item.method = item.method || '*';
+        return item;
+      },
+      presave() {
+        if (this.item.method === '*') {
+          _.unset(this.item, 'method');
+        }
+        if ((this.item.order || '').length) {
+          this.item.order = parseInt(this.item.order, 10);
+        }
+      },
+      makeEntity() {
+        const field = _.clone(defaultField);
+        const rnd = Math.ceil(Math.random() * 100000);
+        const id = `field-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+        field.key = id;
+        field.__index = id;
 
-								return field;
-						},
-						addEntity() {
-								const entity = this.makeEntity();
-								const id = entity.__index;
-								const row = this.push('app.list', entity);
+        return field;
+      },
+      addEntity() {
+        const entity = this.makeEntity();
+        const id = entity.__index;
+        const row = this.push('app.list', entity);
 
-								this.routeToID(id, row);
-						},
-						select(a, b) {
-								return !a || !b;
-						},
-						saveAll() {
-								this.changed = false;
-								this.presave();
-								window.api.saveEntity('fields', _.chain(this.app.list).keyBy('__index').value());
-								this._back();
-						},
-						deleteDialog(e) {
-								this.toDelete = e.model.index;
-								this.isOpen = true;
-						},
-						cellTap(e) {
-								const id = e.detail.row_data.__index;
+        this.routeToID(id, row);
+      },
+      select(a, b) {
+        return !a || !b;
+      },
+      saveAll() {
+        this.changed = false;
+        this.presave();
+        window.api.saveEntity('globals', _.chain(this.app.list).keyBy('__index').value());
+        this._back();
+      },
+      deleteDialog(e) {
+        this.toDelete = _.indexOf(this.app.list, e.model.item);
+        this.isOpen = true;
+      },
+      cellTap(e) {
+        const id = e.detail.row_data.__index;
 
-								const row = _.findIndex(this.app.list, {"__index": id});
-								this.routeToID(id, row);
-						},
-						ready: function () {
-								this.entityName = 'globals';
-								this.deleteMessage = "Вы действительно хотите удалить это поле?";
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.changed = false;
-								this.fieldsModel = [
-										{
-												field: 'label',
-												label: 'Наименование',
-												transform: (item) => item || "-"
-										}, {
-												field: 'description',
-												label: 'Описание',
-												transform: (item) => item || "-"
-										}
-								];
-								this.types = [
-										{
-												id: 'input',
-												label: 'Текстовое поле'
-										}, {
-												id: 'date-picker',
-												label: 'Выбор даты'
-										}, {
-												id: 'input-number',
-												label: 'Цифровое поле'
-										}
-								];
-								this.layouts = [
-										{
-												id: "email",
-												label: "e-mail"
-										}, {
-												id: "en-layout",
-												label: "Английская"
-										}, {
-												id: "numeric",
-												label: "Цифровая"
-										}, {
-												id: "ru-layout",
-												label: "Русская"
-										}, {
-												id: "ru-letnum",
-												label: "Русская цифры и буквы"
-										}, {
-												id: "ru-letters",
-												label: "Русская буквы"
-										}
-								];
+        const row = _.findIndex(this.app.list, {"__index": id});
+        this.routeToID(id, row);
+      },
+      ready: function () {
+        this.entityName = 'globals';
+        this.deleteMessage = "Вы действительно хотите удалить это поле?";
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.changed = false;
+        this.fieldsModel = [
+          {
+            field: 'label',
+            label: 'Наименование',
+            transform: (item) => item || "-"
+          }, {
+            field: 'description',
+            label: 'Описание',
+            transform: (item) => item || "-"
+          }
+        ];
+        this.types = [
+          {
+            id: 'input',
+            label: 'Текстовое поле'
+          }, {
+            id: 'date-picker',
+            label: 'Выбор даты'
+          }, {
+            id: 'input-number',
+            label: 'Цифровое поле'
+          }
+        ];
+        this.layouts = [
+          {
+            id: "email",
+            label: "e-mail"
+          }, {
+            id: "en-layout",
+            label: "Английская"
+          }, {
+            id: "numeric",
+            label: "Цифровая"
+          }, {
+            id: "ru-layout",
+            label: "Русская"
+          }, {
+            id: "ru-letnum",
+            label: "Русская цифры и буквы"
+          }, {
+            id: "ru-letters",
+            label: "Русская буквы"
+          }
+        ];
 
-						},
-						delete(e) {
-								if (!e.detail.confirmed)
-										return;
-								this.splice('app.list', this.toDelete, 1);
-						}
-				});
-		</script>
+      },
+      delete(e) {
+        if (!e.detail.confirmed)
+          return;
+
+        this.splice('app.list', this.toDelete, 1);
+        window.api.deleteEntity('globals', _.chain(this.app.list).keyBy('__index').value());
+        this._back();
+      }
+    });
+  </script>
 </dom-module>
