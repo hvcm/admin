@@ -26,223 +26,223 @@
 <link rel="import" href="./list-behavior.html">
 
 <dom-module id="my-app">
-		<template>
-				<style>
-						:host {
-								--app-primary-color: #4285f4;
-								--app-secondary-color: black;
-								display: block;
-						}
-						app-header {
-								color: #fff;
-								background-color: var(--mydoc-brown-800);
-						}
-						app-header paper-icon-button {
-								--paper-icon-button-ink-color: white;
-						}
-						.drawer-list {
-								margin: 0 20px;
-						}
-						.drawer-list a {
-								display: block;
-								padding: 0 16px;
-								text-decoration: none;
-								color: var(--app-secondary-color);
-								line-height: 40px;
-						}
-						.drawer-list a.iron-selected {
-								color: black;
-								font-weight: bold;
-						}
-						paper-progress {
-								width: 100%;
-						}
-						#selector {
-								padding-left: 15px;
-						}
-						#drawer {
-								box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
-						}
-						.drawer-list a.locked {
-								pointer-events: none;
-								cursor: default;
-								color: #ccc;
-						}
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+        display: block;
+      }
+      app-header {
+        color: #fff;
+        background-color: var(--mydoc-brown-800);
+      }
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+      .drawer-list {
+        margin: 0 20px;
+      }
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+        line-height: 40px;
+      }
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
+      paper-progress {
+        width: 100%;
+      }
+      #selector {
+        padding-left: 15px;
+      }
+      #drawer {
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      .drawer-list a.locked {
+        pointer-events: none;
+        cursor: default;
+        color: #ccc;
+      }
 
-				</style>
+    </style>
 
-				<app-location route="{{route}}"></app-location>
-				<app-route route="{{route}}" pattern="/:department/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:department/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
 
-				<app-drawer-layout fullbleed force-narrow>
-						<!-- Drawer content -->
-						<app-drawer id="drawer">
-								<app-toolbar>
-										Панель Администратора
-								</app-toolbar>
+    <app-drawer-layout fullbleed force-narrow>
+      <!-- Drawer content -->
+      <app-drawer id="drawer">
+        <app-toolbar>
+          Панель Администратора
+        </app-toolbar>
 
-								<iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-										<a name="globals" href$="/{{app.global.namespace}}/globals">Информационные поля</a>
-										<a name="globals-priority" href$="/{{app.global.namespace}}/globals-priority">Настройки приоритета</a>
-										<a name="departments" href$="/{{app.global.namespace}}/departments">Отделы</a>
-										<a name="workstations" href$="/{{app.global.namespace}}/workstations">Рабочие места</a>
-										<a name="system-workstations" href$="/{{app.global.namespace}}/system-workstations">Служебные рабочие места</a>
-										<a name="services" href$="/{{app.global.namespace}}/services">Услуги</a>
-										<a name="service-groups" href$="/{{app.global.namespace}}/service-groups">Группы услуг</a>
-										<a name="humans" href$="/{{app.global.namespace}}/humans">Сотрудники</a>
-										<a name="terminals" href$="/{{app.global.namespace}}/terminals">Терминалы</a>
-										<a name="roomdisplays" href$="/{{app.global.namespace}}/roomdisplays">Табло</a>
-										<a name="digital-displays" href$="/{{app.global.namespace}}/digital-displays">Цифровые табло</a>
-										<a name="schedules" href$="/{{app.global.namespace}}/schedules">Расписания</a>
-										<a name="servers" href$="/{{app.global.namespace}}/servers">Сервера</a>
-								</iron-selector>
-						</app-drawer>
+        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+          <a name="globals" href$="/{{app.global.namespace}}/globals">Информационные поля</a>
+          <a name="globals-priority" href$="/{{app.global.namespace}}/globals-priority">Настройки приоритета</a>
+          <a name="departments" href$="/{{app.global.namespace}}/departments">Отделы</a>
+          <a name="workstations" href$="/{{app.global.namespace}}/workstations">Рабочие места</a>
+          <a name="system-workstations" href$="/{{app.global.namespace}}/system-workstations">Служебные рабочие места</a>
+          <a name="services" href$="/{{app.global.namespace}}/services">Услуги</a>
+          <a name="service-groups" disabled$="[[!superadmin]]" href$="/{{app.global.namespace}}/service-groups">Группы услуг</a>
+          <a name="humans" href$="/{{app.global.namespace}}/humans">Сотрудники</a>
+          <a name="terminals" href$="/{{app.global.namespace}}/terminals">Терминалы</a>
+          <a name="roomdisplays" href$="/{{app.global.namespace}}/roomdisplays">Табло</a>
+          <a name="digital-displays" href$="/{{app.global.namespace}}/digital-displays">Цифровые табло</a>
+          <a name="schedules" href$="/{{app.global.namespace}}/schedules">Расписания</a>
+          <a name="servers" href$="/{{app.global.namespace}}/servers">Сервера</a>
+        </iron-selector>
+      </app-drawer>
 
-						<!-- Main content -->
-						<app-header-layout id="wrap" has-scrolling-region>
+      <!-- Main content -->
+      <app-header-layout id="wrap" has-scrolling-region>
 
-								<app-header condenses reveals effects="waterfall">
-										<app-toolbar>
-												<paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-												<div main-title>
-														[[username]]
-												</div>
-												<paper-icon-button icon="exit-to-app" on-tap="logout"></paper-icon-button>
-										</app-toolbar>
-										<paper-progress indeterminate="[[inProgress]]" class="blue"></paper-progress>
-								</app-header>
+        <app-header condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            <div main-title>
+              [[username]]
+            </div>
+            <paper-icon-button icon="exit-to-app" on-tap="logout"></paper-icon-button>
+          </app-toolbar>
+          <paper-progress indeterminate="[[inProgress]]" class="blue"></paper-progress>
+        </app-header>
 
-								<iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
-										<my-globals name="globals" app="{{app.globals}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-globals>
-										<my-globals-priority name="globals-priority" app="{{app.globals-priority}}" superadmin="[[superadmin]]"></my-globals-priority>
-										<my-departments name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
-										<my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
-										<my-humans name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>
-										<my-terminals name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>
-										<my-roomdisplays name="roomdisplays" app="{{app.roomdisplays}}" route="{{subroute}}"></my-roomdisplays>
-										<my-services name="services" app="{{app.services}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-services>
-										<my-schedules name="schedules" app="{{app.schedules}}" route="{{subroute}}"></my-schedules>
-										<my-digital-displays name="digital-displays" app="{{app.digital-displays}}" route="{{subroute}}"></my-digital-displays>
-										<my-system-workstations name="system-workstations" app="{{app.system-workstations}}" route="{{subroute}}"></my-system-workstations>
-										<my-service-groups name="service-groups" app="{{app.service-groups}}" route="{{subroute}}"></my-service-groups>
-										<my-servers name="servers" app="{{app.servers}}" route="{{subroute}}"></my-servers>
-										<my-view404 name="view404"></my-view404>
-								</iron-pages>
-						</app-header-layout>
-				</app-drawer-layout>
+        <iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
+          <my-globals name="globals" app="{{app.globals}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-globals>
+          <my-globals-priority name="globals-priority" app="{{app.globals-priority}}" superadmin="[[superadmin]]"></my-globals-priority>
+          <my-departments name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
+          <my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
+          <my-humans name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>
+          <my-terminals name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>
+          <my-roomdisplays name="roomdisplays" app="{{app.roomdisplays}}" route="{{subroute}}"></my-roomdisplays>
+          <my-services name="services" app="{{app.services}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-services>
+          <my-schedules name="schedules" app="{{app.schedules}}" route="{{subroute}}"></my-schedules>
+          <my-digital-displays name="digital-displays" app="{{app.digital-displays}}" route="{{subroute}}"></my-digital-displays>
+          <my-system-workstations name="system-workstations" app="{{app.system-workstations}}" route="{{subroute}}"></my-system-workstations>
+          <my-service-groups name="service-groups" app="{{app.service-groups}}" route="{{subroute}}"></my-service-groups>
+          <my-servers name="servers" app="{{app.servers}}" route="{{subroute}}"></my-servers>
+          <my-view404 name="view404"></my-view404>
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="forceLogout">
-						<h2>Выход</h2>
-						<paper-dialog-scrollable>
-								Вы действительно хотите выйти без сохранения изменений?
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="forceLogout">
+      <h2>Выход</h2>
+      <paper-dialog-scrollable>
+        Вы действительно хотите выйти без сохранения изменений?
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				function getCookie(name) {
-						var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
-						return matches
-								? decodeURIComponent(matches[1])
-								: undefined;
-				}
-				Polymer({
-						is: 'my-app',
+  <script>
+    function getCookie(name) {
+      var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
+      return matches
+        ? decodeURIComponent(matches[1])
+        : undefined;
+    }
+    Polymer({
+      is: 'my-app',
 
-						properties: {
-								page: {
-										type: String,
-										reflectToAttribute: true
-								},
-								department: {
-										type: String,
-										reflectToAttribute: true
-								},
-								app: {
-										type: Object,
-										value: {
-												global: {}
-										}
-								}
-						},
+      properties: {
+        page: {
+          type: String,
+          reflectToAttribute: true
+        },
+        department: {
+          type: String,
+          reflectToAttribute: true
+        },
+        app: {
+          type: Object,
+          value: {
+            global: {}
+          }
+        }
+      },
 
-						observers: [
-								'_routePageChanged(routeData.page)', '_routeDepChanged(routeData.department)', '_pageChanged(page)'
-						],
-						initAction(e) {
-								const {type, value} = e.detail;
-								this.dispatch(type, value);
-						},
-						logout() {
-								const changed = Polymer.dom(this.$.pages).querySelectorAll('*').reduce((acc, item) => item.changed || item.listchanged || acc, false);
+      observers: [
+        '_routePageChanged(routeData.page)', '_routeDepChanged(routeData.department)', '_pageChanged(page)'
+      ],
+      initAction(e) {
+        const {type, value} = e.detail;
+        this.dispatch(type, value);
+      },
+      logout() {
+        const changed = Polymer.dom(this.$.pages).querySelectorAll('*').reduce((acc, item) => item.changed || item.listchanged || acc, false);
 
-								if (!changed) {
-										window.api.logout();
-										return;
-								}
+        if (!changed) {
+          window.api.logout();
+          return;
+        }
 
-								this.isOpen = true;
-						},
-						forceLogout(e) {
-								if (e.detail.confirmed) {
-										window.api.logout();
-								}
-						},
-						ready() {
-								const user = getCookie('user');
-								const admins = _.split(getCookie('admins'), '$$$');
+        this.isOpen = true;
+      },
+      forceLogout(e) {
+        if (e.detail.confirmed) {
+          window.api.logout();
+        }
+      },
+      ready() {
+        const user = getCookie('user');
+        const admins = _.split(getCookie('admins'), '$$$');
 
-								this.username = getCookie('username');
-								this.superadmin = getCookie('superadmin') === 'true';
-								console.log('superadmin', this.superadmin);
-								if (!user) {
-										window.location.replace('/login');
-								}
-								this.page = this.page || "globals";
-								this.selectedPage = this.page;
-								this.set('app.global.namespace', 'namespace');
-						},
-						dispatch(type, value) {
-								this.app = _.cloneDeep(window.reducers[type](this.app, value));
-						},
-						_routePageChanged: function (page) {
+        this.username = getCookie('username');
+        this.superadmin = getCookie('superadmin') === 'true';
+        console.log('superadmin', this.superadmin);
+        if (!user) {
+          window.location.replace('/login');
+        }
+        this.page = this.page || "globals";
+        this.selectedPage = this.page;
+        this.set('app.global.namespace', 'namespace');
+      },
+      dispatch(type, value) {
+        this.app = _.cloneDeep(window.reducers[type](this.app, value));
+      },
+      _routePageChanged: function (page) {
 
-								this.page = page || 'login';
+        this.page = page || 'login';
 
-								if (!this.$.drawer.persistent) {
-										this.$.drawer.close();
-								}
-						},
-						_routeDepChanged: function (dep) {
-								this.department = dep || '';
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+        }
+      },
+      _routeDepChanged: function (dep) {
+        this.department = dep || '';
 
-								if (!this.$.drawer.persistent) {
-										this.$.drawer.close();
-								}
-						},
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+        }
+      },
 
-						_pageChanged: function (page, department) {
-								this.debounce('ps', () => {
-										var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
-										this.set('inProgress', true);
+      _pageChanged: function (page, department) {
+        this.debounce('ps', () => {
+          var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+          this.set('inProgress', true);
 
-										(page) && api.preparePage(page, department).then(value => {
-												this.dispatch('list', value);
-												this.set('inProgress', false);
-												this.importHref(resolvedPageUrl, null, this._showPage404, true);
-												this.selectedPage = this.page;
-										});
+          (page) && api.preparePage(page, department).then(value => {
+            this.dispatch('list', value);
+            this.set('inProgress', false);
+            this.importHref(resolvedPageUrl, null, this._showPage404, true);
+            this.selectedPage = this.page;
+          });
 
-								}, 300);
-						},
+        }, 300);
+      },
 
-						_showPage404: function () {
-								this.page = 'view404';
-						}
-				});
-		</script>
+      _showPage404: function () {
+        this.page = 'view404';
+      }
+    });
+  </script>
 </dom-module>

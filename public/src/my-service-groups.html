@@ -9,302 +9,308 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-service-groups">
-		<template>
-				<style include="shared-styles">
-						*::-webkit-scrollbar {
-								width: 5px;
-						}
-						*::-webkit-scrollbar-thumb {
-								background: #666;
-						}
-						:host {
-								display: block;
-								padding: 10px;
-								height: calc(100vh - 88px);
-								overflow: hidden;
-						}
-						iris-table {
-								max-height: calc(100vh - 155px);
-						}
-						.line {
-								align-items: center;
-						}
-						paper-fab#delete {
-								bottom: 10px;
-						}
-						.wrap {
-								display: flex;
-								height: 100%;
-								overflow: hidden;
-						}
-						.wrap.column {
-								flex-direction: column;
-						}
-						.wrap.row {
-								flex-direction: row;
-						}
-						.list {
-								transition: 1s ease-out 0s;
-								overflow: auto;
-						}
-						.closed .list {
-								overflow: hidden;
-						}
-						.row .list.tree {
-								flex: 1;
-						}
-						.column .list {
-								height: 50%;
-								transition: 1s ease-out 0s;
-						}
-						.menu {
-								display: flex;
-								flex-direction: row;
-						}
-						.menu paper-input {
-								flex: 1;
-						}
-						.samples {
-								padding-right: 5px;
-						}
-						.row .samples {
-								margin-right: 25px;
-								width: 30%;
-								max-width: 550px;
-								min-width: 300px;
-						}
-						.wrap.row .samples {
-								border-right: 2px solid #ccc;
-						}
-						.wrap.column .tree {
-								margin-top: 25px;
-								border-top: 2px solid #ccc;
-						}
-						.wrap.row.open {}
-						.wrap service-groups {
-								transition: visibility 0s ease-out 1s;
-						}
-						.wrap.closed service-groups {
-								visibility: hidden;
-								transition: visibility 0s ease-out 0s;
-						}
-						.wrap.closed .hidden-closed {
-								display: none;
-						}
-						.wrap.row.closed .samples {
-								width: 50px;
-								min-width: 50px;
-						}
-						.wrap.column.closed .samples {
-								height: 50px;
-						}
-						.wrap.column.closed paper-icon-button {
-								margin-left: auto;
-						}
-						.column .menu paper-icon-button {
-								transform: rotate(90deg);
-						}
+  <template>
+    <style include="shared-styles">
+      *::-webkit-scrollbar {
+        width: 5px;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: #666;
+      }
+      :host {
+        display: block;
+        padding: 10px;
+        height: calc(100vh - 88px);
+        overflow: hidden;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
+      .wrap {
+        display: flex;
+        height: 100%;
+        overflow: hidden;
+      }
+      .wrap.column {
+        flex-direction: column;
+      }
+      .wrap.row {
+        flex-direction: row;
+      }
+      .list {
+        transition: 1s ease-out 0s;
+        overflow: auto;
+      }
+      .closed .list {
+        overflow: hidden;
+      }
+      .row .list.tree {
+        flex: 1;
+      }
+      .column .list {
+        height: 50%;
+        transition: 1s ease-out 0s;
+      }
+      .menu {
+        display: flex;
+        flex-direction: row;
+      }
+      .menu paper-input {
+        flex: 1;
+      }
+      .samples {
+        padding-right: 5px;
+      }
+      .row .samples {
+        margin-right: 25px;
+        width: 30%;
+        max-width: 550px;
+        min-width: 300px;
+      }
+      .wrap.row .samples {
+        border-right: 2px solid #ccc;
+      }
+      .wrap.column .tree {
+        margin-top: 25px;
+        border-top: 2px solid #ccc;
+      }
+      .wrap.row.open {}
+      .wrap service-groups {
+        transition: visibility 0s ease-out 1s;
+      }
+      .wrap.closed service-groups {
+        visibility: hidden;
+        transition: visibility 0s ease-out 0s;
+      }
+      .wrap.closed .hidden-closed {
+        display: none;
+      }
+      .wrap.row.closed .samples {
+        width: 50px;
+        min-width: 50px;
+      }
+      .wrap.column.closed .samples {
+        height: 50px;
+      }
+      .wrap.column.closed paper-icon-button {
+        margin-left: auto;
+      }
+      .column .menu paper-icon-button {
+        transform: rotate(90deg);
+      }
 
-				</style>
+    </style>
 
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
-				<template is="dom-if" if="[[listVisible]]">
-						<div class$="wrap [[orientation]] [[state]]">
-								<div class="list samples" on-delete="deleteFromList" on-edit="editFromList">
-										<div class="menu">
-												<paper-input class="hidden-closed" label="Поиск" value="{{groupSearch}}"></paper-input>
-												<paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
-												<paper-icon-button icon="[[menuIcon]]" on-tap="toggleSamples"></paper-icon-button>
-										</div>
-										<service-groups drake="{{drake}}" services="{{app.helpers.services}}" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
-								</div>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    <template is="dom-if" if="[[listVisible]]">
+      <div class$="wrap [[orientation]] [[state]]">
+        <div class="list samples" on-delete="deleteFromList" on-edit="editFromList">
+          <div class="menu">
+            <paper-input class="hidden-closed" label="Поиск" value="{{groupSearch}}"></paper-input>
+            <paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
+            <paper-icon-button icon="[[menuIcon]]" on-tap="toggleSamples"></paper-icon-button>
+          </div>
+          <service-groups drake="{{drake}}" services="{{app.helpers.services}}" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
+        </div>
 
-								<div class="list tree">
-										<template is="dom-repeat" items="[[filter(app.list, toggler)]]" as="group">
-												<group-shower topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
-										</template>
-										<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
-										<paper-fab id="save" mini icon="save" hidden$="[[!listchanged]]" on-tap="saveDiff"></paper-fab>
-								</div>
-						</div>
-				</template>
-				<template is="dom-if" if="[[!listVisible]]">
-						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
-								<paper-tab on-tap="back" style="max-width:50px;">
-										<iron-icon icon="chevron-left"></iron-icon>
-								</paper-tab>
-								<paper-tab page="common">Основные параметры</paper-tab>
-						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
-								<div page=""></div>
-								<div page="common">
-										<paper-input label="Наименование" value="{{item.label}}"></paper-input>
-										<paper-input label="Кнопок на странице" value="{{item.items_per_page}}"></paper-input>
-								</div>
-						</iron-pages>
-						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
-				</template>
+        <div class="list tree">
+          <template is="dom-repeat" items="[[filter(app.list, toggler)]]" as="group">
+            <group-shower topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
+          </template>
+          <paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+          <paper-fab id="save" mini icon="save" hidden$="[[!listchanged]]" on-tap="saveDiff"></paper-fab>
+        </div>
+      </div>
+    </template>
+    <template is="dom-if" if="[[!listVisible]]">
+      <paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+        <paper-tab on-tap="back" style="max-width:50px;">
+          <iron-icon icon="chevron-left"></iron-icon>
+        </paper-tab>
+        <paper-tab page="common">Основные параметры</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+        <div page=""></div>
+        <div page="common">
+          <paper-input label="Наименование" value="{{item.label}}"></paper-input>
+          <paper-input label="Кнопок на странице" value="{{item.items_per_page}}"></paper-input>
+        </div>
+      </iron-pages>
+      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+    </template>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление</h2>
-						<paper-dialog-scrollable>
-								[[deleteMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
-						<h2>[[groupDelete]]</h2>
-						<paper-dialog-scrollable>
-								Вы действительно хотите удалить эту группу?
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление</h2>
+      <paper-dialog-scrollable>
+        [[deleteMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
+      <h2>[[groupDelete]]</h2>
+      <paper-dialog-scrollable>
+        Вы действительно хотите удалить эту группу?
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				Polymer({
-						is: 'my-service-groups',
-						behaviors: [ListBehavior],
-						observers: ['_listChanged(app.list)'],
-						_listChanged(list) {
-								this.listClone = _.cloneDeep(this.app.list);
-						},
+  <script>
+    Polymer({
+      is: 'my-service-groups',
+      behaviors: [ListBehavior],
+      observers: ['_listChanged(app.list)'],
+      _listChanged(list) {
+        this.listClone = _.cloneDeep(this.app.list);
+      },
+      testDrop(e) {
+        console.log(e);
+      },
+      compare() {
+        if (!this.app)
+          console.warn('app is undefined');
 
-						compare() {
-								if (!this.app)
-										console.warn('app is undefined');
-								const diff = _.reduce(_.get(this, 'app.list', []), (acc, item, index) => {
-										const cloned = this.listClone[index];
-										!_.isEqual(cloned, item) && acc.push(item);
-										return acc;
-								}, []);
-								return diff;
-						},
-						_correct(item) {
+        const diff = _.reduce(_.get(this, 'app.list', []), (acc, item, index) => {
+          const cloned = this.listClone[index];
+          !_.isEqual(cloned, item) && acc.push(item);
+          return acc;
+        }, []);
+        return diff;
+      },
+      _correct(item) {
 
-								item._root = item.view_order === 0 || item.view_order === "0";
+        item._root = item.view_order === 0 || item.view_order === "0";
 
-								return item;
-						},
-						presave() {
-								if (this.item._root) {
-										this.item.view_order = "0";
-								}
-								_.unset(this.item, '_root');
-						},
-						_redrawTable() {
-								this.toggler = !this.toggler;
-								const t = this.groupSearch;
-								this.groupSearch = '';
-								this.async(() => this.groupSearch = t);
-						},
-						filter(data) {
-								return _.filter(data, {view_order: "0"});
-						},
-						mainGroupDelete(e) {
-								this.toDeleteId = e.detail;
-								this.isDeleteDialog = true;
-								this.groupDelete = "Удаление корневой группы";
-						},
-						setInterval() {
-								//noop
-						},
-						deleteRootGroup(e) {
-								if (!e.detail.confirmed)
-										return;
+        return item;
+      },
+      presave() {
+        if (this.item._root) {
+          this.item.view_order = "0";
+        }
+        _.unset(this.item, '_root');
+      },
+      _redrawTable() {
+        this.toggler = false;
+        const t = this.groupSearch;
+        this.groupSearch = '';
+        this.async(() => this.groupSearch = t);
+      },
+      filter(data, toggler) {
+        (!this.toggler) && this.async(() => (this.toggler = true), 100);
+        return toggler
+          ? _.filter(data, {view_order: "0"})
+          : [];
+      },
+      mainGroupDelete(e) {
+        this.toDeleteId = e.detail;
+        this.isDeleteDialog = true;
+        this.groupDelete = "Удаление корневой группы";
+      },
+      setInterval() {
+        //noop
+      },
+      deleteRootGroup(e) {
+        if (!e.detail.confirmed)
+          return;
 
-								const item = _.find(this.app.list, {"@id": this.toDeleteId});
-								delete item.view_order;
-								this.toggler = !this.toggler;
-						},
-						deleteFromList(e) {
-								const item = (e.detail);
+        const item = _.find(this.app.list, {"@id": this.toDeleteId});
+        delete item.view_order;
+        this.toggler = false;
+      },
+      deleteFromList(e) {
+        const item = (e.detail);
 
-								this.toDeleteId = item["@id"];
-								this.isDeleteDialog = true;
-								this.groupDelete = "Удаление группы";
-						},
-						editFromList(e) {
-								const item = (e.detail);
+        this.toDeleteId = item["@id"];
+        this.isDeleteDialog = true;
+        this.groupDelete = "Удаление группы";
+      },
+      editFromList(e) {
+        const item = (e.detail);
 
-								const id = item["@id"];
-								const row = _.findIndex(this.app.list, {"@id": id});
-								this.routeToID(id, row);
-						},
-						saveDiff() {
-								const diff = this.compare();
-								window.api.saveEntity(this.entityName, diff).then(() => {
-										this.listchanged = false;
-										this.listClone = _.cloneDeep(this.app.list);
-								});
-						},
-						makeEntity() {
-								const item = {
-										"@id": `sg-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
-										"@type": "ServiceGroup",
-										"items_per_page": "12",
-										"content": [],
-										"label": "Наименование",
-										"view_name": "base"
-								};
-								return item;
-						},
-						toggleSamples() {
-								this.state = this.state == "open"
-										? "closed"
-										: "open";
-								this.menuIcon = this.state == "open"
-										? "chevron-left"
-										: "chevron-right";
-						},
-						toggleOrientation() {
-								this.orientation = this.orientation == 'row'
-										? 'column'
-										: 'row';
+        const id = item["@id"];
+        const row = _.findIndex(this.app.list, {"@id": id});
+        this.routeToID(id, row);
+      },
+      saveDiff() {
+        const diff = this.compare();
+        window.api.saveEntity(this.entityName, diff).then(() => {
+          this.listchanged = false;
+          this.listClone = _.cloneDeep(this.app.list);
+        });
+      },
+      makeEntity() {
+        const item = {
+          "@id": `sg-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+          "@type": "ServiceGroup",
+          "items_per_page": "12",
+          "content": [],
+          "label": "Наименование",
+          "view_name": "base"
+        };
+        return item;
+      },
+      toggleSamples() {
+        this.state = this.state == "open"
+          ? "closed"
+          : "open";
+        this.menuIcon = this.state == "open"
+          ? "chevron-left"
+          : "chevron-right";
+      },
+      toggleOrientation() {
+        this.orientation = this.orientation == 'row'
+          ? 'column'
+          : 'row';
 
-						},
-						toggle() {},
-						ready() {
-								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.entityName = 'service-groups';
-								this.fieldsModel = [
-										{
-												label: "Наименование",
-												field: "label"
-										}
-								];
-								this.state = "open";
-								this.orientation = "row";
-								this.menuIcon = "chevron-left";
-								this.orientationIcon = "view-stream";
-								this.toggler = true;
-								this.listchanged = false;
+      },
+      toggle() {},
+      ready() {
+        this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.entityName = 'service-groups';
+        this.fieldsModel = [
+          {
+            label: "Наименование",
+            field: "label"
+          }
+        ];
+        this.state = "open";
+        this.orientation = "row";
+        this.menuIcon = "chevron-left";
+        this.orientationIcon = "view-stream";
+        this.toggler = true;
+        this.listchanged = false;
 
-								setInterval(() => {
-										const diff = this.compare();
-										if (diff.length)
-												this.listchanged = true;
-										}
-								, 1000);
-						}
-				});
-		</script>
+        setInterval(() => {
+          const diff = this.compare();
+          if (diff.length)
+            this.listchanged = true;
+          }
+        , 1000);
+      }
+    });
+  </script>
 </dom-module>
