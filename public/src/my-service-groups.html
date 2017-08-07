@@ -116,13 +116,14 @@
             <paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
             <paper-icon-button icon="[[menuIcon]]" on-tap="toggleSamples"></paper-icon-button>
           </div>
-          <service-groups drake="{{drake}}" services="{{app.helpers.services}}" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
+          <service-groups drake="{{drake}}" services="{{app.helpers.services}}" on-move-item="moveItem" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
         </div>
 
         <div class="list tree">
           <template is="dom-repeat" items="[[filter(app.list, toggler)]]" as="group">
             <group-shower topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
           </template>
+
           <paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
           <paper-fab id="save" mini icon="save" hidden$="[[!listchanged]]" on-tap="saveDiff"></paper-fab>
         </div>
@@ -186,8 +187,15 @@
       _listChanged(list) {
         this.listClone = _.cloneDeep(this.app.list);
       },
-      testDrop(e) {
-        console.log(e);
+      moveItem(e) {
+        const id = e.detail;
+        const item = _.find(this.app.list, {"@id": id});
+        if (!item) {
+          return;
+        }
+        item.view_order = "0";
+
+        this.toggler = false;
       },
       compare() {
         if (!this.app)

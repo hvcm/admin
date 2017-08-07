@@ -32,6 +32,10 @@ class Login extends Basic {
 				.then(data => {
 					const user = data && data.value;
 
+					if (password_hash !== user.password_hash) {
+						return {reason: "incorrect password.", state: false};
+					}
+
 					if (!_.get(user, ['permissions', 'can-admin'])) {
 						return res;
 					}

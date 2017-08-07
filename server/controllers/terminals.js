@@ -83,7 +83,10 @@ class Terminals extends Basic {
 						.then(item => _.get(item, 'value.available_workstation')),
 					groups: cb
 						.view(this.req.query('service_group'))
-						.then(items => _.map(items, item => ({id: item.id, label: item.value}))),
+						.then(items => _.map(items, 'id'))
+						.then(ids => cb.getMulti(ids))
+						.then(items => _.chain(items).map('value').filter({view_order: "0"}).map(item => ({id: item["@id"], label: item.label})).value()),
+					// .then(items => _.map(items, item => ({id: item.id, label: item.value}))),
 					workstations: this
 						.util
 						.getWorkstationsId('call-center', 'registry')
