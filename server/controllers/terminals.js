@@ -6,9 +6,7 @@ class Terminals extends Basic {
 		const {data} = this.req.body;
 		return this
 			._saveEntityWorkstation(data)
-			.then(() => {
-				return this.linkToEntity(data);
-			})
+			.then(() => this.linkToEntity(data))
 			.then(data => this.res.json(data));
 	}
 	linkToEntity(data) {

@@ -89,6 +89,26 @@
 
   </template>
   <script>
+    function composedPath(el) {
+
+      var path = [];
+
+      while (el) {
+
+        path.push(el);
+
+        if (el.tagName === 'HTML') {
+
+          path.push(document);
+          path.push(window);
+
+          return path;
+        }
+
+        el = el.parentElement;
+      }
+    }
+
     Polymer({
       is: 'service-groups',
       properties: {
@@ -142,7 +162,8 @@
         // this.fire('edit', _.find(this.groups, {"@id": e.model.item}));
       },
       handleClick(e) {
-        const el = e.path.find(e => e.tagName === "PAPER-ICON-BUTTON");
+        const el = (e.path || composedPath(e.target)).find(e => e.tagName === "PAPER-ICON-BUTTON");
+
         if (!el) {
           return;
         }

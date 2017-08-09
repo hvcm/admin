@@ -193,8 +193,11 @@
         if (!item) {
           return;
         }
-        item.view_order = "0";
-
+        const clone = _.cloneDeep(item);
+        clone.view_order = "0";
+        clone.label = clone.label + "(корневая группа)";
+        clone["@id"] = `sg-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+        this.app.list.push(clone);
         this.toggler = false;
       },
       compare() {
