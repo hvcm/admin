@@ -8,202 +8,275 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-services">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-						}
-						iris-table {
-								max-height: calc(100vh - 155px);
-						}
-						.line {
-								align-items: center;
-						}
-						paper-fab#delete {
-								bottom: 10px;
-						}
-						paper-fab#add-field {
-								bottom: 110px;
-						}
-						*[hidden] {
-								display: none;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
+      paper-fab#add-field {
+        bottom: 110px;
+      }
+      *[hidden] {
+        display: none;
+      }
 
-				</style>
+    </style>
 
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
-				<template is="dom-if" if="[[listVisible]]">
-						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntityDialog" hidden$="[[!superadmin]]"></paper-fab>
-				</template>
-				<template is="dom-if" if="[[!listVisible]]">
-						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
-								<paper-tab on-tap="back" style="max-width:50px;">
-										<iron-icon icon="chevron-left"></iron-icon>
-								</paper-tab>
-								<paper-tab page="common">Основные параметры</paper-tab>
-								<paper-tab page="fields">Информационные поля</paper-tab>
-								<paper-tab page="schedules">Расписания</paper-tab>
-						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
-								<div page=""></div>
-								<div page="common">
-										<paper-input label="Наименование" value="{{item.label}}" placeholder="Наименование"></paper-input>
-										<paper-input label="Короткое наименование" value="{{item.short_label}}" placeholder="Короткое наименование"></paper-input>
-										<paper-input label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="Код услуги ФРГУ"></paper-input>
-										<paper-input label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="Код ведомства ФРГУ"></paper-input>
-										<paper-input label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="Код услуги ЕПГУ"></paper-input>
-										<paper-input label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="Промежуток ограничения времени до ближайшего слота предзаписи"></paper-input>
-										<paper-input label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="Время обслуживания по ЖО"></paper-input>
-										<paper-input label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="Время обслуживания по ПЗ"></paper-input>
-										<paper-input label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="Количество дней по ПЗ"></paper-input>
-										<paper-input label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="Процент талонов по ПЗ"></paper-input>
-										<paper-input label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="Процент талонов по ПЗ на текущий день"></paper-input>
-										<paper-input label="Приоритет" value="{{item.priority}}" placeholder="Приоритет"></paper-input>
-										<paper-input label="Префикс" value="{{item.prefix}}" placeholder="Префикс"></paper-input>
-								</div>
-								<div page="fields">
-										<field-editor id="peditor" value="[[transformedFields]]"></field-editor>
-										<paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab>
-								</div>
-								<div page="schedules">
-										<div page="schedules">
-												<!-- <h3>Ресурсное расписание</h3>
+    <template is="dom-if" if="[[listVisible]]">
+      <div class="line">
+        <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+        <paper-dropdown-menu label="Права">
+          <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{fieldfilter}}">
+            <paper-item val="label">Название</paper-item>
+            <paper-item val="linked_to">Отдел</paper-item>
+            <paper-item val="groups">Группа услуг</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+      </div>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString, fieldfilter)]]" on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="add" mini icon="add" on-tap="addEntityDialog" hidden$="[[!superadmin]]"></paper-fab>
+    </template>
+    <template is="dom-if" if="[[!listVisible]]">
+      <paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+        <paper-tab on-tap="back" style="max-width:50px;">
+          <iron-icon icon="chevron-left"></iron-icon>
+        </paper-tab>
+        <paper-tab page="common">Основные параметры</paper-tab>
+        <paper-tab page="fields">Информационные поля</paper-tab>
+        <paper-tab page="schedules">Расписания</paper-tab>
+        <paper-tab page="departments">Отделы</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+        <div page=""></div>
+        <div page="common">
+          <paper-input label="Наименование" value="{{item.label}}" placeholder="Наименование"></paper-input>
+          <paper-input label="Короткое наименование" value="{{item.short_label}}" placeholder="Короткое наименование"></paper-input>
+          <paper-input label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="Код услуги ФРГУ"></paper-input>
+          <paper-input label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="Код ведомства ФРГУ"></paper-input>
+          <paper-input label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="Код услуги ЕПГУ"></paper-input>
+          <paper-input label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="Промежуток ограничения времени до ближайшего слота предзаписи"></paper-input>
+          <paper-input label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="Время обслуживания по ЖО"></paper-input>
+          <paper-input label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="Время обслуживания по ПЗ"></paper-input>
+          <paper-input label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="Количество дней по ПЗ"></paper-input>
+          <paper-input label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="Процент талонов по ПЗ"></paper-input>
+          <paper-input label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="Процент талонов по ПЗ на текущий день"></paper-input>
+          <paper-input label="Приоритет" value="{{item.priority}}" placeholder="Приоритет"></paper-input>
+          <paper-input label="Префикс" value="{{item.prefix}}" placeholder="Префикс"></paper-input>
+        </div>
+        <div page="fields">
+          <field-editor id="peditor" value="[[transformedFields]]"></field-editor>
+          <paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab>
+        </div>
+        <div page="schedules">
+          <div page="schedules">
+            <!-- <h3>Ресурсное расписание</h3>
 												<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker> -->
-												<h3>Живая очередь</h3>
-												<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
-												<h3>Предварительная запись</h3>
-												<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
-										</div>
-								</div>
-						</iron-pages>
-						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
-				</template>
+            <h3>Живая очередь</h3>
+            <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
+            <h3>Предварительная запись</h3>
+            <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
+          </div>
+        </div>
+        <div page="departments">
+          <service-selector services="[[departmentMap(app.helpers.offices)]]" selected="{{item.linked_to}}"></service-selector>
+        </div>
+      </iron-pages>
+      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
+    </template>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление</h2>
-						<paper-dialog-scrollable>
-								[[deleteMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isAddEntity}}" on-iron-overlay-closed="addEntityClosed">
-						<h2>Выберите родительский офис</h2>
-						<paper-dialog-scrollable>
-								<paper-listbox selected-values="{{selectedUnitId}}" multi>
-										<template is="dom-repeat" items="[[app.helpers.offices]]">
-												<paper-item >[[item.label]]</paper-item>
-										</template>
-								</paper-listbox>
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Отмена</paper-button>
-								<paper-button dialog-confirm>Ок</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление</h2>
+      <paper-dialog-scrollable>
+        [[deleteMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isAddEntity}}" on-iron-overlay-closed="addEntityClosed">
+      <h2>Выберите родительский офис</h2>
+      <paper-dialog-scrollable>
+        <paper-listbox selected-values="{{selectedUnitId}}" multi>
+          <template is="dom-repeat" items="[[onlyDeps(app.helpers.offices)]]">
+            <paper-item >[[item.label]]</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Отмена</paper-button>
+        <paper-button dialog-confirm>Ок</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				Polymer({
-						is: 'my-services',
-						behaviors: [ListBehavior],
-						_correct(item) {
-								item.custom_fields = item.custom_fields || {};
-								return item;
-						},
-						addEntityDialog() {
-								this.isAddEntity = true;
-						},
-						addEntityClosed(e) {
-								if (!e.detail.confirmed) {
-										return;
-								}
-								const offices = this.app.helpers.offices || [];
-								this.linked_to = _.map(this.selectedUnitId, id => _.get(offices, [id, "@id"]));
-								if (!_.size(this.linked_to)) {
-										return;
-								}
-								this.addEntity();
-						},
-						_itemChanged(id, pid) {
-								ListBehavior._itemChanged.call(this, id, pid);
-								if (!id || !this.item) {
-										return;
-								}
-								this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
-								this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
-										item.__index = index;
-										return item;
-								});
-						},
-						makeEntity() {
-								return {
-										"linked_to": this.linked_to,
-										"@id": `service-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
-										"@type": "Service",
-										"code_frgu": "0",
-										"dept_code_frgu": "0",
-										"prebook_offset": 0,
-										"has_schedule": {
-												"live": ["schedule-0"],
-												"prebook": ["schedule-0"]
-										},
-										"live_operation_time": 900,
-										"ordering": 1,
-										"prebook_interval": 30,
-										"prebook_operation_time": 900,
-										"prebook_percentage": 100,
-										"prebook_today_percentage": 0,
-										"priority": 0,
-										"prefix": "X",
-										"service_code_epgu": "0",
-										"label": "Наименование услуги",
-										"short_label": "Короткое наименование услуги",
-										"custom_fields": {}
-								};
-						},
-						addField() {
-								const editor = Polymer.dom(this.root).querySelector('#peditor');
-								console.log(editor);
-								editor.addField();
-						},
-						presave() {
-								this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
-						},
-						ready: function () {
-								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.entityName = 'services';
-								const transform = item => item || '---';
-								this.fieldsModel = [
-										{
-												label: "Наименование",
-												field: "label",
-												transform
-										}, {
-												label: "Короткое наименование",
-												field: "short_label",
-												transform
-										}
-								];
-						}
-				});
-		</script>
+  <script>
+    Polymer({
+      is: 'my-services',
+      behaviors: [ListBehavior],
+      _correct(item) {
+        item.custom_fields = item.custom_fields || {};
+        const id = item["@id"];
+        item.linked_to = item.linked_to || _.transform(this.app.helpers.service_map, (acc, item, index) => {
+          item.includes(id) && acc.push(index);
+        }, []);
+        return item;
+      },
+      filter(data, searchString, field) {
+        if (!searchString)
+          return data;
+
+        searchString = searchString.toLowerCase();
+
+        if (field == 'label') {
+          return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
+        }
+
+        if (field === 'linked_to') {
+          return _.filter(data, item => ~ (this.departmentToLabel(item).toLowerCase().indexOf(searchString)));
+        }
+
+        if (field === 'groups') {
+          return _.filter(data, item => ~ (this.groupToLabel(item).toLowerCase().indexOf(searchString)));
+        }
+      },
+      departmentMap(list) {
+        const deps = _.chain(list).filter({"@type": 'Department'}).map(item => ([item["@id"], item.label])).fromPairs().value();
+        return deps;
+      },
+      addEntityDialog() {
+        this.isAddEntity = true;
+      },
+      onlyDeps(list) {
+        return _.filter(list, {"@type": 'Department'});
+      },
+      addEntityClosed(e) {
+        if (!e.detail.confirmed) {
+          return;
+        }
+        const offices = this.app.helpers.offices || [];
+        this.linked_to = _.map(this.selectedUnitId, id => _.get(offices, [id, "@id"]));
+        if (!_.size(this.linked_to)) {
+          return;
+        }
+        this.addEntity();
+      },
+      _itemChanged(id, pid) {
+        ListBehavior._itemChanged.call(this, id, pid);
+
+        if (!id || !this.item) {
+          return;
+        }
+        this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+        this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
+          item.__index = index;
+          return item;
+        });
+      },
+      makeEntity() {
+        return {
+          "linked_to": this.linked_to,
+          "@id": `service-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+          "@type": "Service",
+          "code_frgu": "0",
+          "dept_code_frgu": "0",
+          "prebook_offset": 0,
+          "has_schedule": {
+            "live": ["schedule-0"],
+            "prebook": ["schedule-0"]
+          },
+          "live_operation_time": 900,
+          "ordering": 1,
+          "prebook_interval": 30,
+          "prebook_operation_time": 900,
+          "prebook_percentage": 100,
+          "prebook_today_percentage": 0,
+          "priority": 0,
+          "prefix": "X",
+          "service_code_epgu": "0",
+          "label": "Наименование услуги",
+          "short_label": "Короткое наименование услуги",
+          "custom_fields": {}
+        };
+      },
+      addField() {
+        const editor = Polymer.dom(this.root).querySelector('#peditor');
+        editor.addField();
+      },
+      presave() {
+        this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
+      },
+      departmentToLabel(t) {
+        if (!t) {
+          return '';
+        }
+        const id = t["@id"];
+
+        const maps = this.app.helpers.service_map;
+        const attached = _.transform(maps, (acc, item, index) => item.includes(id) && acc.push(index), []);
+
+        return _.map(attached, item => (_.find(this.app.helpers.offices, {"@id": item}) || {}).label).join(' ');
+      },
+      groupToLabel(t) {
+        if (!t) {
+          return '';
+        }
+        const id = t["@id"];
+
+        const groups = this.app.helpers.groups;
+
+        return _.transform(groups, (acc, item) => {
+          item.content.includes(id) && acc.push(item.label);
+        }, []).join(' ');
+      },
+      ready: function () {
+        this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.entityName = 'services';
+        this.fieldfilter = 'label';
+        const transform = item => item || '---';
+        this.fieldsModel = [
+          {
+            label: "Наименование",
+            field: "label",
+            transform
+          }, {
+            label: "Короткое наименование",
+            field: "short_label",
+            transform
+          }, {
+            label: "Отдел",
+            sortable: true,
+            transform: (t) => this.departmentToLabel(t)
+          }, {
+            label: "Группы услуг",
+            transform: (t) => this.groupToLabel(t)
+          }
+        ];
+      }
+    });
+  </script>
 </dom-module>

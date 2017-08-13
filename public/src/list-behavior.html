@@ -1,154 +1,155 @@
 <script>
-		window.ListBehavior = {
-				properties: {
-						app: {
-								type: Object,
-								notify: true
-						},
-						idField: {
-								type: String,
-								value: "@id"
-						}
-				},
-				observers: [
-						'_itemChanged(routeData.itemId)', '_appListChanged(app.list)'
-				],
-				_appListChanged(list) {
-						const id = _.get(this, 'routeData.itemId', false);
+  window.ListBehavior = {
+    properties: {
+      app: {
+        type: Object,
+        notify: true
+      },
+      idField: {
+        type: String,
+        value: "@id"
+      }
+    },
+    observers: [
+      '_itemChanged(routeData.itemId)', '_appListChanged(app.list)'
+    ],
+    _appListChanged(list) {
+      const id = _.get(this, 'routeData.itemId', false);
 
-						id && this._itemChanged(id);
-				},
-				actionHappens(e) {
-						this.changed = true;
-				},
-				_correct(item) {
-						return item;
-				},
-				compare() {
-						if (!this.item) {
-								return true;
-						}
-						this.clone = this.clone || _.cloneDeep(this.item);
-						return _.isEqual(this.item, this.clone);
-				},
-				setInterval() {
-						if (this.intID) {
-								clearInterval(this.intID);
-						}
+      id && this._itemChanged(id);
+    },
+    actionHappens(e) {
+      this.changed = true;
+    },
+    _correct(item) {
+      return item;
+    },
+    compare() {
+      if (!this.item) {
+        return true;
+      }
+      this.clone = this.clone || _.cloneDeep(this.item);
+      return _.isEqual(this.item, this.clone);
+    },
+    setInterval() {
+      if (this.intID) {
+        clearInterval(this.intID);
+      }
 
-						if (!this.classList.contains('iron-selected')) {
-								return;
-						}
+      if (!this.classList.contains('iron-selected')) {
+        return;
+      }
 
-						this.intID = setInterval(() => {
-								this.changed = !this.compare();
-						}, this.intervalTime || 1000);
-				},
-				_redrawTable() {
-						const temp = this.app.list;
-						this.set('searchString', 'x');
-						this.async(() => this.set('searchString', ''));
-				},
-				_itemChanged(id) {
-						if (this.item && this.item[this.idField] === id) {
-								this.listVisible = false;
-								return;
-						}
+      this.intID = setInterval(() => {
+        this.changed = !this.compare();
+      }, this.intervalTime || 1000);
+    },
+    _redrawTable() {
+      const temp = this.app.list;
+      this.set('searchString', 'x');
+      this.async(() => this.set('searchString', ''));
+    },
+    _itemChanged(id) {
+      if (this.item && this.item[this.idField] === id) {
+        this.listVisible = false;
+        return;
+      }
 
-						if (!this.classList.contains('iron-selected')) {
-								return (this.intID) && clearInterval(this.intID);
-						}
+      if (!this.classList.contains('iron-selected')) {
+        return (this.intID) && clearInterval(this.intID);
+      }
 
-						if (!id) {
-								this.listVisible = true;
-								this.changed = false;
-								return;
-						}
+      if (!id) {
+        this.listVisible = true;
+        this.changed = false;
+        return;
+      }
 
-						this.listVisible = false;
-						const item = _.find(_.get(this, 'app.list', []), item => item[this.idField] === id);
+      this.listVisible = false;
+      const list = _.get(this, 'app.list', []);
+      const item = _.find(list, item => item && (item[this.idField] === id));
 
-						if (item) {
-								this.item = this._correct(item);
-						}
-						this.changed = false;
-						this.clone = _.cloneDeep(this.item);
-						this.setInterval();
-				},
-				filter(data, searchString) {
-						if (!searchString)
-								return data;
+      if (item) {
+        this.item = this._correct(item);
+      }
+      this.changed = false;
+      this.clone = _.cloneDeep(this.item);
+      this.setInterval();
+    },
+    filter(data, searchString) {
+      if (!searchString)
+        return data;
 
-						searchString = searchString.toLowerCase();
+      searchString = searchString.toLowerCase();
 
-						return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
-				},
-				cellTap(e) {
-						const id = e.detail.row_data['@id'];
-						const row = _.findIndex(this.app.list, {"@id": id});
-						this.routeToID(id, row);
-				},
-				addEntity() {
-						const entity = this.makeEntity();
-						const id = entity['@id'];
-						const row = this.push('app.list', entity);
-						this.changed = true;
-						this.routeToID(id, row);
-				},
-				routeToID(id, row) {
-						const prefix = this.route.prefix;
-						const path = prefix[prefix.length - 1] === '/'
-								? prefix
-								: prefix + '/';
+      return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
+    },
+    cellTap(e) {
+      const id = e.detail.row_data['@id'];
+      const row = _.findIndex(this.app.list, {"@id": id});
+      this.routeToID(id, row);
+    },
+    addEntity() {
+      const entity = this.makeEntity();
+      const id = entity['@id'];
+      const row = this.push('app.list', entity);
+      this.changed = true;
+      this.routeToID(id, row);
+    },
+    routeToID(id, row) {
+      const prefix = this.route.prefix;
+      const path = prefix[prefix.length - 1] === '/'
+        ? prefix
+        : prefix + '/';
 
-						this.index = row;
-						window.history.pushState({}, null, `${path}${id}/common`);
-						window.dispatchEvent(new CustomEvent('location-changed'));
-				},
-				saveAll() {
-						this.changed = false;
-						(this.presave) && this.presave();
+      this.index = row;
+      window.history.pushState({}, null, `${path}${id}/common`);
+      window.dispatchEvent(new CustomEvent('location-changed'));
+    },
+    saveAll() {
+      this.changed = false;
+      (this.presave) && this.presave();
 
-						window.api.saveEntity(this.entityName, this.item);
-						this._back();
-				},
-				deleteDialog(e) {
-						this.isOpen = true;
-				},
-				discardChanges(e) {
-						if (!e.detail.confirmed) {
-								this.set('routeData.subpage', 'common');
-								return;
-						}
-						this.changed = false;
-						this.splice('app.list', this.index, 1, this.clone);
-						this._back();
-				},
-				_back() {
-						this._redrawTable();
-						window.history.pushState({}, null, this.route.prefix);
-						window.dispatchEvent(new CustomEvent('location-changed'));
-						this.listVisible = true;
+      window.api.saveEntity(this.entityName, this.item);
+      this._back();
+    },
+    deleteDialog(e) {
+      this.isOpen = true;
+    },
+    discardChanges(e) {
+      if (!e.detail.confirmed) {
+        this.set('routeData.subpage', 'common');
+        return;
+      }
+      this.changed = false;
+      this.splice('app.list', this.index, 1, this.clone);
+      this._back();
+    },
+    _back() {
+      this._redrawTable();
+      window.history.pushState({}, null, this.route.prefix);
+      window.dispatchEvent(new CustomEvent('location-changed'));
+      this.listVisible = true;
 
-						if (this.intID) {
-								this.changed = false;
-								this.item = undefined;
-								clearInterval(this.intID);
-						}
-				},
-				back() {
-						if (this.changed) {
-								this.set('isOpenDiscard', true)
-								return;
-						}
-						this._back();
-				},
-				delete(e) {
-						if (!e.detail.confirmed)
-								return;
-						this.splice('app.list', this.index, 1);
-						window.api.deleteEntity(this.entityName, this.item);
-						this._back();
-				}
-		};
+      if (this.intID) {
+        this.changed = false;
+        this.item = undefined;
+        clearInterval(this.intID);
+      }
+    },
+    back() {
+      if (this.changed) {
+        this.set('isOpenDiscard', true)
+        return;
+      }
+      this._back();
+    },
+    delete(e) {
+      if (!e.detail.confirmed)
+        return;
+      this.splice('app.list', this.index, 1);
+      window.api.deleteEntity(this.entityName, this.item);
+      this._back();
+    }
+  };
 </script>

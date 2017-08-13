@@ -7,9 +7,11 @@ class Services extends Basic {
 		const {data} = this.req.body;
 		const {cb} = this.req;
 		const id = data["@id"];
+		const excludes = data.linked_to;
 
 		return cb
 			.upsert(id, data)
+			.then(() => this.unlink(data, excludes))
 			.then(() => this.link(data))
 			.then(data => this.res.json(data));
 	}
@@ -26,13 +28,14 @@ class Services extends Basic {
 			.then(data => this.res.json(data));
 	}
 	link(data) {
-		const {cb} = this.req;
-		const id = data["@id"];
 		const linked_to = data.linked_to;
 
 		if (!linked_to) {
 			return Promise.resolve({});
 		}
+
+		const {cb} = this.req;
+		const id = data["@id"];
 
 		_.unset(data, 'linked_to');
 
@@ -50,11 +53,17 @@ class Services extends Basic {
 
 		return pushes;
 	}
-	unlink(data) {
+	unlink(data, excludes = []) {
 		const {cb} = this.req;
 		const id = data["@id"];
 
-		const deletions = Promise.map(_.concat(this.permissions, 'registry_service'), item => cb.get(`registry_service_${item}`).then(({value}) => {
+		const registries = _
+			.chain(this.permissions)
+			.concat('registry_service')
+			.difference(excludes)
+			.value();
+
+		const deletions = Promise.map(registries, item => cb.get(`registry_service_${item}`).then(({value}) => {
 			if (!value) {
 				return;
 			}
@@ -80,13 +89,18 @@ class Services extends Basic {
 		const schedule = this
 			.util
 			.getSchedulesByView();
+		const offices = this
+			.util
+			.getOffices();
 
+		const groups = this
+			.util
+			.getServiceGroups()
+			.then(data => _.map(data, item => _.pick(item.value, ['content', 'label'])));
 		const helpers = Promise.props({
 			schedule,
-			offices: this
-				.util
-				.getOffices()
-				.then(items => this.permissions.map(p => _.find(items, {"@id": p}))),
+			groups,
+			offices: offices.then(items => this.permissions.map(p => _.find(items, {"@id": p}))),
 			service_map: getServiceMaps.then(data => _.transform(data, (acc, item) => {
 				const key = _
 					.get(item, 'value.@id', '')

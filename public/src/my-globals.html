@@ -184,12 +184,17 @@
         }
         if ((this.item.order || '').length) {
           this.item.order = parseInt(this.item.order, 10);
+          const id = this.makeId();
+          this.item.__index = this.item.__index || id;
+          this.item.key = this.item.key || id;
         }
+      },
+      makeId() {
+        return `field-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
       },
       makeEntity() {
         const field = _.clone(defaultField);
-        const rnd = Math.ceil(Math.random() * 100000);
-        const id = `field-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+        const id = this.makeId();
         field.key = id;
         field.__index = id;
 
@@ -208,7 +213,7 @@
       saveAll() {
         this.changed = false;
         this.presave();
-        window.api.saveEntity('globals', _.chain(this.app.list).keyBy('__index').value());
+        window.api.saveEntity('globals', _.chain(this.app.list).sort('order').keyBy('__index').value());
         this._back();
       },
       deleteDialog(e) {

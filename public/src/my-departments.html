@@ -10,282 +10,295 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-departments">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-								--paper-tabs: {
-										background-color: var(--mydoc-brown-800);
-										font-size: 18px;
-										flex-direction: row;
-										margin: -10px -10px 0;
-								};
-								--paper-tabs-selection-bar: {
-										height: 4px;
-								};
-								--paper-tabs-selection-bar-color: var(--mydoc-beige-600);
-								--iris-ticketview-card: {
-										background: transparent;
-										border: none;
-								};
-								--paper-tab: {
-										color: #fff;
-										flex: 1;
-								};
-								--paper-tabs-content: {
-										display: flex;
-										width: 100%;
-								}
-						}
-						iris-login {
-								background-color: white;
-								max-width: 480px;
-								margin: 0 auto;
-						}
-						paper-fab#delete {
-								bottom: 60px;
-						}
-						paper-fab#save {
-								bottom: 10px;
-						}
-						iron-pages > div {
-								padding: 5px 15px;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+        --paper-tabs: {
+          background-color: var(--mydoc-brown-800);
+          font-size: 18px;
+          flex-direction: row;
+          margin: -10px -10px 0;
+        };
+        --paper-tabs-selection-bar: {
+          height: 4px;
+        };
+        --paper-tabs-selection-bar-color: var(--mydoc-beige-600);
+        --iris-ticketview-card: {
+          background: transparent;
+          border: none;
+        };
+        --paper-tab: {
+          color: #fff;
+          flex: 1;
+        };
+        --paper-tabs-content: {
+          display: flex;
+          width: 100%;
+        }
+      }
+      iris-login {
+        background-color: white;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      paper-fab#delete {
+        bottom: 60px;
+      }
+      paper-fab#save {
+        bottom: 10px;
+      }
+      iron-pages > div {
+        padding: 5px 15px;
+      }
 
-				</style>
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    </style>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
-				<template is="dom-if" if="[[listVisible]]">
-						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini hidden$="[[!isVisible(superadmin)]]" icon="add" on-tap="addEntity"></paper-fab>
-				</template>
+    <template is="dom-if" if="[[listVisible]]">
+      <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="add" mini hidden$="[[!isVisible(superadmin)]]" icon="add" on-tap="addEntity"></paper-fab>
+    </template>
 
-				<template is="dom-if" if="[[!listVisible]]">
-						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
-								<paper-tab on-tap="back" style="max-width:50px;">
-										<iron-icon icon="chevron-left"></iron-icon>
-								</paper-tab>
-								<paper-tab page="common">Основные параметры</paper-tab>
-								<paper-tab disabled="[[isOffice(item)]]" page="services">Услуги</paper-tab>
-								<paper-tab disabled="[[isOffice(item)]]" page="routes">Маршруты</paper-tab>
-								<paper-tab disabled="[[isOffice(item)]]" page="satelites">Дизайн</paper-tab>
-						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
-								<div page=""></div>
-								<div page="common">
-										<paper-input label="Наименование" value="{{item.label}}"></paper-input>
-										<paper-input label="Адрес" value="{{item.formatted_address}}"></paper-input>
-										<paper-input label="Пин-код" value="{{item.pin_code_prefix}}" placeholder="{{getPlaceholder('pin_code_prefix',item)}}"></paper-input>
-										<paper-input label="Префикс талонов ПЗ" value="{{item.prebook_label_prefix}}" placeholder="{{getPlaceholder('prebook_label_prefix',item)}}"></paper-input>
-										<paper-input label="Время до удаления не активированного талона ПЗ" value="{{item.prebook_expiration_interval}}" placeholder="{{getPlaceholder('prebook_expiration_interval',item)}}"></paper-input>
-										<paper-input label="Промежуток уникальности слотов ПЗ" value="{{item.prebook_slot_uniq_interval}}" placeholder="{{getPlaceholder('prebook_slot_uniq_interval',item)}}"></paper-input>
-										<paper-input label="Время до ближайшего слота ПЗ" value="{{item.prebook_observe_offset}}" placeholder="{{getPlaceholder('prebook_observe_offset',item)}}"></paper-input>
-										<paper-input label="Максимальное количество отображаемых слотов ПЗ" value="{{item.prebook_observe_max_slots}}" placeholder="{{getPlaceholder('prebook_observe_max_slots',item)}}"></paper-input>
-										<paper-input label="Интервал отображения талона ПЗ в АРМ Оператора" value="{{item.prebook_show_interval}}" placeholder="{{getPlaceholder('prebook_show_interval',item)}}"></paper-input>
-										<paper-input label="Количество дней за которое талон может быть активирован" value="{{item.prebook_register_interval }}" placeholder="{{getPlaceholder('prebook_register_interval',item)}}"></paper-input>
-										<paper-input label="Время до восстановления талона из списка отложенных" value="{{item.live_autorestore}}" placeholder="{{getPlaceholder('live_autorestore',item)}}"></paper-input>
-										<paper-input label="Время до автоматического перевода талона в список отложенных" value="{{item.live_autopostpone}}" placeholder="{{getPlaceholder('live_autopostpone',item)}}"></paper-input>
-										<paper-input label="Допустимое количество раз автоматического откладывания" value="{{item.live_autopostpone_count}}" placeholder="{{getPlaceholder('live_autopostpone_count',item)}}"></paper-input>
-										<paper-input label="Время отображения диалоговых окон на терминалах" value="{{item.error_dialog_duration}}" placeholder="{{getPlaceholder('error_dialog_duration',item)}}"></paper-input>
-										<paper-input label="Код ЛК МКГУ" value="{{item.mkgu_code}}" placeholder="{{getPlaceholder('mkgu_code',item)}}"></paper-input>
-										<paper-input label="Код ОКАТО" value="{{item.okato}}" placeholder="{{getPlaceholder('okato',item)}}"></paper-input>
-										<paper-input label="Время автозавершения работы АРМ" value="{{item.auto_logout_time}}" placeholder="{{getPlaceholder('auto_logout_time',item)}}"></paper-input>
-										<paper-input label="Время для перерасчета слотов ПЗ" value="{{item.auto_warmup_time}}" placeholder="{{getPlaceholder('auto_warmup_time',item)}}"></paper-input>
-										<paper-input label="Время автозавершения необработанных талонов" value="{{item.auto_expire_time}}" placeholder="{{getPlaceholder('auto_expire_time',item)}}"></paper-input>
-										<paper-input label="Назначенный промежуток приема ЖО перед ПЗ" value="{{item.prebook_separation_interval}}" placeholder="{{getPlaceholder('prebook_separation_interval',item)}}"></paper-input>
-										<placeholder-checkbox label="Режим приема ЖО за назначенный промежуток перед ПЗ" checked="{{item.separate_prebook_ordering}}" placeholder="{{getPlaceholder('separate_prebook_ordering',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Оценка качества" checked="{{item.qa_enabled}}" placeholder="{{getPlaceholder('qa_enabled',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Запись логов МКГУ" checked="{{item.logs.mkgu}}" placeholder="{{getPlaceholder('logs.mkgu',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Отображение талонов в АРМ согласно настройки рабочих мест" checked="{{item.workstation_filtering_enabled}}" placeholder="{{getPlaceholder('workstation_filtering_enabled',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Отображение талонов в АРМ согласно настройки сотрудников" checked="{{item.employee_filtering_enabled}}" placeholder="{{getPlaceholder(employee_filtering_enabled',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Расчет талонов согласно настройки рабочих мест" checked="{{item.workstation_resource_enabled}}" placeholder="{{getPlaceholder('workstation_resource_enabled',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Расчет талонов согласно настройки сотрудников" checked="{{item.employee_resource_enabled}}" placeholder="{{getPlaceholder('employee_resource_enabled',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Льготные талоны идут перед ПЗ" checked="{{item.live_priority_ordering}}" placeholder="{{getPlaceholder('live_priority_ordering',item)}}"></placeholder-checkbox>
-										<placeholder-checkbox label="Выдавать талоны ЖО согласно расписанию, без учета работы АРМ" checked="{{item.ignore_agent_state}}" placeholder="{{getPlaceholder('ignore_agent_state',item)}}"></placeholder-checkbox>
-										<booking-method-selector methods="{{item.booking_methods }}"></booking-method-selector>
+    <template is="dom-if" if="[[!listVisible]]">
+      <paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+        <paper-tab on-tap="back" style="max-width:50px;">
+          <iron-icon icon="chevron-left"></iron-icon>
+        </paper-tab>
+        <paper-tab page="common">Основные параметры</paper-tab>
+        <paper-tab disabled="[[isOffice(item)]]" page="services">Услуги</paper-tab>
+        <paper-tab disabled="[[isOffice(item)]]" page="routes">Маршруты</paper-tab>
+        <paper-tab disabled="[[isOffice(item)]]" page="satelites">Дизайн</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
+        <div page=""></div>
+        <div page="common">
+          <paper-input label="Наименование" value="{{item.label}}"></paper-input>
+          <paper-input label="Адрес" value="{{item.formatted_address}}"></paper-input>
+          <paper-input label="Пин-код" value="{{item.pin_code_prefix}}" placeholder="{{getPlaceholder('pin_code_prefix',item)}}"></paper-input>
+          <paper-input label="Префикс талонов ПЗ" value="{{item.prebook_label_prefix}}" placeholder="{{getPlaceholder('prebook_label_prefix',item)}}"></paper-input>
+          <paper-input label="Время до удаления не активированного талона ПЗ" value="{{item.prebook_expiration_interval}}" placeholder="{{getPlaceholder('prebook_expiration_interval',item)}}"></paper-input>
+          <paper-input label="Промежуток уникальности слотов ПЗ" value="{{item.prebook_slot_uniq_interval}}" placeholder="{{getPlaceholder('prebook_slot_uniq_interval',item)}}"></paper-input>
+          <paper-input label="Время до ближайшего слота ПЗ" value="{{item.prebook_observe_offset}}" placeholder="{{getPlaceholder('prebook_observe_offset',item)}}"></paper-input>
+          <paper-input label="Максимальное количество отображаемых слотов ПЗ" value="{{item.prebook_observe_max_slots}}" placeholder="{{getPlaceholder('prebook_observe_max_slots',item)}}"></paper-input>
+          <paper-input label="Интервал отображения талона ПЗ в АРМ Оператора" value="{{item.prebook_show_interval}}" placeholder="{{getPlaceholder('prebook_show_interval',item)}}"></paper-input>
+          <paper-input label="Количество дней за которое талон может быть активирован" value="{{item.prebook_register_interval }}" placeholder="{{getPlaceholder('prebook_register_interval',item)}}"></paper-input>
+          <paper-input label="Время до восстановления талона из списка отложенных" value="{{item.live_autorestore}}" placeholder="{{getPlaceholder('live_autorestore',item)}}"></paper-input>
+          <paper-input label="Время до автоматического перевода талона в список отложенных" value="{{item.live_autopostpone}}" placeholder="{{getPlaceholder('live_autopostpone',item)}}"></paper-input>
+          <paper-input label="Допустимое количество раз автоматического откладывания" value="{{item.live_autopostpone_count}}" placeholder="{{getPlaceholder('live_autopostpone_count',item)}}"></paper-input>
+          <paper-input label="Время отображения диалоговых окон на терминалах" value="{{item.error_dialog_duration}}" placeholder="{{getPlaceholder('error_dialog_duration',item)}}"></paper-input>
+          <paper-input label="Код ЛК МКГУ" value="{{item.mkgu_code}}" placeholder="{{getPlaceholder('mkgu_code',item)}}"></paper-input>
+          <paper-input label="Код ОКАТО" value="{{item.okato}}" placeholder="{{getPlaceholder('okato',item)}}"></paper-input>
+          <paper-input label="Время автозавершения работы АРМ" value="{{item.auto_logout_time}}" placeholder="{{getPlaceholder('auto_logout_time',item)}}"></paper-input>
+          <paper-input label="Время для перерасчета слотов ПЗ" value="{{item.auto_warmup_time}}" placeholder="{{getPlaceholder('auto_warmup_time',item)}}"></paper-input>
+          <paper-input label="Время автозавершения необработанных талонов" value="{{item.auto_expire_time}}" placeholder="{{getPlaceholder('auto_expire_time',item)}}"></paper-input>
+          <paper-input label="Назначенный промежуток приема ЖО перед ПЗ" value="{{item.prebook_separation_interval}}" placeholder="{{getPlaceholder('prebook_separation_interval',item)}}"></paper-input>
+          <placeholder-checkbox label="Режим приема ЖО за назначенный промежуток перед ПЗ" checked="{{item.separate_prebook_ordering}}" placeholder="{{getPlaceholder('separate_prebook_ordering',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Оценка качества" checked="{{item.qa_enabled}}" placeholder="{{getPlaceholder('qa_enabled',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Запись логов МКГУ" checked="{{item.logs.mkgu}}" placeholder="{{getPlaceholder('logs.mkgu',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Отображение талонов в АРМ согласно настройки рабочих мест" checked="{{item.workstation_filtering_enabled}}" placeholder="{{getPlaceholder('workstation_filtering_enabled',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Отображение талонов в АРМ согласно настройки сотрудников" checked="{{item.employee_filtering_enabled}}" placeholder="{{getPlaceholder(employee_filtering_enabled',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Расчет талонов согласно настройки рабочих мест" checked="{{item.workstation_resource_enabled}}" placeholder="{{getPlaceholder('workstation_resource_enabled',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Расчет талонов согласно настройки сотрудников" checked="{{item.employee_resource_enabled}}" placeholder="{{getPlaceholder('employee_resource_enabled',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Льготные талоны идут перед ПЗ" checked="{{item.live_priority_ordering}}" placeholder="{{getPlaceholder('live_priority_ordering',item)}}"></placeholder-checkbox>
+          <placeholder-checkbox label="Выдавать талоны ЖО согласно расписанию, без учета работы АРМ" checked="{{item.ignore_agent_state}}" placeholder="{{getPlaceholder('ignore_agent_state',item)}}"></placeholder-checkbox>
+          <booking-method-selector methods="{{item.booking_methods }}"></booking-method-selector>
 
-										<paper-input label="Звуковая тема" value="{{item.sound_theme}}" placeholder="{{getPlaceholder('sound_theme',item)}}"></paper-input>
-										<zone-picker selected="{{item.org_timezone}}" placeholder="{{getPlaceholder('org_timezone',item)}}"></zone-picker>
+          <paper-input label="Звуковая тема" value="{{item.sound_theme}}" placeholder="{{getPlaceholder('sound_theme',item)}}"></paper-input>
+          <zone-picker selected="{{item.org_timezone}}" placeholder="{{getPlaceholder('org_timezone',item)}}"></zone-picker>
 
-										<h3>Сообщения</h3>
-										<div class="notifications">
-												<level-editor value="[[item.notification_levels.max-waiting-time]]" parent="[[parentOfItem.notification_levels.max-waiting-time]]"></level-editor>
-										</div>
+          <h3>Сообщения</h3>
+          <div class="notifications">
+            <level-editor value="[[item.notification_levels.max-waiting-time]]" parent="[[parentOfItem.notification_levels.max-waiting-time]]"></level-editor>
+          </div>
 
-										<h3>Приоритеты</h3>
-										<paper-input label="Приоритет ветеранов" value="{{item.priority_description.veteran.value}}" placeholder="{{getPlaceholder('priority_description.veteran.value',item)}}"></paper-input>
-										<paper-input label="Приоритет инвалидов" value="{{item.priority_description.invalid.value}}" placeholder="{{getPlaceholder('priority_description.invalid.value',item)}}"></paper-input>
-								</div>
-								<div page="services">
-										<service-selector services="[[app.helpers.labels]]" selected="{{item.services}}"></service-selector>
-								</div>
-								<div page="routes">
-										<route-selector label="Разрешенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.include}}"></route-selector>
-										<route-selector label="Запрещенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.exclude}}"></route-selector>
-								</div>
-								<div page="satelites">
-										<paper-input label="Дизайн табло оператора" value="{{item.qa_design.hold_screen_design}}" placeholder="{{getPlaceholder('qa_design.hold_screen_design',item)}}"></paper-input>
-										<paper-input label="Дизайн пульта оценки качества" value="{{item.oper_design.hold_screen_design}}" placeholder="{{getPlaceholder('oper_design.hold_screen_design',item)}}"></paper-input>
-								</div>
-						</iron-pages>
+          <h3>Приоритеты</h3>
+          <paper-input label="Приоритет ветеранов" value="{{item.priority_description.veteran.value}}" placeholder="{{getPlaceholder('priority_description.veteran.value',item)}}"></paper-input>
+          <paper-input label="Приоритет инвалидов" value="{{item.priority_description.invalid.value}}" placeholder="{{getPlaceholder('priority_description.invalid.value',item)}}"></paper-input>
+        </div>
+        <div page="services">
+          <service-selector services="[[app.helpers.labels]]" selected="{{item.services}}"></service-selector>
+        </div>
+        <div page="routes">
+          <route-selector label="Разрешенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.include}}"></route-selector>
+          <route-selector label="Запрещенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.exclude}}"></route-selector>
+        </div>
+        <div page="satelites">
+          <paper-input label="Дизайн табло оператора" value="{{item.qa_design.hold_screen_design}}" placeholder="{{getPlaceholder('qa_design.hold_screen_design',item)}}"></paper-input>
+          <paper-input label="Дизайн пульта оценки качества" value="{{item.oper_design.hold_screen_design}}" placeholder="{{getPlaceholder('oper_design.hold_screen_design',item)}}"></paper-input>
+        </div>
+      </iron-pages>
 
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!isVisible(superadmin)]]"></paper-fab>
-						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-				</template>
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление отдела</h2>
-						<paper-dialog-scrollable>
-								Вы действительно хотите этот отдел?
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!isVisible(superadmin)]]"></paper-fab>
+      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+    </template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление отдела</h2>
+      <paper-dialog-scrollable>
+        Вы действительно хотите этот отдел?
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
 
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				Polymer({
-						is: 'my-departments',
-						behaviors: [ListBehavior],
-						isVisible(superadmin) {
+  <script>
+    Polymer({
+      is: 'my-departments',
+      behaviors: [ListBehavior],
+      isVisible(superadmin) {
 
-								return !!superadmin;
-						},
-						ready() {
-								this.entityName = 'departments';
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.fieldsModel = [
-										{
-												field: 'label',
-												label: 'Наименование',
-												transform: (item) => item || "-"
-										}, {
-												field: 'formatted_address',
-												label: 'Адрес',
-												transform: (item) => item || "-"
-										}
-								];
-						},
-						filter(data, searchString) {
-								data = _.filter(data, {"@type": "Department"});
+        return !!superadmin;
+      },
+      observers: [
+        'checkResourceW(item.workstation_resource_enabled)', 'checkResourceE(item.employee_resource_enabled)'
+      ],
+      ready() {
+        this.entityName = 'departments';
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.fieldsModel = [
+          {
+            field: 'label',
+            label: 'Наименование',
+            transform: (item) => item || "-"
+          }, {
+            field: 'formatted_address',
+            label: 'Адрес',
+            transform: (item) => item || "-"
+          }
+        ];
+      },
+      checkResourceW() {
+        if (!this.item)
+          return;
+        this.set('item.employee_resource_enabled', !this.item.workstation_resource_enabled);
+      },
+      checkResourceE() {
+        if (!this.item)
+          return;
+        this.set('item.workstation_resource_enabled', !this.item.employee_resource_enabled);
+      },
+      filter(data, searchString) {
+        data = _.filter(data, {"@type": "Department"});
 
-								if (!searchString)
-										return data;
+        if (!searchString)
+          return data;
 
-								searchString = searchString.toLowerCase();
+        searchString = searchString.toLowerCase();
 
-								return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
-						},
-						_itemChanged(id) {
-								ListBehavior._itemChanged.call(this, id);
-								if (!id || !this.item) {
-										return;
-								}
-								const parent_id = this.item.unit_of;
-								this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id}) || {};
-						},
+        return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
+      },
+      _itemChanged(id) {
+        ListBehavior._itemChanged.call(this, id);
+        if (!id || !this.item) {
+          return;
+        }
+        const parent_id = this.item.unit_of;
+        this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id}) || {};
+      },
 
-						isOffice(item) {
-								return item && item["@type"] === "Office";
-						},
+      isOffice(item) {
+        return item && item["@type"] === "Office";
+      },
 
-						_correct(item) {
-								item.priority_description = item.priority_description || {
-										veteran: {},
-										invalid: {}
-								};
-								item.routes = item.routes || {
-										routes: {
-												include: [],
-												exclude: []
-										}
-								};
-								item.qa_design = item.qa_design || {
-										hold_screen_design: ''
-								};
-								item.oper_design = item.oper_design || {
-										hold_screen_design: ''
-								};
-								item.notification_levels = item.notification_levels || {
-										"max-waiting-time": [{}, {}, {}]
-								}
+      _correct(item) {
+        item.priority_description = item.priority_description || {
+          veteran: {},
+          invalid: {}
+        };
+        item.routes = item.routes || {
+          routes: {
+            include: [],
+            exclude: []
+          }
+        };
+        item.qa_design = item.qa_design || {
+          hold_screen_design: ''
+        };
+        item.oper_design = item.oper_design || {
+          hold_screen_design: ''
+        };
+        item.notification_levels = item.notification_levels || {
+          "max-waiting-time": [{}, {}, {}]
+        }
 
-								return item;
-						},
-						canAddDepartment(list) {
-								return !_.find(list, {'@type': "Office"});
-						},
-						getPlaceholder(field, item) {
-								const {unit_of} = item;
-								const {office} = this.app.helpers;
-								return _.get(this.parentOfItem, field);
-						},
-						makeEntity() {
-								const id = `${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
-								return {
-										__fresh: `office-${id}`,
-										label: '',
-										"@id": `department-${id}`,
-										"@type": "Department",
-										formatted_address: '',
-										unit_of: `office-${id}`,
-										services: [],
-										priority_description: {
-												veteran: {
-														value: 1
-												},
-												invalid: {
-														value: 1
-												}
-										},
-										qa_design: {
-												hold_screen_design: ''
-										},
-										oper_design: {
-												hold_screen_design: ''
-										},
-										routes: {
-												routes: {
-														include: [],
-														exclude: []
-												}
-										},
-										notification_levels: {
-												"max-waiting-time": [
-														{
-																code: "high",
-																value: 3600,
-																dnd: 60,
-																message: "Красный уровень"
-														}, {
-																code: "normal",
-																value: 1800,
-																dnd: 60,
-																message: "Желтый уровень"
-														}, {
-																code: "low",
-																value: 900,
-																dnd: 60,
-																message: "Зеленый уровень"
-														}
-												]
-										}
-								};
-						}
-				});
-		</script>
+        return item;
+      },
+      canAddDepartment(list) {
+        return !_.find(list, {'@type': "Office"});
+      },
+      getPlaceholder(field, item) {
+        const {unit_of} = item;
+        const {office} = this.app.helpers;
+        return _.get(this.parentOfItem, field);
+      },
+      makeEntity() {
+        const id = `${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+        return {
+          __fresh: `office-${id}`,
+          label: '',
+          "@id": `department-${id}`,
+          "@type": "Department",
+          formatted_address: '',
+          unit_of: `office-${id}`,
+          services: [],
+          priority_description: {
+            veteran: {
+              value: 1
+            },
+            invalid: {
+              value: 1
+            }
+          },
+          qa_design: {
+            hold_screen_design: "/images/qa/landing.html"
+          },
+          oper_design: {
+            hold_screen_design: "/production/operator-display/design/landing.html"
+          },
+          routes: {
+            routes: {
+              include: [],
+              exclude: []
+            }
+          },
+          notification_levels: {
+            "max-waiting-time": [
+              {
+                code: "high",
+                value: 3600,
+                dnd: 60,
+                message: "Красный уровень"
+              }, {
+                code: "normal",
+                value: 1800,
+                dnd: 60,
+                message: "Желтый уровень"
+              }, {
+                code: "low",
+                value: 900,
+                dnd: 60,
+                message: "Зеленый уровень"
+              }
+            ]
+          }
+        };
+      }
+    });
+  </script>
 </dom-module>

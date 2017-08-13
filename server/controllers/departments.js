@@ -22,7 +22,7 @@ class Departments extends Basic {
 					? this.update(data, value)
 					: this.create(data, value);
 			})
-			.then(data => this.res.json(data));;
+			.then(data => this.res.json({'state': 'ok'}));;
 	}
 	removeFields(data) {
 		['services', 'qa_design', 'oper_design', 'routes', '__fresh'].map(item => _.unset(data, item));
@@ -69,8 +69,9 @@ class Departments extends Basic {
 			update_user: this.updateUser(id, office_id),
 			satelites: this.makeSatelites(id, qa_design, oper_design),
 			routing_map: this.makeServiceRoutingMap(id, routes),
-			services: this.makeServiceRegistry(id, services)
-		}).then(data => this.res.json(data));
+			services: this.makeServiceRegistry(id, services),
+			workstations: this.makeWorkstationRegistry(id)
+		});
 	}
 
 	setCookie(value) {
@@ -140,7 +141,6 @@ class Departments extends Basic {
 
 		return Promise.map(satelites, satelite => cb.remove(satelite));
 	}
-
 	makeServiceRegistry(id, value) {
 		const {cb} = this.req;
 
@@ -149,6 +149,27 @@ class Departments extends Basic {
 			"@type": "Registry",
 			"@content_type": "Service",
 			"content": value || []
+		};
+
+		return cb.upsert(map["@id"], map);
+	}
+	makeWorkstationRegistry(id) {
+		const {cb} = this.req;
+		console.log(`registry_workstation_${id}`);
+		const map = {
+			"@id": `registry_workstation_${id}`,
+			"@type": "Registry",
+			"@content_type": "Workstation",
+			content: {
+				terminal: [],
+				roomdisplay: [],
+				"digital-display": [],
+				"control-panel": [],
+				registry: [],
+				"call-center": [],
+				reports: [],
+				reception: []
+			}
 		};
 
 		return cb.upsert(map["@id"], map);
@@ -190,7 +211,7 @@ class Departments extends Basic {
 		return Object.assign({
 			"@id": `${type}--satellite--${id}--template`,
 			"@type": short_type,
-			"label": `${short_type} ${id}`,
+			"label": `${short_type} для ${id}`,
 			"default_agent": "megatron-3",
 			"attached_to": id,
 			"device_type": type,
@@ -205,7 +226,7 @@ class Departments extends Basic {
 		return Object.assign({
 			"@id": `${type}--satellite--${id}--template`,
 			"@type": short_type,
-			"label": `${short_type} ${id}`,
+			"label": `${short_type} для ${id}`,
 			"default_agent": "operator-display",
 			"attached_to": id,
 			"device_type": type,
