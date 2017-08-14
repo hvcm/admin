@@ -39,15 +39,19 @@ class Services extends Basic {
 
 		_.unset(data, 'linked_to');
 
-		const local_ids = _.concat(_.map(_.castArray(linked_to), item => `registry_service_${item}`), 'registry_service');
+		const local_ids = _
+			.chain(linked_to)
+			.castArray()
+			.map(item => `registry_service_${item}`)
+			.concat('registry_service')
+			.value();
 
 		const pushes = Promise.map(local_ids, local_id => cb.get(local_id).then(({value}) => {
 			if (!value) {
 				return;
 			}
 			const {content} = value;
-			content.push(id);
-			value.content = _.compact(content);
+			value.content = _.uniq(_.compact(content));
 			return cb.upsert(local_id, value)
 		}));
 
@@ -59,11 +63,12 @@ class Services extends Basic {
 
 		const registries = _
 			.chain(this.permissions)
-			.concat('registry_service')
 			.difference(excludes)
+			.map(item => `registry_service_${item}`)
+			.concat('registry_service')
 			.value();
 
-		const deletions = Promise.map(registries, item => cb.get(`registry_service_${item}`).then(({value}) => {
+		const deletions = Promise.map(registries, item => cb.get(item).catch(() => ({value: false})).then(({value}) => {
 			if (!value) {
 				return;
 			}
@@ -89,6 +94,7 @@ class Services extends Basic {
 		const schedule = this
 			.util
 			.getSchedulesByView();
+
 		const offices = this
 			.util
 			.getOffices();
@@ -97,6 +103,7 @@ class Services extends Basic {
 			.util
 			.getServiceGroups()
 			.then(data => _.map(data, item => _.pick(item.value, ['content', 'label'])));
+
 		const helpers = Promise.props({
 			schedule,
 			groups,

@@ -238,7 +238,7 @@
         const maps = this.app.helpers.service_map;
         const attached = _.transform(maps, (acc, item, index) => item.includes(id) && acc.push(index), []);
 
-        return _.map(attached, item => (_.find(this.app.helpers.offices, {"@id": item}) || {}).label).join(' ');
+        return _.map(attached, item => (_.find(this.app.helpers.offices, {"@id": item}) || {}).label).join(', ');
       },
       groupToLabel(t) {
         if (!t) {
@@ -250,7 +250,7 @@
 
         return _.transform(groups, (acc, item) => {
           item.content.includes(id) && acc.push(item.label);
-        }, []).join(' ');
+        }, []).join(', ');
       },
       ready: function () {
         this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
