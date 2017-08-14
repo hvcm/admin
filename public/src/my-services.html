@@ -29,6 +29,9 @@
       *[hidden] {
         display: none;
       }
+      .line paper-input {
+        flex: 1;
+      }
 
     </style>
 
@@ -37,7 +40,7 @@
     <template is="dom-if" if="[[listVisible]]">
       <div class="line">
         <paper-input label="Поиск" value="{{searchString}}"></paper-input>
-        <paper-dropdown-menu label="Права">
+        <paper-dropdown-menu label="Поле">
           <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{fieldfilter}}">
             <paper-item val="label">Название</paper-item>
             <paper-item val="linked_to">Отдел</paper-item>
