@@ -1,8 +1,34 @@
 "use strict";
 
 const Util = require('./util');
+const checked = {
+	state: true,
+	check: true
+};
+const notchecked = {
+	state: true,
+	check: false
+};
 
 class Basic {
+	check() {
+		const {data} = this.req.body;
+		const {cb} = this.req;
+		const previous = data.__previous;
+		const id = data.id;
+
+		if (id === previous) {
+			return this
+				.res
+				.json(checked);
+		}
+
+		return cb
+			.get(id)
+			.then(() => notchecked)
+			.catch(() => checked)
+			.then(data => this.res.json(data));
+	}
 	constructor(req, res, next) {
 		this.req = req;
 		this.res = res;
@@ -34,7 +60,10 @@ class Basic {
 			.removeEveryWhere(id, device_type, registry)
 			.then(() => util.addWorkstation(id, device_type, registry));
 
+		const previous = data.__previous;
+
 		return Promise.props({
+			idchanged: previous && previous !== id && this._deleteEntityWorkstation({device_type, id: previous}),
 			insert: cb.upsert(id, data),
 			toggle: remove
 		});

@@ -49,6 +49,7 @@
       <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page">
         <div page=""></div>
         <div page="common">
+          <paper-input id="wsid" label="ID" value="[[getId(item)]]" placeholder="Введите ID" on-keyup="idChanged"></paper-input>
           <paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
 
           <paper-dropdown-menu label="Офис">
@@ -129,6 +130,15 @@
         <paper-button dialog-confirm on-tap="addEntity">Продолжить</paper-button>
       </div>
     </paper-dialog>
+    <paper-dialog opened="{{wrongId}}">
+      <h2>ID уже используется</h2>
+      <paper-dialog-scrollable>
+        Выберите другой ID
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-confirm>Ок</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -171,6 +181,19 @@
         const editor = Polymer.dom(this.root).querySelector('#peditor');
         editor.addField();
       },
+      saveAll() {
+        this.changed = false;
+        (this.presave) && this.presave();
+        this.wrongId = false;
+        window.api.checkEntity(this.entityName, this.item).then(({check}) => {
+          if (check) {
+            window.api.saveEntity(this.entityName, this.item);
+            this._back();
+            return;
+          }
+          this.wrongId = true;
+        });
+      },
       transformBM(method) {
         if (!method)
           return '*';
@@ -203,7 +226,7 @@
         };
       },
       getId(ws) {
-        return ws["@id"];
+        return ws && ws["@id"];
       },
       getHiddenType(all) {
         const item = all["@id"];

@@ -13,6 +13,9 @@
     observers: [
       '_itemChanged(routeData.itemId)', '_appListChanged(app.list)'
     ],
+    getId(ws) {
+      return ws && ws["@id"];
+    },
     _appListChanged(list) {
       const id = _.get(this, 'routeData.itemId', false);
 
@@ -20,6 +23,11 @@
     },
     actionHappens(e) {
       this.changed = true;
+    },
+    idChanged() {
+      const wsid = Polymer.dom(this.root).querySelector('#wsid');
+      this.item.__previous = this.item.__previous || this.item["@id"];
+      this.item["@id"] = wsid.value;
     },
     _correct(item) {
       return item;

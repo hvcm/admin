@@ -21,7 +21,7 @@ const entities = [
 	'globals'
 ];
 
-const actions = ['delete', 'save', 'list'];
+const actions = ['delete', 'save', 'list', 'check'];
 const options = {
 	middleware: [auth]
 };
@@ -35,6 +35,7 @@ module.exports = app => {
 
 	router.post(app, '/entity-list/:entity', entity, 'entityList', options);
 	router.post(app, '/entity-save/:entity', entity, 'entitySave', options);
+	router.post(app, '/entity-check/workstation', entity, 'check', options);
 	router.post(app, '/entity-delete/:entity', entity, 'entityDelete', options);
 	router.post(app, '/servers/reload', servers, 'reload', options);
 

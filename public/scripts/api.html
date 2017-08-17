@@ -1,44 +1,47 @@
 <script type="text/javascript">
-		window.api = {
-				request(url, data) {
-						myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
+  window.api = {
+    request(url, data) {
+      myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
 
-						localStorage.getItem('is_dev') && console.log('request:', url, data);
-						return Promise.resolve(fetch(url, {
-								method: 'POST',
-								headers: myHeaders,
-								credentials: 'same-origin',
-								body: JSON.stringify(data)
-						}).then(res => res.json())).then(res => {
-								localStorage.getItem('is_dev') && console.log('result:', res);
-								if (res.authfailed === true) {
-										return window.location.replace('/login');
-								}
-								return res;
-						}).timeout(40000);
-				},
-				login(user, password, server) {
-						return this.request('/login', {user, password, server}).then(res => res.state
-								? res
-								: Promise.reject(new Error(res.reason)));
-				},
-				reload(server_id) {
-						return this.request('/servers/reload', {server_id})
-				},
-				logout(user, password) {
-						return this.request('/logout').then(res => window.location.replace('/login'));
-				},
-				preparePage(entity, department) {
-						return this.request(`/entity-list/${entity}`, {department}).then(res => {
-								res.entity = entity;
-								return res;
-						});
-				},
-				saveEntity(entity, data) {
-						return this.request(`/entity-save/${entity}`, {data});
-				},
-				deleteEntity(entity, data) {
-						return this.request(`/entity-delete/${entity}`, {data});
-				}
-		};
+      localStorage.getItem('is_dev') && console.log('request:', url, data);
+      return Promise.resolve(fetch(url, {
+        method: 'POST',
+        headers: myHeaders,
+        credentials: 'same-origin',
+        body: JSON.stringify(data)
+      }).then(res => res.json())).then(res => {
+        localStorage.getItem('is_dev') && console.log('result:', res);
+        if (res.authfailed === true) {
+          return window.location.replace('/login');
+        }
+        return res;
+      }).timeout(40000);
+    },
+    login(user, password, server) {
+      return this.request('/login', {user, password, server}).then(res => res.state
+        ? res
+        : Promise.reject(new Error(res.reason)));
+    },
+    reload(server_id) {
+      return this.request('/servers/reload', {server_id})
+    },
+    logout(user, password) {
+      return this.request('/logout').then(res => window.location.replace('/login'));
+    },
+    preparePage(entity, department) {
+      return this.request(`/entity-list/${entity}`, {department}).then(res => {
+        res.entity = entity;
+        return res;
+      });
+    },
+    checkEntity(entity, data) {
+      return this.request(`/entity-check/${entity}`, {data});
+    },
+    saveEntity(entity, data) {
+      return this.request(`/entity-save/${entity}`, {data});
+    },
+    deleteEntity(entity, data) {
+      return this.request(`/entity-delete/${entity}`, {data});
+    }
+  };
 </script>

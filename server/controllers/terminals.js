@@ -4,8 +4,13 @@ const Basic = require('./basic.js');
 class Terminals extends Basic {
 	save() {
 		const {data} = this.req.body;
+		const previous = data.__previous;
+
 		return this
 			._saveEntityWorkstation(data)
+			.then(() => {
+				return id !== previous && this.unlinkToEntity({"@id": previous, __hidden_type: data.__hidden_type});
+			})
 			.then(() => this.linkToEntity(data))
 			.then(data => this.res.json(data));
 	}
@@ -47,13 +52,16 @@ class Terminals extends Basic {
 				return cb.upsert(item["@id"], item);
 			})
 	}
-	delete() {
-		const {data} = this.req.body;
+	_delete(data) {
 		return this
 			._deleteEntityWorkstation(data)
-			.then(() => {
-				return this.unlinkToEntity(data);
-			})
+			.then(() => this.unlinkToEntity(data))
+	}
+	delete() {
+		const {data} = this.req.body;
+
+		return this
+			._delete(data)
 			.then(data => this.res.json(data));
 	}
 	list() {
