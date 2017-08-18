@@ -55,8 +55,7 @@ class Util {
 					if (index === -1) {
 						return true;
 					}
-					old.splice(index, 1);
-					_.set(data, path, old);
+					_.set(data, path, _.without(old, id));
 					return cb.upsert(toDelete, data.value);
 				});
 		});

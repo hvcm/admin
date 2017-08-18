@@ -22,14 +22,26 @@
       paper-fab#delete {
         bottom: 10px;
       }
-
+      .line paper-input {
+        flex: 1;
+      }
     </style>
 
     <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
     <template is="dom-if" if="[[listVisible]]">
-      <paper-input label="Поиск" value="{{searchString}}"></paper-input>
-      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+      <div class="line">
+        <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+        <paper-dropdown-menu label="Поле">
+          <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{fieldfilter}}">
+            <paper-item val="label">Название</paper-item>
+            <paper-item val="@id">ID</paper-item>
+            <paper-item val="sound">Тип</paper-item>
+            <paper-item val="attached_to">Отдел</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+      </div>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,fieldfilter)]]" on-cell-tap="cellTap"></iris-table>
       <paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
     </template>
     <template is="dom-if" if="[[!listVisible]]">
@@ -138,7 +150,7 @@
         this.wrongId = false;
         window.api.checkEntity(this.entityName, this.item).then(({check}) => {
           if (check) {
-            // window.api.saveEntity(this.entityName, this.item);
+            window.api.saveEntity(this.entityName, this.item);
             this._back();
             return;
           }
@@ -155,7 +167,28 @@
           return acc;
         }, []).fromPairs().value();
       },
+      filter(data, searchString, field) {
+        if (!searchString)
+          return data;
 
+        searchString = searchString.toLowerCase();
+
+        if (field == 'label') {
+          return _.filter(data, item => ~ (_.get(item, 'label', '').toLowerCase().indexOf(searchString)));
+        }
+
+        if (field == 'attached_to') {
+          return _.filter(data, item => ~ (this.departmentToString((item || {}).attached_to).toLowerCase().indexOf(searchString)));
+        }
+
+        if (field === '@id') {
+          return _.filter(data, item => ~ (_.get(item, '@id', '').toLowerCase().indexOf(searchString)));
+        }
+
+        if (field === 'sound') {
+          return _.filter(data, item => ~ (this.soundToString((item || {}).placement).toLowerCase().indexOf(searchString)));
+        }
+      },
       changeProvides() {
         const selected = Polymer.dom(this.root).querySelector('#services').selected;
         const indexes = _.size(this.getServiceMap(this.item.attached_to));
@@ -163,7 +196,6 @@
           ? '*'
           : selected;
       },
-
       transformProvides(provides) {
         if (!provides)
           return undefined;
@@ -172,7 +204,6 @@
           ? indexes
           : provides;
       },
-
       _correct(item) {
         item.device_placement = {};
         if (!item.provides) {
@@ -190,20 +221,17 @@
         }
         return item;
       },
-
       provides(count) {
         return count === '*'
           ? "Все"
           : (count || []).length
       },
-
       _itemChanged(id, pid) {
         ListBehavior._itemChanged.call(this, id, pid);;
         if (id && this.item) {
           this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
         }
       },
-
       makeEntity() {
         const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
         return {
@@ -221,14 +249,24 @@
           "short_label": ""
         };
       },
-
+      soundToString(placement) {
+        const sound = placement && placement.sound;
+        return (_.find(this.app.helpers.service_config, {id: sound}) || {}).label || 'Окно';
+      },
+      departmentToString(item) {
+        return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
+      },
       ready() {
         // this.listVisible = true;
         const sortable = true;
         this.entityName = 'workstation';
+        this.fieldfilter = "label";
 
         this.fieldsModel = [
           {
+            field: "@id",
+            label: "ID"
+          }, {
             field: 'label',
             label: 'Наименование',
             transform: item => item || "[[Без наименования]]",
@@ -238,11 +276,14 @@
             label: 'Номер для табло',
             sortable
           }, {
+            field: 'device_placement',
+            label: 'Тип',
+            sortable,
+            transform: (placement) => this.soundToString(placement)
+          }, {
             field: 'attached_to',
             label: 'Отдел',
-            transform: item => {
-              return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
-            },
+            transform: item => this.departmentToString(item),
             sortable
           }
         ];

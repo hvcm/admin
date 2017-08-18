@@ -56,21 +56,25 @@ class Basic {
 		}
 		const registry = `registry_workstation_${attached_to}`;
 		const util = this.util;
-		const remove = util
-			.removeEveryWhere(id, device_type, registry)
-			.then(() => util.addWorkstation(id, device_type, registry));
 
 		const previous = data.__previous;
+		const deleteOld = !previous || previous === id
+			? Promise.resolve(false)
+			: this._deleteEntityWorkstation({device_type, "@id": previous});
 
-		return Promise.props({
-			idchanged: previous && previous !== id && this._deleteEntityWorkstation({device_type, id: previous}),
+		_.unset(data, '__previous');
+
+		return deleteOld.then(() => Promise.props({
 			insert: cb.upsert(id, data),
-			toggle: remove
-		});
+			toggle: util
+				.removeEveryWhere(id, device_type, registry)
+				.then(() => util.addWorkstation(id, device_type, registry))
+		}));
 	}
 	_deleteEntityWorkstation(data) {
 		const id = data['@id'];
 		const {device_type} = data;
+
 		return this
 			.util
 			.removeEveryWhere(id, device_type);

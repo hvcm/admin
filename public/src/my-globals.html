@@ -79,7 +79,7 @@
       <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
         <div page=""></div>
         <div page="common">
-          <paper-input label="ID" value="{{item.key}}" placeholder="[[item.__index]]" disabled="[[!superadmin]]"></paper-input>
+          <paper-input label="Метка поля" value="{{item.key}}" placeholder="[[item.key]]" disabled="[[!superadmin]]"></paper-input>
           <paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!superadmin]]"></paper-input>
           <paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
           <paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
@@ -213,7 +213,8 @@
       saveAll() {
         this.changed = false;
         this.presave();
-        window.api.saveEntity('globals', _.chain(this.app.list).sort('order').keyBy('__index').value());
+        const trans = _.chain(this.app.list).sortBy('order').map((item, index) => (item.__index = index, item)).keyBy(item => _.padStart(item.__index, 10, '0') + '_key').value();
+        window.api.saveEntity('globals', trans);
         this._back();
       },
       deleteDialog(e) {

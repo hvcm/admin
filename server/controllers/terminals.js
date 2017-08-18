@@ -5,6 +5,7 @@ class Terminals extends Basic {
 	save() {
 		const {data} = this.req.body;
 		const previous = data.__previous;
+		const id = data['@id'];
 
 		return this
 			._saveEntityWorkstation(data)
