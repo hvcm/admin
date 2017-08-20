@@ -17,6 +17,7 @@ const entities = [
 	'departments',
 	'digital-displays',
 	'servers',
+	'restricted-days',
 	'system-workstations',
 	'globals'
 ];

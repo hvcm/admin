@@ -1,0 +1,80 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="membership-picker">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+    </style>
+    <h2>Привязка к офису</h2>
+    <template is="dom-repeat" items="[[filter(departments)]]">
+      <div class="">
+        <paper-checkbox on-tap="toggle" checked="[[getChecked(human,item.id)]]">[[item.label]]</paper-checkbox>
+      </div>
+    </template>
+  </template>
+  <script>
+    (function () {
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
+          }
+        }
+        return "";
+      };
+
+      Polymer({
+        is: 'membership-picker',
+        properties: {
+          human: {
+            type: Object
+          },
+          departments: {
+            type: Array
+          },
+          membership: {
+            type: Array
+          },
+          value: {
+            type: Object,
+            notify: true
+          }
+        },
+        filter(departments) {
+          const permissions = getCookie('permissions');
+
+          if (this.superadmin) {
+            return _.chain(departments).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+          }
+
+          return _.chain(departments).filter({"@type": 'Department'}).filter(item => {
+            const id = item["@id"];
+            const unit_of = item.unit_of;
+            return permissions.includes(id) || permissions.includes(unit_of);
+          }).map(item => ({id: item["@id"], label: item.label})).value();
+
+        },
+        toggle(e) {
+          const human = e.model.human;
+          const dep = e.model.item;
+          console.log(e, this.getChecked(this.human, dep));
+          // if (!temp) {   _.set(this.value, `${type.id}.${dep.id}`, false); } this.set(`value.${type.id}.${dep.id}`, !temp);
+        },
+        getChecked(value, organization) {
+          const member = value["@id"];
+          return !!_.find(this.membership, {member, organization});
+        }
+      });
+    })();
+  </script>
+</dom-module>

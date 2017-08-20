@@ -9,143 +9,143 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-schedules">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-						}
-						iris-table {
-								max-height: calc(100vh - 155px);
-						}
-						.line {
-								align-items: center;
-						}
-						paper-fab#delete {
-								bottom: 10px;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
 
-				</style>
+    </style>
 
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
-				<template is="dom-if" if="[[listVisible]]">
-						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
-				</template>
-				<template is="dom-if" if="[[!listVisible]]">
-						<paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
-								<paper-tab on-tap="back" style="max-width:50px;">
-										<iron-icon icon="chevron-left"></iron-icon>
-								</paper-tab>
-								<paper-tab page="common">Интервалы обслуживания</paper-tab>
-								<paper-tab page="days">Доступные дни</paper-tab>
-						</paper-tabs>
-						<iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
-								<div page=""></div>
+    <template is="dom-if" if="[[listVisible]]">
+      <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString)]]" on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
+    </template>
+    <template is="dom-if" if="[[!listVisible]]">
+      <paper-tabs selected="{{routeData.subpage}}" attr-for-selected="page">
+        <paper-tab on-tap="back" style="max-width:50px;">
+          <iron-icon icon="chevron-left"></iron-icon>
+        </paper-tab>
+        <paper-tab page="common">Интервалы обслуживания</paper-tab>
+        <paper-tab page="days">Доступные дни</paper-tab>
+      </paper-tabs>
+      <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+        <div page=""></div>
 
-								<div page="common">
-										<paper-input value="{{item.label}}" label="Наименование"></paper-input>
-										<range-picker intervals="{{item.has_time_description.data}}"></range-picker>
-								</div>
+        <div page="common">
+          <paper-input value="{{item.label}}" label="Наименование"></paper-input>
+          <range-picker intervals="{{item.has_time_description.data}}"></range-picker>
+        </div>
 
-								<div page="days">
-										<days-picker value="{{item.has_day}}"></days-picker>
-								</div>
-						</iron-pages>
-						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
-				</template>
+        <div page="days">
+          <days-picker value="{{item.has_day}}"></days-picker>
+        </div>
+      </iron-pages>
+      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+    </template>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление</h2>
-						<paper-dialog-scrollable>
-								[[deleteMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление</h2>
+      <paper-dialog-scrollable>
+        [[deleteMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				Polymer({
-						is: 'my-schedules',
-						behaviors: [ListBehavior],
-						_correct(item) {
-								item.label = item.label || (item["@id"] == 'schedule-0'
-										? 'Основное расписание'
-										: item["@id"].replace('schedule-', 'Расписание '));
+  <script>
+    Polymer({
+      is: 'my-schedules',
+      behaviors: [ListBehavior],
+      _correct(item) {
+        item.label = item.label || (item["@id"] == 'schedule-0'
+          ? 'Основное расписание'
+          : item["@id"].replace('schedule-', 'Расписание '));
 
-								return item;
-						},
-						makeEntity() {
-								return {
-										"@id": `schedule-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
-										"@type": "Schedule",
-										"label": "Новое расписание",
-										"has_day": [
-												"Thursday",
-												"Monday",
-												"Tuesday",
-												"Saturday",
-												"Friday",
-												"Wednesday",
-												"Sunday"
-										],
-										"has_time_description": {
-												"data": [
-														[0, 86400]
-												],
-												"state": "a"
-										}
-								};
-						},
-						timeToString(value) {
-								const hours = _.padStart(Math.floor(value / 3600), 2, '0');
-								const minutes = _.padStart((value % 3600) / 60, 2, '0');
+        return item;
+      },
+      makeEntity() {
+        return {
+          "@id": `schedule-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+          "@type": "Schedule",
+          "label": "Новое расписание",
+          "has_day": [
+            "Thursday",
+            "Monday",
+            "Tuesday",
+            "Saturday",
+            "Friday",
+            "Wednesday",
+            "Sunday"
+          ],
+          "has_time_description": {
+            "data": [
+              [0, 86400]
+            ],
+            "state": "a"
+          }
+        };
+      },
+      timeToString(value) {
+        const hours = _.padStart(Math.floor(value / 3600), 2, '0');
+        const minutes = _.padStart((value % 3600) / 60, 2, '0');
 
-								return `${hours}:${minutes}`;
-						},
-						ready: function () {
-								this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.entityName = 'schedules';
-								this.fieldsModel = [
-										{
-												label: "Наименование",
-												transform: item => {
-														const label = item.label || (item['@id'] == 'schedule-0'
-																? 'Основное расписание'
-																: item["@id"].replace('schedule-', 'Расписание '));
+        return `${hours}:${minutes}`;
+      },
+      ready: function () {
+        this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.entityName = 'schedules';
+        this.fieldsModel = [
+          {
+            label: "Наименование",
+            transform: item => {
+              const label = item.label || (item['@id'] == 'schedule-0'
+                ? 'Основное расписание'
+                : item["@id"].replace('schedule-', 'Расписание '));
 
-														return `${label}`;
-												}
-										}, {
-												label: "Интервалы обслуживания",
-												transform: item => {
-														const intervals = _.get(item, 'has_time_description.data');
-														if (!intervals)
-																return '';
-														let add = _.map(intervals, item => `${this.timeToString(item[0])} - ${this.timeToString(item[1])}`).join(' ');
+              return `${label}`;
+            }
+          }, {
+            label: "Интервалы обслуживания",
+            transform: item => {
+              const intervals = _.get(item, 'has_time_description.data');
+              if (!intervals)
+                return '';
+              let add = _.map(intervals, item => `${this.timeToString(item[0])} - ${this.timeToString(item[1])}`).join(' ');
 
-														return add;
-												}
-										}
-								];
-						}
-				});
-		</script>
+              return add;
+            }
+          }
+        ];
+      }
+    });
+  </script>
 </dom-module>

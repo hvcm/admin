@@ -226,7 +226,7 @@
       _redrawTable() {
         this.toggler = false;
         const t = this.groupSearch;
-        this.groupSearch = '';
+        this.groupSearch = Math.random();
         this.async(() => this.groupSearch = t);
       },
       filter(data, toggler) {

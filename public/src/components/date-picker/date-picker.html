@@ -1,0 +1,157 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/paper-styles.html">
+
+<dom-module id="date-picker">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .day-wrapper {
+        width: 48px;
+        height: 48px;
+        text-align: center;
+      }
+      td[selected] {
+        border-radius: 50%;
+        background: var(--mydoc-beige-1000, --paper-light-blue-600);
+        font-weight: 800;
+        color: white;
+      }
+      td[disabled] {
+        color: grey;
+      }
+      .year {
+        text-align: center;
+        background-color: var(--mydoc-beige-1000, --google-blue-500);
+        color: white;
+      }
+      .year-label {
+        min-width: 150px;
+        display: inline-block;
+      }
+
+    </style>
+    <template is="dom-if" if="[[!hideMonthPicker]]">
+      <div class="year">
+        <paper-icon-button icon="chevron-left" on-tap="previousMonth"></paper-icon-button>
+        <span class="year-label">
+          [[toYear(date)]], [[toMonth(date)]]
+        </span>
+        <paper-icon-button icon="chevron-right" on-tap="nextMonth"></paper-icon-button>
+      </div>
+    </template>
+    <table class="month">
+      <template is="dom-repeat" items="[[month]]" as="week">
+        <tr class="week-row">
+          <template is="dom-repeat" items="[[week]]" as="day">
+            <td selected$="[[isSelected(day.date,selections)]]" disabled$="{{isDisabled(day.date,disabledDays,availableDays)}}" class="day-wrapper" on-tap="daySelected">
+              <span>[[day.label]]</span>
+            </td>
+          </template>
+        </tr>
+      </template>
+    </table>
+
+  </template>
+  <script>
+    'use strict'
+    Polymer({
+      is: 'date-picker',
+      properties: {
+        date: {
+          type: String,
+          value: function () {
+            return moment().format();
+          },
+          observer: '_dateChanged'
+        },
+        selected: {
+          type: String,
+          notify: true
+        },
+        multiselect: {
+          type: Boolean,
+          value: false
+        },
+        selectionsCount: {
+          type: Number,
+          value: 2
+        },
+        selections: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        disabledDays: {
+          type: Array,
+          value: []
+        },
+        availableDays: {
+          value: false
+        },
+        hideMonthPicker: {
+          type: Boolean,
+          value: false
+        }
+      },
+      isDisabled(date, disabledDays, availableDays) {
+        if (_.isArray(disabledDays) && disabledDays.length)
+          return ! !~ disabledDays.indexOf(date);
+        if (_.isArray(availableDays))
+          return !~ availableDays.indexOf(date);
+
+        return false;
+      },
+      previousMonth() {
+        let date = moment(this.date).subtract(1, 'month');
+        this.set('date', date.format());
+      },
+      nextMonth() {
+        let date = moment(this.date).add(1, 'month');
+        this.set('date', date.format());
+      },
+      isSelected(day_date, selections) {
+        return _.isArray(selections) && ! !~ selections.indexOf(day_date);
+      },
+      toMonth(date) {
+        return moment(date).format('MMMM');
+      },
+      toYear(date) {
+        return moment(date).format('YYYY');
+      },
+      _dateChanged() {
+        let m = moment(this.date);
+        let daysInMonth = m.daysInMonth();
+        let offset = m.date(1).weekday();
+
+        let month = _.chunk(_.concat(_.fill(Array(offset), {
+          blank: true,
+          date: -1
+        }), _.map(_.range(1, daysInMonth + 1), d => ({label: d, date: m.date(d).format('YYYY-MM-DD')}))), 7);
+
+        this.set('month', month);
+      },
+      daySelected(e) {
+        let day = e.model.day;
+        if (this.isDisabled(day.date, this.disabledDays))
+          return false;
+
+        if (!this.multiselect) {
+          this.set('selected', day.date);
+          this.set('selections', [day.date]);
+        } else {
+          let selections = _.clone(this.selections) || [];
+          selections.push(day.date);
+          if (this.selectionsCount)
+            selections = _.takeRight(selections, this.selectionsCount);
+          this.set('selections', selections);
+        }
+        this.fire('date-selected', day);
+      }
+    });
+  </script>
+</dom-module>

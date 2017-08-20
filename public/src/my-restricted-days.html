@@ -1,0 +1,151 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iris-polymer-table/iris-table.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="./components/schedule-picker/schedule-picker.html">
+<link rel="import" href="./components/date-picker/date-picker.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-restricted-days">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
+      .day {
+        padding-left: 10px;
+      }
+
+    </style>
+
+    <paper-tabs selected="{{subpage}}" attr-for-selected="page">
+      <paper-tab page="common">Общие</paper-tab>
+      <paper-tab page="department">По офисам</paper-tab>
+    </paper-tabs>
+    <iron-pages selected="{{subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
+      <div page="common">
+        <template is="dom-repeat" items="[[app.list.default]]" as="day">
+          <div class="day">
+            [[transformDay(day)]]
+            <paper-icon-button icon="delete" on-tap="deleteDay"></paper-icon-button>
+          </div>
+        </template>
+        <paper-icon-button icon="add" on-tap="addDay"></paper-icon-button>
+      </div>
+      <div page="department">
+        <template id="test" is="dom-repeat" items="[[officesToList(app.list, toggle)]]" as="office">
+          <h2>[[office.label]]</h2>
+          <div>
+            <template is="dom-repeat" items="[[toggler(office.content, toggle)]]" as="day">
+              <div class="day">
+                [[transformDay(day)]]
+                <paper-icon-button icon="delete" on-tap="deleteOfficeDay" office="[[office]]"></paper-icon-button>
+              </div>
+            </template>
+            <paper-icon-button icon="add" on-tap="addDepDay"></paper-icon-button>
+          </div>
+        </template>
+      </div>
+    </iron-pages>
+    <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+
+    <paper-dialog opened="{{showPicker}}" on-iron-overlay-closed="dayPicked">
+      <h2>Выберите день</h2>
+      <paper-dialog-scrollable>
+        <date-picker selected="{{selectedDay}}"></date-picker>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Отмена</paper-button>
+        <paper-button dialog-confirm>Добавить</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'my-restricted-days',
+      behaviors: [ListBehavior],
+      _correct(item) {
+        return item;
+      },
+      deleteDay(e) {
+        const index = e.model.index;
+        this.splice('app.list.default', index, 1);
+        this.changed = true;
+      },
+      transformDay(day) {
+        return day.replace(/-/g, ' ');
+      },
+      toggler(list) {
+        return _.clone(list);
+      },
+      deleteOfficeDay(e) {
+        const office = e.model.office.id;
+        const index = e.model.index;
+
+        this.splice('app.list.' + office, index, 1);
+        this.toggle = !this.toggle;
+        this.changed = true;
+      },
+      dayPicked(e) {
+        if (!e.detail.confirmed || !this.selectedDay) {
+          return
+        };
+
+        const source = this.pickerSource;
+        console.log(source, this.selectedDay);
+        this.push('app.list.' + source, this.selectedDay);
+        this.changed = true;
+        this.toggle = !this.toggle;
+      },
+      saveAll() {
+        this.changed = false;
+        window.api.saveEntity('restricted-days', this.app.list);
+      },
+      addDepDay(e) {
+        this.showPicker = true;
+        this.pickerSource = e.model.office.id;
+      },
+      addDay() {
+        this.showPicker = true;
+        this.pickerSource = 'default';
+      },
+      officesToList(list) {
+        const offices = this.app.helpers.offices;
+        return _.chain(list).omit('default').map((item, index) => {
+          const dep = _.find(offices, {"@id": index});
+          return {label: dep.label, content: item, id: index};
+        }).value();
+      },
+      ready: function () {
+        this.toggle = true;
+        this.changed = false;
+        this.showPicker = false;
+        this.subpage = 'common';
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.entityName = 'restricted-days';
+      }
+    });
+  </script>
+</dom-module>

@@ -5,6 +5,7 @@
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
 <link rel="import" href="./components/permissions-picker/permissions-picker.html">
+<link rel="import" href="./components/membership-picker/membership-picker.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-humans">
@@ -108,6 +109,7 @@
               <paper-item val="prebook">Предварительная запись</paper-item>
             </paper-listbox>
           </paper-dropdown-menu>
+          <membership-picker departments="{{app.helpers.offices}}" human="[[item]]" membership="{{app.helpers.membership}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></membership-picker>
           <permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></permissions-picker>
         </div>
       </iron-pages>

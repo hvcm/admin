@@ -94,6 +94,7 @@
           <a name="roomdisplays" href$="/{{app.global.namespace}}/roomdisplays">Табло</a>
           <a name="digital-displays" href$="/{{app.global.namespace}}/digital-displays">Цифровые табло</a>
           <a name="schedules" href$="/{{app.global.namespace}}/schedules">Расписания</a>
+          <a name="restricted-days" href$="/{{app.global.namespace}}/restricted-days">Выходные дни</a>
           <a name="servers" href$="/{{app.global.namespace}}/servers">Сервера</a>
         </iron-selector>
       </app-drawer>
@@ -116,6 +117,7 @@
           <my-globals name="globals" app="{{app.globals}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-globals>
           <my-globals-priority name="globals-priority" app="{{app.globals-priority}}" superadmin="[[superadmin]]"></my-globals-priority>
           <my-departments name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
+          <my-restricted-days name="restricted-days" app="{{app.restricted-days}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-restricted-days>
           <my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
           <my-humans name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>
           <my-terminals name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>

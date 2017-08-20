@@ -7,8 +7,9 @@ class Digitaldisplay extends Basic {
 		return this
 			._saveEntityWorkstation(data)
 			.then(() => {
-				return this.linkToEntity(data);
+				return id !== previous && this.unlinkToEntity({"@id": previous, __hidden_type: data.__hidden_type});
 			})
+			.then(() => this.linkToEntity(data))
 			.then(data => this.res.json(data));
 	}
 	linkToEntity(data) {
