@@ -146,6 +146,7 @@
         item.linked_to = item.linked_to || _.transform(this.app.helpers.service_map, (acc, item, index) => {
           item.includes(id) && acc.push(index);
         }, []);
+
         return item;
       },
       filter(data, searchString, field) {

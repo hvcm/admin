@@ -51,6 +51,7 @@ class Services extends Basic {
 				return;
 			}
 			const {content} = value;
+			content.push(id);
 			value.content = _.uniq(_.compact(content));
 			return cb.upsert(local_id, value)
 		}));
@@ -79,7 +80,7 @@ class Services extends Basic {
 			}
 
 			value.content = _.without(content, id);
-			return cb.upsert(`registry_service_${item}`, value)
+			return cb.upsert(item, value);
 		}));
 
 		return deletions;
