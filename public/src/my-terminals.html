@@ -5,6 +5,7 @@
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
 <link rel="import" href="./components/field-editor/field-editor.html">
+<link rel="import" href="./components/field-editor/short-editor.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-globals.html">
 
@@ -78,8 +79,9 @@
           </div>
         </div>
         <div page="info">
-          <field-editor id="peditor" value="[[transformedFields]]"></field-editor>
-          <paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab>
+          <!-- <field-editor id="peditor" value="[[transformedFields]]"></field-editor> -->
+          <!-- <paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab> -->
+          <short-editor id="peditor" value="[[item.custom_fields]]" fields="[[app.helpers.fields]]"></short-editor>
         </div>
         <div page="sg">
           <paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{item.bound_service_groups}}">
@@ -175,7 +177,7 @@
         return item;
       },
       presave() {
-        this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
+        // this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
       },
       addField() {
         const editor = Polymer.dom(this.root).querySelector('#peditor');

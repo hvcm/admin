@@ -79,7 +79,7 @@
       <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
         <div page=""></div>
         <div page="common">
-          <paper-input label="Метка поля" value="{{item.key}}" placeholder="[[item.key]]" disabled="[[!superadmin]]"></paper-input>
+          <!-- <paper-input label="Метка поля" value="{{item.key}}" placeholder="[[item.key]]" disabled="[[!superadmin]]"></paper-input> -->
           <paper-input label="Значение по умолчанию" value="{{item.default}}" disabled="[[!superadmin]]"></paper-input>
           <paper-input label="Описание" value="{{item.description}}" disabled="[[!superadmin]]"></paper-input>
           <paper-input label="Подпись" value="{{item.label}}" disabled="[[!superadmin]]"></paper-input>
@@ -125,7 +125,7 @@
 
       </iron-pages>
       <paper-fab id="save" mini icon="save" hidden$="[[select(changed,app.helpers.canedit)]]" on-tap="saveAll"></paper-fab>
-      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[!superadmin]]"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[isHidden(superadmin, item.key)]]"></paper-fab>
     </template>
 
     <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
@@ -172,6 +172,13 @@
           type: String,
           value: '__index'
         }
+      },
+      isHidden(superadmin, key) {
+        if (["service_count", "dedicated_date"].includes(key)) {
+          return true;
+        }
+
+        return !superadmin;
       },
       behaviors: [ListBehavior],
       _correct(item) {

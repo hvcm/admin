@@ -1,45 +1,46 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 <dom-module id="placeholder-checkbox">
-		<template>
-				<style>
-						:host {
-								display: block;
-								display: flex;
-								flex-direction: row;
-						}
+  <template>
+    <style>
+      :host {
+        display: block;
+        display: flex;
+        flex-direction: row;
+      }
 
-				</style>
+    </style>
 
-				<label>[[label]]</label>
-				<paper-toggle-button checked="{{chec}}" on-change="tap"></paper-toggle-button>
+    <label>[[label]]</label>
+    <paper-toggle-button checked="{{chec}}" on-change="tap"></paper-toggle-button>
 
-		</template>
-		<script>
-				Polymer({
-						is: 'placeholder-checkbox',
-						properties: {
-								checked: {
-										type: Boolean,
-										notify: true,
-										observer: '_someChanged'
-								},
-								placeholder: {
-										type: Boolean,
-										observer: '_someChanged'
-								}
-						},
-						_someChanged() {
-								if (this.checked !== undefined) {
-										this.chec = this.checked;
-										return;
-								}
-								this.chec = this.placeholder;
-						},
+  </template>
+  <script>
+    Polymer({
+      is: 'placeholder-checkbox',
+      properties: {
+        checked: {
+          type: Boolean,
+          notify: true,
+          observer: '_someChanged'
+        },
+        placeholder: {
+          type: Boolean,
+          observer: '_someChanged'
+        }
+      },
+      _someChanged() {
+        if (this.checked !== undefined) {
+          this.chec = this.checked;
+          return;
+        }
+        this.chec = this.placeholder;
+      },
 
-						tap(e) {
-								this.set('checked', this.chec)
-						}
-				});
-		</script>
+      tap(e) {
+        this.set('checked', this.chec);
+        this.fire('check', this.chec);
+      }
+    });
+  </script>
 </dom-module>

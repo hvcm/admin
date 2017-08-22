@@ -105,9 +105,16 @@ class Services extends Basic {
 			.getServiceGroups()
 			.then(data => _.map(data, item => _.pick(item.value, ['content', 'label'])));
 
+		const fields = cb
+			.get('user_info_fields')
+			.then(data => _.chain(data).get('value.content', []).map((item, index) => ({id: index, include: item.include, label: item.label})).value());
+		cb
+			.get('user_info_fields')
+			.then(d => console.log(d))
 		const helpers = Promise.props({
 			schedule,
 			groups,
+			fields,
 			offices: offices.then(items => this.permissions.map(p => _.find(items, {"@id": p}))),
 			service_map: getServiceMaps.then(data => _.transform(data, (acc, item) => {
 				const key = _

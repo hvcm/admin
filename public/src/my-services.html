@@ -4,7 +4,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="./components/service-selector/service-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
-<link rel="import" href="./components/field-editor/field-editor.html">
+<link rel="import" href="./components/field-editor/short-editor.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-services">
@@ -79,8 +79,9 @@
           <paper-input label="Префикс" value="{{item.prefix}}" placeholder="Префикс"></paper-input>
         </div>
         <div page="fields">
-          <field-editor id="peditor" value="[[transformedFields]]"></field-editor>
-          <paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab>
+          <!-- <field-editor id="peditor" value="[[transformedFields]]"></field-editor> -->
+          <short-editor id="peditor" value="[[item.custom_fields]]" fields="[[app.helpers.fields]]"></short-editor>
+          <!-- <paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab> -->
         </div>
         <div page="schedules">
           <div page="schedules">
@@ -231,7 +232,7 @@
         editor.addField();
       },
       presave() {
-        this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
+        // this.item.custom_fields = _.keyBy(this.transformedFields, '__index');
       },
       departmentToLabel(t) {
         if (!t) {
