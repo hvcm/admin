@@ -64,23 +64,23 @@
       <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
         <div page=""></div>
         <div page="common">
-          <paper-input label="Наименование" value="{{item.label}}" placeholder="Наименование"></paper-input>
-          <paper-input label="Короткое наименование" value="{{item.short_label}}" placeholder="Короткое наименование"></paper-input>
-          <paper-input label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="Код услуги ФРГУ"></paper-input>
-          <paper-input label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="Код ведомства ФРГУ"></paper-input>
-          <paper-input label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="Код услуги ЕПГУ"></paper-input>
-          <paper-input label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="Промежуток ограничения времени до ближайшего слота предзаписи"></paper-input>
-          <paper-input label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="Время обслуживания по ЖО"></paper-input>
-          <paper-input label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="Время обслуживания по ПЗ"></paper-input>
-          <paper-input label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="Количество дней по ПЗ"></paper-input>
-          <paper-input label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="Процент талонов по ПЗ"></paper-input>
-          <paper-input label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="Процент талонов по ПЗ на текущий день"></paper-input>
-          <paper-input label="Приоритет" value="{{item.priority}}" placeholder="Приоритет"></paper-input>
-          <paper-input label="Префикс" value="{{item.prefix}}" placeholder="Префикс"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Наименование" value="{{item.label}}" placeholder="Наименование"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Короткое наименование" value="{{item.short_label}}" placeholder="Короткое наименование"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="Код услуги ФРГУ"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="Код ведомства ФРГУ"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="Код услуги ЕПГУ"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="Промежуток ограничения времени до ближайшего слота предзаписи"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="Время обслуживания по ЖО"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="Время обслуживания по ПЗ"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="Количество дней по ПЗ"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="Процент талонов по ПЗ"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="Процент талонов по ПЗ на текущий день"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Приоритет" value="{{item.priority}}" placeholder="Приоритет"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Префикс" value="{{item.prefix}}" placeholder="Префикс"></paper-input>
         </div>
         <div page="fields">
           <!-- <field-editor id="peditor" value="[[transformedFields]]"></field-editor> -->
-          <short-editor id="peditor" value="[[item.custom_fields]]" fields="[[app.helpers.fields]]"></short-editor>
+          <short-editor disabled="[[!superadmin]]" id="peditor" value="[[item.custom_fields]]" fields="[[app.helpers.fields]]"></short-editor>
           <!-- <paper-fab id="add-field" mini icon="add" on-tap="addField"></paper-fab> -->
         </div>
         <div page="schedules">
@@ -88,13 +88,13 @@
             <!-- <h3>Ресурсное расписание</h3>
 												<schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.resource}}"></schedule-picker> -->
             <h3>Живая очередь</h3>
-            <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
+            <schedule-picker disabled="[[!superadmin]]" schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.live}}" multi></schedule-picker>
             <h3>Предварительная запись</h3>
-            <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
+            <schedule-picker disabled="[[!superadmin]]" schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
           </div>
         </div>
         <div page="departments">
-          <service-selector services="[[departmentMap(app.helpers.offices)]]" selected="{{item.linked_to}}"></service-selector>
+          <service-selector disabled="[[!superadmin]]" services="[[departmentMap(app.helpers.offices)]]" selected="{{item.linked_to}}"></service-selector>
         </div>
       </iron-pages>
       <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>

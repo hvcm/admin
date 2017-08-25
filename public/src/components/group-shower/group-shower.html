@@ -2,250 +2,262 @@
 <link rel="import" href="../../../bower_components/dragula-element/dragula-element.html">
 
 <dom-module id="group-shower">
-		<template>
-				<style include="dragula-styles">
-						:host {
-								display: block;
-						}
-						.taped {
-								padding-left: 25px;
-						}
-						.no-button {
-								padding-left: 65px;
-						}
-						.dragged-item {
-								display: none;
-						}
-						.dragged-item.gu-transit {
-								display: block;
-								padding-left: 40px;
-						}
-						.dragged-item.gu-transit::before {
-								content: "+";
-						}
-						.name {
-								text-decoration: underline;
-								cursor: pointer;
-						}
-						.container {
-								min-height: 50px;
-						}
+  <template>
+    <style include="dragula-styles">
+      :host {
+        display: block;
+      }
+      .taped {
+        padding-left: 25px;
+      }
+      .no-button {
+        padding-left: 65px;
+      }
+      .dragged-item {
+        display: none;
+      }
+      .dragged-item.gu-transit {
+        display: block;
+        padding-left: 40px;
+      }
+      .dragged-item.gu-transit::before {
+        content: "+";
+      }
+      .name {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .container {
+        min-height: 50px;
+      }
+      *[hidden] {
+        display: none;
+      }
 
-				</style>
-				<paper-icon-button icon="[[icon]]" on-tap="expand"></paper-icon-button>
-				<span class="name" on-tap="cellTap">[[group.label]]</span>
-				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
-				<template id="list" is="dom-if" if="[[open]]">
+    </style>
+    <paper-icon-button icon="[[icon]]" on-tap="expand"></paper-icon-button>
+    <span class="name" on-tap="cellTap">[[group.label]]</span>
+    <paper-icon-button icon="delete" on-tap="delete" hidden$="[[disabled]]"></paper-icon-button>
 
-						<dragula-element id="dragula" container-class="container" drake="[[drake]]">
-								<div class="container" on-group-delete="innerDelete" on-service-delete="deleteService"></div>
-						</dragula-element>
+    <template id="list" is="dom-if" if="[[open]]">
 
-						<paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
-								<h2>[[header]]</h2>
-								<paper-dialog-scrollable>
-										[[message]]
-								</paper-dialog-scrollable>
-								<div class="buttons">
-										<paper-button dialog-dismiss>Нет</paper-button>
-										<paper-button dialog-confirm>Да</paper-button>
-								</div>
-						</paper-dialog>
-				</template>
-		</template>
-		<script>
+      <dragula-element container-class="container" drake="[[drake]]">
+        <div class="container" on-group-delete="innerDelete" on-service-delete="deleteService"></div>
+      </dragula-element>
 
-				(function () {
-						const fnCancel = (context) => (el, target, source) => {
-								if (context.cnt !== source) {
-										return;
-								}
-								const cnt = context.cnt;
-								const item = el.getAttribute('item');
-								const newItem = context.createElement(item);
-								const old = context.group.content.indexOf(item);
-								Polymer.dom(cnt).insertBefore(newItem, el);
-								Polymer.dom(cnt).removeChild(el);
-						};
+      <paper-dialog opened="{{isDeleteDialog}}" on-iron-overlay-closed="deleteRootGroup">
+        <h2>[[header]]</h2>
+        <paper-dialog-scrollable>
+          [[message]]
+        </paper-dialog-scrollable>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Нет</paper-button>
+          <paper-button dialog-confirm>Да</paper-button>
+        </div>
+      </paper-dialog>
+    </template>
+  </template>
+  <script>
 
-						const fn = (context) => (el, target, source, sibling) => {
-								const cnt = context.cnt;
-								const els = Polymer.dom(context.root).querySelectorAll('.wrapp');
+    (function () {
+      const fnCancel = (context) => (el, target, source) => {
+        if (context.disabled) {
+          return;
+        }
+        if (context.cnt !== source) {
+          return;
+        }
+        const cnt = context.cnt;
+        const item = el.getAttribute('item');
+        const newItem = context.createElement(item);
+        const old = context.group.content.indexOf(item);
+        Polymer.dom(cnt).insertBefore(newItem, el);
+        Polymer.dom(cnt).removeChild(el);
+      };
 
-								const item = el.getAttribute('item');
-								const newItem = context.createElement(item);
-								if (target == source && target == cnt) {
-										const old = context.group.content.indexOf(item);
-										const index = els.indexOf(el);
-										const hasPos = ! !~ index;
-										if (!hasPos) {
-												return;
-										}
-										Polymer.dom(cnt).insertBefore(newItem, els[index + 1]);
-										Polymer.dom(cnt).removeChild(el);
+      const fn = (context) => (el, target, source, sibling) => {
+        const cnt = context.cnt;
+        const els = Polymer.dom(context.root).querySelectorAll('.wrapp');
 
-										context.splice('group.content', old, 1);
-										context.splice('group.content', index, 0, item);
+        const item = el.getAttribute('item');
+        const newItem = context.createElement(item);
+        if (target == source && target == cnt) {
+          const old = context.group.content.indexOf(item);
+          const index = els.indexOf(el);
+          const hasPos = ! !~ index;
+          if (!hasPos) {
+            return;
+          }
+          Polymer.dom(cnt).insertBefore(newItem, els[index + 1]);
+          Polymer.dom(cnt).removeChild(el);
 
-										return;
-								}
+          context.splice('group.content', old, 1);
+          context.splice('group.content', index, 0, item);
 
-								if (target === null || target == source || target != cnt)
-										return;
+          return;
+        }
 
-								const index = els.indexOf(sibling);
-								if (~ index) {
-										context.splice('group.content', index, 0, item);
-								} else {
-										context.push('group.content', item);
-								}
-								Polymer.dom(cnt).insertBefore(newItem, els[index]);
-								context.async(() => Polymer.dom(cnt).removeChild(el))
-						};
-						Polymer({
-								is: 'group-shower',
-								properties: {
-										group: {
-												type: Object
-										},
-										services: {
-												type: Object,
-												value: () => {}
-										},
-										groups: {
-												type: Array
-										},
-										open: {
-												type: Boolean,
-												value: false
-										},
-										drake: {
-												type: Object,
-												observer: "_drakeChanged"
-										},
-										topLevel: {
-												type: Boolean,
-												value: false
-										}
+        if (target === null || target == source || target != cnt)
+          return;
 
-								},
-								_drakeChanged() {
-										this.listener = this.listener || fn(this);
-										this.cancel = this.cancel || fnCancel(this);
-										this.drake.on('drop', this.listener);
-										this.drake.on('cancel', this.cancel);
-								},
-								detached: function () {
-										this.drake && this.drake.off('drop', this.listener)
-										this.drake && this.drake.off('cancel', this.cancel)
-								},
-								ready: function () {
-										this.icon = "arrow-drop-down";
-										this.options = {
-												name: Math.random(),
-												pull: false,
-												put: ['main']
-										};
-								},
-								isGroup(item) {
-										return !!_.find(this.groups, {"@id": item});
-								},
-								groupById(id) {
-										return _.find(this.groups, {"@id": id});
-								},
-								translateService(item) {
-										const serv = this.services || {};
-										return serv[item] || '';
-								},
-								cellTap() {
-										this.fire('cell-tap', {row_data: this.group});
-								},
-								createElement(item) {
-										let el;
-										if (this.isGroup(item)) {
-												el = document.createElement('group-shower');
-												el.group = this.groupById(item);
-												el.services = this.services;
-												el.groups = this.groups;
-												el.drake = this.drake;
-										} else {
-												el = document.createElement('service-group');
-												el.service = this.translateService(item);
-												el.item = item;
-										}
-										el.setAttribute('item', item);
-										el.classList.add('wrapp')
-										el.classList.add('taped')
-										return el;
-								},
-								expand() {
-										this.set('open', !this.open);
-										this.icon = this.open
-												? "arrow-drop-up"
-												: "arrow-drop-down";
-										(!this.drawn) && this.async(() => {
-												this.cnt = this.cnt || Polymer.dom(this.root).querySelector('.container');
-												Polymer.dom(this.cnt).innerHTML = '';
-												this.drawn = true;
-												const pcnt = Polymer.dom(this.cnt);
+        const index = els.indexOf(sibling);
+        if (~ index) {
+          context.splice('group.content', index, 0, item);
+        } else {
+          context.push('group.content', item);
+        }
+        Polymer.dom(cnt).insertBefore(newItem, els[index]);
+        context.async(() => Polymer.dom(cnt).removeChild(el))
+      };
+      Polymer({
+        is: 'group-shower',
+        properties: {
+          group: {
+            type: Object
+          },
+          services: {
+            type: Object,
+            value: () => {}
+          },
+          groups: {
+            type: Array
+          },
+          open: {
+            type: Boolean,
+            value: false
+          },
+          drake: {
+            type: Object,
+            observer: "_drakeChanged"
+          },
+          topLevel: {
+            type: Boolean,
+            value: false
+          }
 
-												_.map(this.group.content, item => this.createElement(item)).forEach(item => pcnt.appendChild(item));
-										});
-								},
-								findGroup(open, content) {
-										return open
-												? _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]))
-												: [];
-								},
-								innerDelete(e) {
-										e.stopPropagation();
-										this.toDeleteId = e.detail;
-										this.header = "Удаление группы";
-										this.message = "Вы действительно хотите удалить эту группу из дерева?";
-										this.isDeleteDialog = true;
-								},
-								deleteRootGroup(e) {
-										if (!e.detail.confirmed)
-												return;
+        },
+        _drakeChanged() {
+          this.listener = this.listener || fn(this);
+          this.cancel = this.cancel || fnCancel(this);
+          this.drake.on('drop', this.listener);
+          this.drake.on('cancel', this.cancel);
+        },
+        detached: function () {
+          this.drake && this.drake.off('drop', this.listener)
+          this.drake && this.drake.off('cancel', this.cancel)
+        },
+        ready: function () {
+          this.icon = "arrow-drop-down";
+          this.options = {
+            name: Math.random(),
+            pull: false,
+            put: ['main']
+          };
+        },
+        isGroup(item) {
+          return !!_.find(this.groups, {"@id": item});
+        },
+        groupById(id) {
+          return _.find(this.groups, {"@id": id});
+        },
+        translateService(item) {
+          const serv = this.services || {};
+          return serv[item] || '';
+        },
+        cellTap() {
+          this.fire('cell-tap', {row_data: this.group});
+        },
+        createElement(item) {
+          let el;
+          if (this.isGroup(item)) {
+            el = document.createElement('group-shower');
+            el.group = this.groupById(item);
+            el.services = this.services;
+            el.groups = this.groups;
+            el.disabled = this.disabled;
+            el.drake = this.drake;
+          } else {
+            el = document.createElement('service-group');
+            el.service = this.translateService(item);
+            el.disabled = this.disabled;
+            el.item = item;
+          }
+          el.setAttribute('item', item);
+          el.classList.add('wrapp')
+          el.classList.add('taped')
+          return el;
+        },
+        expand() {
+          this.set('open', !this.open);
+          this.icon = this.open
+            ? "arrow-drop-up"
+            : "arrow-drop-down";
+          (!this.drawn) && this.async(() => {
+            this.cnt = this.cnt || Polymer.dom(this.root).querySelector('.container');
+            Polymer.dom(this.cnt).innerHTML = '';
+            this.drawn = true;
+            const pcnt = Polymer.dom(this.cnt);
 
-										const id = _.indexOf(this.group.content, this.toDeleteId);
+            _.map(this.group.content, item => this.createElement(item)).forEach(item => pcnt.appendChild(item));
+          });
+        },
+        findGroup(open, content) {
+          return open
+            ? _.filter(this.groups, gr => ~ _.indexOf(content, gr["@id"]))
+            : [];
+        },
+        innerDelete(e) {
+          e.stopPropagation();
+          this.toDeleteId = e.detail;
+          this.header = "Удаление группы";
+          this.message = "Вы действительно хотите удалить эту группу из дерева?";
+          this.isDeleteDialog = true;
+        },
+        deleteRootGroup(e) {
+          if (!e.detail.confirmed)
+            return;
 
-										this.splice('group.content', id, 1);
-										const wrapp = Polymer.dom(this.root).querySelectorAll('.wrapp');
-										Polymer.dom(this.cnt).removeChild(wrapp[id]);
-								},
-								delete(e) {
-										this.fire('group-delete', this.group["@id"]);
-								},
-								deleteService(e) {
-										const id = e.detail;
-										this.toDeleteId = id;
-										this.isDeleteDialog = true;
-										this.header = "Удаление услуги";
-										this.message = "Вы действительно хотите удалить эту услугу из дерева?";
-								}
-						});
-				})();
-		</script>
+          const id = _.indexOf(this.group.content, this.toDeleteId);
+
+          this.splice('group.content', id, 1);
+          const wrapp = Polymer.dom(this.root).querySelectorAll('.wrapp');
+          Polymer.dom(this.cnt).removeChild(wrapp[id]);
+        },
+        delete(e) {
+          this.fire('group-delete', this.group["@id"]);
+        },
+        deleteService(e) {
+          const id = e.detail;
+          this.toDeleteId = id;
+          this.isDeleteDialog = true;
+          this.header = "Удаление услуги";
+          this.message = "Вы действительно хотите удалить эту услугу из дерева?";
+        }
+      });
+    })();
+  </script>
 </dom-module>
 
 <dom-module id="service-group">
-		<template>
-				<style>
-						:host {
-								display: block;
-						}
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      *[hidden] {
+        display: none;
+      }
 
-				</style>
-				<span>[[service]]</span>
-				<paper-icon-button icon="delete" on-tap="delete"></paper-icon-button>
-		</template>
-		<script>
-				Polymer({
-						is: 'service-group',
-						delete() {
-								this.fire('service-delete', this.item)
-						}
-				});
-		</script>
+    </style>
+    <span>[[service]]</span>
+    <paper-icon-button hidden$="[[disabled]]" icon="delete" on-tap="delete"></paper-icon-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'service-group',
+      delete() {
+        this.fire('service-delete', this.item)
+      }
+    });
+  </script>
 </dom-module>

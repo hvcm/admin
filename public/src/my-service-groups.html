@@ -112,20 +112,20 @@
       <div class$="wrap [[orientation]] [[state]]">
         <div class="list samples" on-delete="deleteFromList" on-edit="editFromList">
           <div class="menu">
-            <paper-input class="hidden-closed" label="Поиск" value="{{groupSearch}}"></paper-input>
+            <paper-input disabled="[[!superadmin]]" class="hidden-closed" label="Поиск" value="{{groupSearch}}"></paper-input>
             <paper-icon-button class="hidden-closed" icon="view-stream" on-tap="toggleOrientation"></paper-icon-button>
             <paper-icon-button icon="[[menuIcon]]" on-tap="toggleSamples"></paper-icon-button>
           </div>
-          <service-groups drake="{{drake}}" services="{{app.helpers.services}}" on-move-item="moveItem" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
+          <service-groups disabled="[[!superadmin]]" drake="{{drake}}" services="{{app.helpers.services}}" on-move-item="moveItem" search="{{groupSearch}}" groups="{{app.list}}" filter="{{groupSearch}}"></service-groups>
         </div>
 
         <div class="list tree">
           <template is="dom-repeat" items="[[filter(app.list, toggler)]]" as="group">
-            <group-shower topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
+            <group-shower disabled="[[!superadmin]]" topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
           </template>
 
-          <paper-fab id="add" mini icon="add" on-tap="addEntity"></paper-fab>
-          <paper-fab id="save" mini icon="save" hidden$="[[!listchanged]]" on-tap="saveDiff"></paper-fab>
+          <paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[superadmin]]"></paper-fab>
+          <paper-fab id="save" mini icon="save" hidden$="[[isHidden(listchanged, superadmin)]]" on-tap="saveDiff"></paper-fab>
         </div>
       </div>
     </template>
@@ -139,12 +139,12 @@
       <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
         <div page=""></div>
         <div page="common">
-          <paper-input label="Наименование" value="{{item.label}}"></paper-input>
-          <paper-input label="Кнопок на странице" value="{{item.items_per_page}}"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Наименование" value="{{item.label}}"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Кнопок на странице" value="{{item.items_per_page}}"></paper-input>
         </div>
       </iron-pages>
-      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+      <paper-fab id="save" mini icon="save" hidden$="[[isHidden(changed, superadmin)]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" hidden$="[[superadmin]]" on-tap="deleteDialog"></paper-fab>
     </template>
 
     <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
@@ -199,6 +199,10 @@
         clone["@id"] = `sg-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
         this.app.list.push(clone);
         this.toggler = false;
+      },
+      isHidden(a, b) {
+
+        return !a || b;
       },
       compare() {
         if (!this.app)

@@ -85,7 +85,7 @@
             <paper-dialog-scrollable>
               <template is="dom-repeat" items="[[availableWorkstations(item.attached_to)]]" as="ws">
                 <paper-item on-tap="addMaintain">
-                  [[ws.label]]
+                  [[ws.id]] / [[ws.label]]
                 </paper-item>
               </template>
             </paper-dialog-scrollable>

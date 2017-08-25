@@ -17,7 +17,7 @@
 
     <div id="globals">
       <template is="dom-repeat" items="[[fields]]">
-        <placeholder-checkbox label="[[item.label]]" checked="[[isChecked(value,item)]]" on-check="checkIt" placeholder="[[item.include]]"></placeholder-checkbox>
+        <placeholder-checkbox disabled="[[disabled]]" label="[[item.label]]" checked="[[isChecked(value,item)]]" on-check="checkIt" placeholder="[[item.include]]"></placeholder-checkbox>
       </template>
     </div>
 

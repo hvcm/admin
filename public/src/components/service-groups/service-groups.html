@@ -22,11 +22,13 @@
         padding: 7px 5px;
         background-color: white;
         box-shadow: 0 1px 6px 0 #3c3c3c;
-        cursor: grab;
-        cursor: -webkit-grab;
         display: flex;
         flex-direction: row;
         align-items: center;
+      }
+      .shadow.draggable {
+        cursor: grab;
+        cursor: -webkit-grab;
       }
       .dragged-item {
         overflow: hidden;
@@ -52,11 +54,11 @@
     </paper-tabs>
     <iron-pages selected="{{page}}">
       <div on-click="handleClick">
-        <dragula-element copy container-class="container" drake="{{drake}}">
+        <dragula-element copy hidden$="[[disabled]]" container-class="container" drake="{{drake}}">
           <div class="container" hidden$="[[!groupsVisible]]">
             <template is="dom-repeat" items="[[groupsToID(groups,search)]]">
               <div class="dragged-item" item$="[[item]]">
-                <div class="shadow">
+                <div class="shadow draggable">
                   <div class="label">
                     [[translateID(item)]]
                     <!-- <paper-icon-button icon="delete" on-tap="delete"></paper-icon-button> -->
@@ -71,9 +73,38 @@
             </template>
           </div>
         </dragula-element>
+        <template is="dom-if" if="[[disabled]]">
+          <div class="container" hidden$="[[!groupsVisible]]">
+            <template is="dom-repeat" items="[[groupsToID(groups,search)]]">
+              <div class="dragged-item" item$="[[item]]">
+                <div class="shadow">
+                  <div class="label">
+                    [[translateID(item)]]
+                  </div>
+                  <div class="mover">
+                    <paper-icon-button type="mover" val$="[[item]]" icon="chevron-right" hidden$="[[disabled]]"></paper-icon-button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+
       </div>
       <div>
-        <dragula-element copy container-class="container" drake="{{drake}}">
+        <dragula-element copy hidden$="[[disabled]]" container-class="container" drake="{{drake}}">
+          <div class="container" hidden$="[[!servicesVisible]]">
+            <template is="dom-repeat" items="[[servicesToID(services,search)]]">
+              <div class="dragged-item" item$="[[item]]">
+                <div class="shadow draggable">
+                  [[translateServiceID(item)]]
+                </div>
+              </div>
+            </template>
+          </div>
+        </dragula-element>
+
+        <template is="dom-if" if="[[disabled]]">
           <div class="container" hidden$="[[!servicesVisible]]">
             <template is="dom-repeat" items="[[servicesToID(services,search)]]">
               <div class="dragged-item" item$="[[item]]">
@@ -83,7 +114,7 @@
               </div>
             </template>
           </div>
-        </dragula-element>
+        </template>
       </div>
     </iron-pages>
 

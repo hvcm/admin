@@ -83,69 +83,105 @@
   </template>
 
   <script>
-    Polymer({
-      is: 'my-restricted-days',
-      behaviors: [ListBehavior],
-      _correct(item) {
-        return item;
-      },
-      deleteDay(e) {
-        const index = e.model.index;
-        this.splice('app.list.default', index, 1);
-        this.changed = true;
-      },
-      transformDay(day) {
-        return day.replace(/-/g, ' ');
-      },
-      toggler(list) {
-        return _.clone(list);
-      },
-      deleteOfficeDay(e) {
-        const office = e.model.office.id;
-        const index = e.model.index;
+    (function () {
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
+          }
+        }
+        return "";
+      };
+      Polymer({
+        is: 'my-restricted-days',
+        behaviors: [ListBehavior],
+        _correct(item) {
+          return item;
+        },
+        depts(departments) {
+          const permissions = getCookie('permissions');
 
-        this.splice('app.list.' + office, index, 1);
-        this.toggle = !this.toggle;
-        this.changed = true;
-      },
-      dayPicked(e) {
-        if (!e.detail.confirmed || !this.selectedDay) {
-          return
-        };
+          if (this.superadmin) {
+            return _.chain(departments).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
+          }
 
-        const source = this.pickerSource;
-        console.log(source, this.selectedDay);
-        this.push('app.list.' + source, this.selectedDay);
-        this.changed = true;
-        this.toggle = !this.toggle;
-      },
-      saveAll() {
-        this.changed = false;
-        window.api.saveEntity('restricted-days', this.app.list);
-      },
-      addDepDay(e) {
-        this.showPicker = true;
-        this.pickerSource = e.model.office.id;
-      },
-      addDay() {
-        this.showPicker = true;
-        this.pickerSource = 'default';
-      },
-      officesToList(list) {
-        const offices = this.app.helpers.offices;
-        return _.chain(list).omit('default').map((item, index) => {
-          const dep = _.find(offices, {"@id": index});
-          return {label: dep.label, content: item, id: index};
-        }).value();
-      },
-      ready: function () {
-        this.toggle = true;
-        this.changed = false;
-        this.showPicker = false;
-        this.subpage = 'common';
-        this.discardMessage = "	Вы действительно хотите отменить изменения?";
-        this.entityName = 'restricted-days';
-      }
-    });
+          return _.chain(departments).filter({"@type": 'Department'}).filter(item => {
+            const id = item["@id"];
+            const unit_of = item.unit_of;
+            return permissions.includes(id) || permissions.includes(unit_of);
+          }).map(item => ({id: item["@id"], label: item.label})).value();
+
+        },
+        deleteDay(e) {
+          const index = e.model.index;
+          this.splice('app.list.default', index, 1);
+          this.changed = true;
+        },
+        transformDay(day) {
+          return day.replace(/-/g, ' ');
+        },
+        toggler(list) {
+          return _.clone(list);
+        },
+        deleteOfficeDay(e) {
+          const office = e.model.office.id;
+          const index = e.model.index;
+
+          this.splice('app.list.' + office, index, 1);
+          this.toggle = !this.toggle;
+          this.changed = true;
+        },
+        dayPicked(e) {
+          if (!e.detail.confirmed || !this.selectedDay) {
+            return
+          };
+
+          const source = this.pickerSource;
+          if (!this.get('app.list.' + source)) {
+            this.set('app.list.' + source, []);
+          }
+          this.push('app.list.' + source, this.selectedDay);
+          this.changed = true;
+          this.toggle = !this.toggle;
+        },
+        saveAll() {
+          this.changed = false;
+          window.api.saveEntity('restricted-days', this.app.list);
+        },
+        addDepDay(e) {
+          this.showPicker = true;
+          this.pickerSource = e.model.office.id;
+        },
+        addDay() {
+          this.showPicker = true;
+          this.pickerSource = 'default';
+        },
+        officesToList(list) {
+          const offices = this.app.helpers.offices;
+
+          return _.chain(this.depts(offices)).map((item, index) => {
+            const id = item.id;
+            const content = list[id] || [];
+
+            return {label: item.label, content, id};
+          }).value();
+        },
+        ready: function () {
+          this.toggle = true;
+          this.changed = false;
+          this.showPicker = false;
+          this.subpage = 'common';
+          this.discardMessage = "	Вы действительно хотите отменить изменения?";
+          this.entityName = 'restricted-days';
+        }
+      });
+    })();
   </script>
 </dom-module>

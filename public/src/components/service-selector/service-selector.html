@@ -1,75 +1,75 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 <dom-module id="service-selector">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								overflow: hidden;
-						}
-						.line {
-								padding: 10px 0;
-						}
-						.all {
-								border-bottom: 2px solid var(--mydoc-brown-800);
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        overflow: hidden;
+      }
+      .line {
+        padding: 10px 0;
+      }
+      .all {
+        border-bottom: 2px solid var(--mydoc-brown-800);
+      }
 
-				</style>
-				<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-				<div class="line all">
-						<paper-checkbox id="all" on-tap="checkAll" checked="[[isAll(selected.length,services)]]">Выбрать все</paper-checkbox>
-				</div>
-				<template is="dom-repeat" items="[[mapIt(services)]]" filter="{{computeFilter(searchString)}}">
-						<div class="line">
-								<paper-checkbox checked="[[isSelected(item, selected)]]" on-tap="check">[[item.label]]</paper-checkbox>
-						</div>
-				</template>
-		</template>
-		<script>
-				Polymer({
-						is: 'service-selector',
-						properties: {
-								selected: {
-										type: Array,
-										notify: true
-								}
-						},
-						computeFilter(string) {
-								if (!string) {
-										return null;
-								}
+    </style>
+    <paper-input disabled="[[disabled]]" label="Поиск" value="{{searchString}}"></paper-input>
+    <div class="line all">
+      <paper-checkbox disabled="[[disabled]]" id="all" on-tap="checkAll" checked="[[isAll(selected.length,services)]]">Выбрать все</paper-checkbox>
+    </div>
+    <template is="dom-repeat" items="[[mapIt(services)]]" filter="{{computeFilter(searchString)}}">
+      <div class="line">
+        <paper-checkbox disabled="[[disabled]]" checked="[[isSelected(item, selected)]]" on-tap="check">[[item.label]]</paper-checkbox>
+      </div>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'service-selector',
+      properties: {
+        selected: {
+          type: Array,
+          notify: true
+        }
+      },
+      computeFilter(string) {
+        if (!string) {
+          return null;
+        }
 
-								return item => ~ (item.label || '').toLowerCase().indexOf(string.toLowerCase());
-						},
-						mapIt(services) {
-								return _.map(services, (label, id) => ({label, id}))
-						},
-						check(e) {
-								const id = e.model.item.id;
-								const index = this.selected.indexOf(id);
+        return item => ~ (item.label || '').toLowerCase().indexOf(string.toLowerCase());
+      },
+      mapIt(services) {
+        return _.map(services, (label, id) => ({label, id}))
+      },
+      check(e) {
+        const id = e.model.item.id;
+        const index = this.selected.indexOf(id);
 
-								if (index === -1) {
-										this.push('selected', id);
-										return;
-								}
+        if (index === -1) {
+          this.push('selected', id);
+          return;
+        }
 
-								this.splice('selected', index, 1);
-						},
-						isSelected(item, selected) {
-								return ~ selected.indexOf(item.id);
-						},
-						checkAll(e) {
+        this.splice('selected', index, 1);
+      },
+      isSelected(item, selected) {
+        return ~ selected.indexOf(item.id);
+      },
+      checkAll(e) {
 
-								if (!this.$.all.checked) {
-										this.set('selected', []);
-										return;
-								}
+        if (!this.$.all.checked) {
+          this.set('selected', []);
+          return;
+        }
 
-								this.set('selected', _.keys(this.services));
-						},
-						isAll(selected, services) {
-								return selected >= _.size(services);
-						}
-				});
-		</script>
+        this.set('selected', _.keys(this.services));
+      },
+      isAll(selected, services) {
+        return selected >= _.size(services);
+      }
+    });
+  </script>
 </dom-module>
