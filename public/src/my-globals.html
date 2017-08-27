@@ -125,7 +125,7 @@
 
       </iron-pages>
       <paper-fab id="save" mini icon="save" hidden$="[[select(changed,app.helpers.canedit)]]" on-tap="saveAll"></paper-fab>
-      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[isHidden(superadmin, item.key)]]"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog" hidden$="[[isHidden(superadmin, item)]]"></paper-fab>
     </template>
 
     <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
@@ -173,8 +173,11 @@
           value: '__index'
         }
       },
-      isHidden(superadmin, key) {
-        if (["service_count", "dedicated_date"].includes(key)) {
+      isHidden(superadmin, item) {
+        const key = item.key;
+        const index = item.__index;
+        const fields = ["service_count", "dedicated_date"];
+        if (fields.includes(key) || fields.includes(index)) {
           return true;
         }
 
@@ -189,11 +192,11 @@
         if (this.item.method === '*') {
           _.unset(this.item, 'method');
         }
-        if ((this.item.order || '').length) {
+        if (_.has(this.item, 'order')) {
           this.item.order = parseInt(this.item.order, 10);
           const id = this.makeId();
           this.item.__index = this.item.__index || id;
-          this.item.key = this.item.key || id;
+          this.item.key = this.item.key || this.item.__index;
         }
       },
       makeId() {
@@ -219,8 +222,13 @@
       },
       saveAll() {
         this.changed = false;
-        this.presave();
-        const trans = _.chain(this.app.list).sortBy('order').map((item, index) => (item.__index = index, item)).keyBy(item => _.padStart(item.__index, 10, '0') + '_key').value();
+        // this.presave();
+        const trans = _.chain(this.app.list).sortBy('order').map((item, index) => {
+          item.key = item.key || item.__index;
+          item.__index = index;
+
+          return item;
+        }).keyBy(item => _.padStart(item.__index, 10, '0') + '_key').value();
         window.api.saveEntity('globals', trans);
         this._back();
       },

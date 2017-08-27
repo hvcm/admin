@@ -18,6 +18,12 @@ class Util {
 				return workstation_id;
 			})
 	}
+	fieldsMap() {
+		const {cb} = this.req;
+		return cb
+			.get('user_info_fields')
+			.then(data => _.chain(data).get('value.content', []).map((item, index) => ({id: index, include: item.include, label: item.label})).value());
+	}
 	canEdit() {
 		return this
 			.getOffices()
@@ -131,7 +137,7 @@ class Util {
 			.then((data) => {
 				const path = 'value.content.' + device_type;
 				const old = _.get(data, path, []);
-				old.push(id);
+				(!old.includes(id)) && old.push(id);
 				_.set(data, path, _.uniq(old));
 				return cb.upsert(registry, data.value);
 			})

@@ -7,142 +7,142 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-system-workstations">
-		<template>
-				<style include="shared-styles">
-						:host {
-								display: block;
-								padding: 10px;
-						}
-						iris-table {
-								max-height: calc(100vh - 155px);
-						}
-						.line {
-								align-items: center;
-						}
-						paper-fab#delete {
-								bottom: 10px;
-						}
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      iris-table {
+        max-height: calc(100vh - 155px);
+      }
+      .line {
+        align-items: center;
+      }
+      paper-fab#delete {
+        bottom: 10px;
+      }
 
-				</style>
+    </style>
 
-				<app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
+    <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
 
-				<template is="dom-if" if="[[listVisible]]">
-						<paper-tabs selected="{{filter_type}}" attr-for-selected="page">
-								<paper-tab page="call-center">Запись ПЗ</paper-tab>
-								<paper-tab page="registry">Запись ЖО</paper-tab>
-								<paper-tab page="terminal">Веб-запись</paper-tab>
-						</paper-tabs>
-						<paper-input label="Поиск" value="{{searchString}}"></paper-input>
-						<iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,filter_type)]]" on-cell-tap="cellTap"></iris-table>
-						<paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!canAdd(filter_type)]]"></paper-fab>
-				</template>
-				<template is="dom-if" if="[[!listVisible]]">
-						<div>
-								<paper-icon-button icon="chevron-left" on-tap="back"></paper-icon-button>
-								<paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
-								<service-selector selected="{{item.attached_terminal}}" services="[[app.helpers.terminals]]"></service-selector>
-						</div>
+    <template is="dom-if" if="[[listVisible]]">
+      <paper-tabs selected="{{filter_type}}" attr-for-selected="page">
+        <paper-tab page="call-center">Запись ПЗ</paper-tab>
+        <paper-tab page="registry">Запись ЖО</paper-tab>
+        <paper-tab page="terminal">Веб-запись</paper-tab>
+      </paper-tabs>
+      <paper-input label="Поиск" value="{{searchString}}"></paper-input>
+      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,filter_type)]]" on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!canAdd(filter_type)]]"></paper-fab>
+    </template>
+    <template is="dom-if" if="[[!listVisible]]">
+      <div>
+        <paper-icon-button icon="chevron-left" on-tap="back"></paper-icon-button>
+        <paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
+        <service-selector selected="{{item.attached_terminal}}" services="[[app.helpers.terminals]]"></service-selector>
+      </div>
 
-						<paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
-						<paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
-				</template>
+      <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
+      <paper-fab id="delete" mini icon="delete" on-tap="deleteDialog"></paper-fab>
+    </template>
 
-				<paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
-						<h2>Удаление</h2>
-						<paper-dialog-scrollable>
-								[[deleteMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-				<paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
-						<h2>Изменения будут потеряны</h2>
-						<paper-dialog-scrollable>
-								[[discardMessage]]
-						</paper-dialog-scrollable>
-						<div class="buttons">
-								<paper-button dialog-dismiss>Нет</paper-button>
-								<paper-button dialog-confirm>Да</paper-button>
-						</div>
-				</paper-dialog>
-		</template>
+    <paper-dialog opened="{{isOpen}}" on-iron-overlay-closed="delete">
+      <h2>Удаление</h2>
+      <paper-dialog-scrollable>
+        [[deleteMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog opened="{{isOpenDiscard}}" on-iron-overlay-closed="discardChanges">
+      <h2>Изменения будут потеряны</h2>
+      <paper-dialog-scrollable>
+        [[discardMessage]]
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Нет</paper-button>
+        <paper-button dialog-confirm>Да</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 
-		<script>
-				Polymer({
-						is: 'my-system-workstations',
-						behaviors: [ListBehavior],
+  <script>
+    Polymer({
+      is: 'my-system-workstations',
+      behaviors: [ListBehavior],
 
-						filter(data, searchString, device_type) {
-								if (!searchString) {
-										return _.filter(data, {device_type});
-								}
-								return _.chain(data).filter({device_type}).filter(item => ~ (item.label || '').indexOf(searchString)).value();
-						},
+      filter(data, searchString, device_type) {
+        if (!searchString) {
+          return _.filter(data, {device_type});
+        }
+        return _.chain(data).filter({device_type}).filter(item => ~ (item.label || '').indexOf(searchString)).value();
+      },
 
-						canAdd(device_type) {
-								return device_type !== 'terminal';
-						},
+      canAdd(device_type) {
+        return device_type !== 'terminal';
+      },
 
-						presave() {
-								let department;
-								if ((this.item.attached_terminal || []).length) {
-										const first = _.head(this.item.attached_terminal);
-										department = this.app.helpers.terminalsMap[first];
-								}
+      presave() {
+        let department;
+        if ((this.item.attached_terminal || []).length) {
+          const first = _.head(this.item.attached_terminal);
+          department = this.app.helpers.terminalsMap[first];
+        }
 
-								department = department || _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
-								if (department) {
-										this.item.attached_to = department;
-								}
-						},
+        department = department || _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
+        if (department) {
+          this.item.attached_to = department;
+        }
+      },
 
-						makeEntity() {
-								const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
-								return {
-										"attached_terminal": [],
-										"occupied_by": [],
-										"default_agent": "megatron-1",
-										"attached_to": department,
-										"device_type": this.filter_type,
-										"state": "inactive",
-										"@id": `pc-${this.filter_type}-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
-										"@type": "Workstation",
-										"label": ""
-								};
-						},
+      makeEntity() {
+        const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
+        return {
+          "attached_terminal": [],
+          "occupied_by": [],
+          "default_agent": "megatron-1",
+          "attached_to": department,
+          "device_type": this.filter_type,
+          "state": "inactive",
+          "@id": `pc-${this.filter_type}-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+          "@type": "Workstation",
+          "label": ""
+        };
+      },
 
-						_itemChanged(id) {
-								ListBehavior._itemChanged.call(this, id);
-								if (id && this.item) {
-										this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
-								}
-						},
+      _itemChanged(id) {
+        ListBehavior._itemChanged.call(this, id);
+        if (id && this.item) {
+          this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+        }
+      },
 
-						ready() {
-								this.deleteMessage = "Вы действительно хотите удалить это служебное рабочее место?";
-								this.discardMessage = "	Вы действительно хотите отменить изменения?";
-								this.entityName = 'system-workstation';
-								this.filter_type = 'call-center';
-								const sortable = true;
-								this.fieldsModel = [
-										{
-												field: 'label',
-												label: 'Наименование',
-												transform: item => item || "[[Без наименования]]",
-												sortable
-										}, {
-												field: 'attached_to',
-												label: 'Отдел',
-												transform: item => {
-														return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
-												},
-												sortable
-										}
-								];
-						}
-				});
-		</script>
+      ready() {
+        this.deleteMessage = "Вы действительно хотите удалить это служебное рабочее место?";
+        this.discardMessage = "	Вы действительно хотите отменить изменения?";
+        this.entityName = 'system-workstations';
+        this.filter_type = 'call-center';
+        const sortable = true;
+        this.fieldsModel = [
+          {
+            field: 'label',
+            label: 'Наименование',
+            transform: item => item || "[[Без наименования]]",
+            sortable
+          }, {
+            field: 'attached_to',
+            label: 'Отдел',
+            transform: item => {
+              return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
+            },
+            sortable
+          }
+        ];
+      }
+    });
+  </script>
 </dom-module>

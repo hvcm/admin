@@ -79,6 +79,9 @@ class Terminals extends Basic {
 					.then(data => _.map(data, 'value'));
 
 				const helpers = Promise.props({
+					fields: this
+						.util
+						.fieldsMap(),
 					offices: cb
 						.get('global_org_structure')
 						.then(data => _.get(data, 'value.content')),

@@ -25,6 +25,10 @@
       .line paper-input {
         flex: 1;
       }
+      iron-pages paper-dropdown-menu {
+        width: 100%;
+      }
+
     </style>
 
     <app-route route="{{route}}" pattern="/:itemId/:subpage" data="{{routeData}}"></app-route>
@@ -186,7 +190,8 @@
         }
 
         if (field === 'sound') {
-          return _.filter(data, item => ~ (this.soundToString((item || {}).placement).toLowerCase().indexOf(searchString)));
+
+          return _.filter(data, item => this.soundToString((item || {}).device_placement).toLowerCase().includes(searchString));
         }
       },
       changeProvides() {
@@ -251,7 +256,7 @@
       },
       soundToString(placement) {
         const sound = placement && placement.sound;
-        return (_.find(this.app.helpers.service_config, {id: sound}) || {}).label || 'Окно';
+        return _.capitalize((_.find(this.app.helpers.service_config, {id: sound}) || {}).label) || 'Окно';
       },
       departmentToString(item) {
         return (_.find(this.app.helpers.offices, {'@id': item}) || {}).label;
@@ -279,7 +284,7 @@
             field: 'device_placement',
             label: 'Тип',
             sortable,
-            transform: (placement) => this.soundToString(placement)
+            transform: placement => this.soundToString(placement)
           }, {
             field: 'attached_to',
             label: 'Отдел',

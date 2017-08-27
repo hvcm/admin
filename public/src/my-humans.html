@@ -3,9 +3,11 @@
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="./components/service-selector/service-selector.html">
+<link rel="import" href="./components/ws-selector/ws-selector.html">
 <link rel="import" href="./components/schedule-picker/schedule-picker.html">
 <link rel="import" href="./components/permissions-picker/permissions-picker.html">
 <link rel="import" href="./components/membership-picker/membership-picker.html">
+<link rel="import" href="./components/default-workstations/default-workstations.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-humans">
@@ -86,7 +88,7 @@
           <service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>
         </div>
         <div page="workstations">
-          <service-selector services="[[transformWS(app.helpers.workstations)]]" selected="{{item.available_workstation}}"></service-selector>
+          <ws-selector services="[[app.helpers.workstations]]" offices="[[app.helpers.offices]]" selected="{{item.available_workstation}}"></ws-selector>
         </div>
         <div page="schedules">
           <!-- <h3>Ресурсное расписание</h3>
@@ -97,6 +99,7 @@
           <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
         </div>
         <div page="permissions">
+          <default-workstations value="[[item.default_workstation]]" on-write-av="writeAvailable" workstations="[[app.helpers.workstations]]"></default-workstations>
           <div class="line" hidden$="[[!superadmin]]">
             <label>Суперадмин</label>
             <paper-toggle-button checked="{{item.permissions.superadmin}}"></paper-toggle-button>
@@ -156,6 +159,20 @@
           item.has_schedule.prebook = [];
         }
         return item;
+      },
+      writeAvailable(e) {
+        const detail = e.detail;
+        const id = detail.id;
+        const pid = detail.pid;
+
+        if (pid) {
+          const index = this.item.available_workstation.indexOf(pid);
+          (index !== -1) && this.splice('item.available_workstation', index, 1);
+        }
+
+        if (id && id !== '*' && !this.item.available_workstation.includes(id)) {
+          this.push('item.available_workstation', id);
+        }
       },
       transformWS(ws) {
         return _.chain(ws).map(item => [item["@id"], item.label]).fromPairs().value();

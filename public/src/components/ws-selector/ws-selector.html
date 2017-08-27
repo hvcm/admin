@@ -1,0 +1,123 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="ws-selector">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        overflow: hidden;
+      }
+      .line {
+        padding: 10px 0;
+      }
+      .all {
+        border-bottom: 2px solid var(--mydoc-brown-800);
+      }
+
+    </style>
+    <paper-input disabled="[[disabled]]" label="Поиск" value="{{searchString}}"></paper-input>
+    <iris-table id="workstationsTable" multiselect fields-model="[[fieldsModel]]" data="[[mapIt(services)]]" filter="{{computeFilter(searchString)}}" selected="{{selected}}" selected-index="[[calcSelectedIndex(selected)]]" selection-field="@id"></iris-table>
+  </template>
+  <script>
+    Polymer({
+      is: 'ws-selector',
+      properties: {
+        selected: {
+          type: Array,
+          notify: true
+        }
+      },
+      soundToString(item) {
+        const id = _.get(item, 'device_placement.sound', 'okno');
+        return _.capitalize(this.config[id]);
+      },
+      departmentToString(id) {
+        return (_.find(this.offices, {"@id": id}) || {}).label;
+      },
+      calcSelectedIndex(selected) {
+        const sel = (_(this.$.workstationsTable.data).filter(item => this.selected.includes(item["@id"])).map((i, index) => index).value());
+        return sel;
+      },
+      ready() {
+        this.config = {
+          "okno": "окно",
+          "kabinet": "кабинет",
+          "kassa": "касса"
+        };
+        const sortable = true;
+        this.fieldsModel = [
+          {
+            field: "@id",
+            label: "ID",
+            sortable
+          }, {
+            field: 'label',
+            label: 'Наименование',
+            transform: item => item || "[[Без наименования]]",
+            sortable
+          }, {
+            field: 'short_label',
+            label: 'Номер для табло',
+            sortable
+          }, {
+            field: 'device_placement',
+            label: 'Тип',
+            sortable,
+            transform: (placement) => this.soundToString(placement)
+          }, {
+            field: 'attached_to',
+            label: 'Отдел',
+            transform: item => this.departmentToString(item),
+            sortable
+          }
+        ];
+      },
+      getRole(item) {
+        const id = _.get(item, 'device_placement.sound', 'okno');
+        return _.capitalize(this.config[id]);
+      },
+      computeFilter(string) {
+        if (!string) {
+          return null;
+        }
+        string = string.toLowerCase();
+        return item => _.reduce([
+          'label', '@id'
+        ], (acc, field) => acc || (item[field] || '').toLowerCase().includes(string), false);
+      },
+      mapIt(services) {
+        // return _.map(services, (label, id) => ({label, id}))
+        return _.filter(services, {'device_type': 'control-panel'});
+      },
+      getId(i) {
+        return i["@id"];
+      },
+      check(e) {
+        const id = e.model.item["@id"];
+        const index = this.selected.indexOf(id);
+
+        if (index === -1) {
+          this.push('selected', id);
+          return;
+        }
+
+        this.splice('selected', index, 1);
+      },
+      isSelected(item, selected) {
+        return ~ selected.indexOf(item["@id"]);
+      },
+      checkAll(e) {
+        if (!this.$.all.checked) {
+          this.set('selected', []);
+          return;
+        }
+
+        this.set('selected', _.map(this.services, '@id'));
+      },
+
+      isAll(selected, services) {
+        return selected >= _.size(services);
+      }
+    });
+  </script>
+</dom-module>

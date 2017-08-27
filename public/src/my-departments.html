@@ -126,8 +126,8 @@
           <route-selector label="Запрещенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.exclude}}"></route-selector>
         </div>
         <div page="satelites">
-          <paper-input label="Дизайн табло оператора" value="{{item.qa_design.hold_screen_design}}" placeholder="{{getPlaceholder('qa_design.hold_screen_design',item)}}"></paper-input>
-          <paper-input label="Дизайн пульта оценки качества" value="{{item.oper_design.hold_screen_design}}" placeholder="{{getPlaceholder('oper_design.hold_screen_design',item)}}"></paper-input>
+          <paper-input label="Дизайн пульта оценки качества" value="{{item.qa_design.hold_screen_design}}" placeholder="{{getPlaceholder('qa_design.hold_screen_design',item)}}"></paper-input>
+          <paper-input label="Дизайн табло оператора" value="{{item.oper_design.hold_screen_design}}" placeholder="{{getPlaceholder('oper_design.hold_screen_design',item)}}"></paper-input>
         </div>
       </iron-pages>
 
@@ -266,7 +266,7 @@
             }
           },
           qa_design: {
-            hold_screen_design: "/images/qa/landing.html"
+            hold_screen_design: "/production/qa/design/landing.html"
           },
           oper_design: {
             hold_screen_design: "/production/operator-display/design/landing.html"

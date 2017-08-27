@@ -1,0 +1,112 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="default-workstations">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+      }
+      paper-item,
+      paper-listbox {
+        flex: 1;
+      }
+
+    </style>
+    <h2>Рабочие места</h2>
+    <template is="dom-repeat" items="[[types]]">
+      <workstation-selector label="[[label(item)]]" workstations="[[workstations]]" type="[[item]]" value="[[getValue(workstations,item, value)]]" on-ws-change="wsChange"></workstation-selector>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'default-workstations',
+      properties: {
+        value: {
+          type: Array,
+          notify: true
+        }
+      },
+      getId(ws) {
+        return ws["@id"];
+      },
+      getValue(w, item) {
+        return (_.find(w, ws => _.get(ws, 'device_type') === item && (this.value || []).includes(ws["@id"])) || {})["@id"] || '*';
+      },
+      wsChange(e) {
+        const detail = e.detail;
+        const noop = detail.id === '*';
+
+        if (detail.pid) {
+          this.value = _.without(this.value, detail.pid);
+        }
+
+        if (!noop && !this.value.includes(detail.id)) {
+          this.push('value', detail.id);
+        }
+
+        // if (detail.device_type !== 'control-panel') { }
+        this.fire('write-av', detail);
+      },
+      label(item) {
+        return this.names[item];
+      },
+      ready() {
+        this.types = ["control-panel", "reports", "reception", "call-center", "registry"];
+        this.names = {
+          "control-panel": "Рабочее место",
+          "reports": "Отчеты",
+          "reception": "Ресепшен",
+          "call-center": "Предварительная запись",
+          "registry": "Запись ЖО"
+        };
+
+      }
+
+    });
+  </script>
+</dom-module>
+
+<dom-module id="workstation-selector">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+      }
+      paper-item,
+      paper-listbox {
+        flex: 1;
+      }
+
+    </style>
+    <paper-dropdown-menu label="Рабочее место">
+      <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{value}}">
+        <paper-item val="*">Нет</paper-item>
+        <template is="dom-repeat" items="[[filter(type,workstations)]]" as="ws">
+          <paper-item val="[[getId(ws)]]">[[getId(ws)]] / [[ws.label]]</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+  </template>
+  <script>
+    Polymer({
+      is: 'workstation-selector',
+      properties: {
+        value: {
+          type: String,
+          observer: "_valueChanged"
+        }
+      },
+      _valueChanged(id, pid) {
+        this.fire('ws-change', {id, pid, type: this.type})
+      },
+      filter(item) {
+        return _.filter(this.workstations, {device_type: item});
+      },
+      getId(ws) {
+        return ws["@id"];
+      }
+    });
+  </script>
+</dom-module>

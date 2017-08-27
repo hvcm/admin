@@ -5,9 +5,15 @@ const Basic = require('./basic.js');
 class SystemWorkstations extends Basic {
 	save() {
 		const {data} = this.req.body;
+		const {cb} = this.req;
+		const permissions = this.permissions;
 
 		return this
 			._saveEntityWorkstation(data)
+			.then(() => {
+				const registries = _.map(permissions, item => `registry_workstation_${item}`);
+				return Promise.map(registries, reg => this.util.addWorkstation(data["@id"], data.device_type, reg));
+			})
 			.then(data => this.res.json(data));
 	}
 	delete() {

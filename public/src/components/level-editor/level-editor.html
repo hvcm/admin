@@ -1,36 +1,36 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 <dom-module id="level-editor">
-		<template>
-				<style>
-						:host {
-								display: block;
-						}
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
 
-				</style>
-				<template is="dom-repeat" items="[[value]]" as="not">
-						<paper-input label="Значение" value="{{not.value}}" placeholder="[[getPlaceholder(index,'value')]]"></paper-input>
-						<paper-input label="Время скрывания сообщения" value="{{not.dnd}}" placeholder="[[getPlaceholder(index,'dnd')]]"></paper-input>
-						<paper-input label="Сообщение" value="{{not.message}}" placeholder="[[getPlaceholder(index,'message')]]"></paper-input>
-				</template>
-		</template>
-		<script>
-				Polymer({
-						is: 'level-editor',
-						properties: {
-								value: {
-										type: Array
-								},
-								parent: {
-										type: Array
-								}
-						},
-						getPlaceholder(index, name) {
-								return _.get(this.parent, [
-										index, name
-								], '');
-						}
+    </style>
+    <template is="dom-repeat" items="[[value]]" as="not">
+      <paper-input label="Значение" value="{{not.value}}" placeholder="[[getPlaceholder(index,'value')]]"></paper-input>
+      <paper-input label="Время скрывания сообщения" value="{{not.dnd}}" placeholder="[[getPlaceholder(index,'dnd')]]"></paper-input>
+      <paper-input label="Сообщение" value="{{not.message}}" placeholder="[[getPlaceholder(index,'message')]]"></paper-input>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'level-editor',
+      properties: {
+        value: {
+          type: Array
+        },
+        parent: {
+          type: Array
+        }
+      },
+      getPlaceholder(index, name) {
+        return _.get(this.parent, [
+          index, name
+        ], '');
+      }
 
-				});
-		</script>
+    });
+  </script>
 </dom-module>
