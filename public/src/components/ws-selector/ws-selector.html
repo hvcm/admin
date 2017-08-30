@@ -35,6 +35,9 @@
         return (_.find(this.offices, {"@id": id}) || {}).label;
       },
       calcSelectedIndex(selected) {
+        if (!this.selected) {
+          return [];
+        }
         const sel = (_(this.$.workstationsTable.data).filter(item => this.selected.includes(item["@id"])).map((i, index) => index).value());
         return sel;
       },
