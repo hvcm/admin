@@ -80,7 +80,7 @@
       }
 
     </style>
-    <paper-dropdown-menu label="Рабочее место">
+    <paper-dropdown-menu label="[[label]]">
       <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{value}}">
         <paper-item val="*">Нет</paper-item>
         <template is="dom-repeat" items="[[filter(type,workstations)]]" as="ws">

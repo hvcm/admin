@@ -11,7 +11,7 @@ class RestrictedDays extends Basic {
 			content: data
 		};
 		return cb
-			.set('global_restricted_days', global_restricted_days)
+			.upsert('global_restricted_days', global_restricted_days)
 			.then(data => this.res.json(data));
 	}
 	delete() {
