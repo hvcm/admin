@@ -200,7 +200,11 @@
 
         this.username = getCookie('username');
         this.superadmin = getCookie('superadmin') === 'true';
-        console.log('superadmin', this.superadmin);
+        const p = getCookie('permissions');
+        window._globals = {
+          permissions: p.substring(name.length, p.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',')
+        };
+
         if (!user) {
           window.location.replace('/login');
         }

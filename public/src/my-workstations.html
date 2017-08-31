@@ -64,9 +64,9 @@
           <paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
           <paper-input label="Номер для табло" value="{{item.short_label}}" placeholder="Введите Номер для табло"></paper-input>
           <div class="line">
-            <paper-dropdown-menu label="Офис" on-tap="actionHappens">
+            <paper-dropdown-menu disabled="[[!canEditOffice(departments,item.attached_to)]]" label="Офис" on-tap="actionHappens">
               <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{item.attached_to}}">
-                <template is="dom-repeat" items="[[departments]]" as="dep">
+                <template is="dom-repeat" items="[[filterAvailable(departments,item.attached_to)]]" as="dep">
                   <paper-item val="[[dep.id]]">[[dep.label]]</paper-item>
                 </template>
               </paper-listbox>
@@ -160,6 +160,16 @@
           }
           this.wrongId = true;
         });
+      },
+      canEditOffice(departments, attached) {
+        const av = _.filter(departments, item => _globals.permissions.includes(item.id));
+        return av.includes(attached);
+      },
+      filterAvailable(departments, attached) {
+        const av = _.filter(departments, item => _globals.permissions.includes(item.id));
+        return av.includes(attached)
+          ? av
+          : departments;
       },
       getServiceMap(dep) {
         const indexes = this.app.helpers.service_map[dep];

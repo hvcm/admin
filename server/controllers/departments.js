@@ -24,6 +24,16 @@ class Departments extends Basic {
 			})
 			.then(data => this.res.json({'state': 'ok'}));;
 	}
+	removeFromMembreship(id) {
+		const {cb} = this.req;
+		return cb
+			.get('global_membership_description')
+			.then(({value}) => {
+				value.content = _.filter(value.content, item => item.organization !== id);
+
+				return cb.upsert('global_membership_description', value);
+			});
+	}
 	removeFields(data) {
 		['services', 'qa_design', 'oper_design', 'routes', '__fresh'].map(item => _.unset(data, item));
 	}
@@ -124,7 +134,8 @@ class Departments extends Basic {
 				}),
 			satelites: this.deleteSatelites(id),
 			routing_map: this.deleteServiceRoutingMap(id),
-			unsetuser: this.unsetUser(id)
+			unsetuser: this.unsetUser(id),
+			membership: this.removeFromMembreship(id)
 		}).then(data => this.res.json(data));
 	}
 

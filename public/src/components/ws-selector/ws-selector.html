@@ -28,7 +28,7 @@
         }
       },
       soundToString(item) {
-        const id = _.get(item, 'device_placement.sound', 'okno');
+        const id = _.get(item, 'sound', 'okno');
         return _.capitalize(this.config[id]);
       },
       departmentToString(id) {

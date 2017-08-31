@@ -188,16 +188,12 @@
         item.method = item.method || '*';
         return item;
       },
-      presave() {
-        if (this.item.method === '*') {
-          _.unset(this.item, 'method');
+      presave(item) {
+        if (item.method === '*') {
+          _.unset(item, 'method');
         }
-        if (_.has(this.item, 'order')) {
-          this.item.order = parseInt(this.item.order, 10);
-          const id = this.makeId();
-          this.item.__index = this.item.__index || id;
-          this.item.key = this.item.key || this.item.__index;
-        }
+
+        return item;
       },
       makeId() {
         return `field-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
@@ -223,7 +219,7 @@
       saveAll() {
         this.changed = false;
         // this.presave();
-        const trans = _.chain(this.app.list).sortBy('order').map((item, index) => {
+        const trans = _.chain(this.app.list).map(item => this.presave(item)).sortBy('order').map((item, index) => {
           item.key = item.key || item.__index;
           item.__index = index;
 

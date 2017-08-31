@@ -85,7 +85,10 @@
       canAdd(device_type) {
         return device_type !== 'terminal';
       },
-
+      _correct(item) {
+        item.attached_terminal = item.attached_terminal || [];
+        return item;
+      },
       presave() {
         let department;
         if ((this.item.attached_terminal || []).length) {

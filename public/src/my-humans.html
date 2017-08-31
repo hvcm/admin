@@ -99,7 +99,7 @@
           <schedule-picker schedules="{{app.helpers.schedule}}" selected="{{item.has_schedule.prebook}}" multi></schedule-picker>
         </div>
         <div page="permissions">
-          <default-workstations value="[[item.default_workstation]]" on-write-av="writeAvailable" workstations="[[app.helpers.workstations]]"></default-workstations>
+          <default-workstations value="{{item.default_workstation}}" on-write-av="writeAvailable" workstations="[[app.helpers.workstations]]"></default-workstations>
           <div class="line" hidden$="[[!superadmin]]">
             <label>Суперадмин</label>
             <paper-toggle-button checked="{{item.permissions.superadmin}}"></paper-toggle-button>
@@ -148,6 +148,7 @@
       behaviors: [ListBehavior],
       _correct(item) {
         item.has_schedule = item.has_schedule || {};
+        item.default_workstation = item.default_workstation || [];
 
         if (!item.has_schedule.resource) {
           item.has_schedule.resource = [];
@@ -321,7 +322,7 @@
             sortable: true,
             transform: (id) => {
               const offices = this.app.helpers.offices;
-              return _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization").map(id => _.find(offices, {"@id": id})).map('label').value().join(',   ');
+              return _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization").map(id => _.find(offices, {"@id": id})).map('label').compact().value().join(',   ');
             }
           }
         ];
