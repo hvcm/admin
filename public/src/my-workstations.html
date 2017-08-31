@@ -163,11 +163,12 @@
       },
       canEditOffice(departments, attached) {
         const av = _.filter(departments, item => _globals.permissions.includes(item.id));
-        return av.includes(attached);
+        return !!_.find(av, i => i.id === attached);
       },
       filterAvailable(departments, attached) {
         const av = _.filter(departments, item => _globals.permissions.includes(item.id));
-        return av.includes(attached)
+        const depin = !!_.find(av, i => i.id === attached);
+        return depin
           ? av
           : departments;
       },

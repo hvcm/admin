@@ -114,20 +114,20 @@
         </app-header>
 
         <iron-pages id="pages" selected="[[selectedPage]]" attr-for-selected="name" fallback-selection="view404" role="main" on-action="initAction">
-          <my-globals name="globals" app="{{app.globals}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-globals>
-          <my-globals-priority name="globals-priority" app="{{app.globals-priority}}" superadmin="[[superadmin]]"></my-globals-priority>
-          <my-departments name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
-          <my-restricted-days name="restricted-days" app="{{app.restricted-days}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-restricted-days>
-          <my-workstations name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
-          <my-humans name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>
-          <my-terminals name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>
-          <my-roomdisplays name="roomdisplays" app="{{app.roomdisplays}}" route="{{subroute}}"></my-roomdisplays>
-          <my-services name="services" app="{{app.services}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-services>
-          <my-schedules name="schedules" app="{{app.schedules}}" route="{{subroute}}"></my-schedules>
-          <my-digital-displays name="digital-displays" app="{{app.digital-displays}}" route="{{subroute}}"></my-digital-displays>
-          <my-system-workstations name="system-workstations" app="{{app.system-workstations}}" route="{{subroute}}"></my-system-workstations>
-          <my-service-groups name="service-groups" app="{{app.service-groups}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-service-groups>
-          <my-servers name="servers" app="{{app.servers}}" route="{{subroute}}"></my-servers>
+          <my-globals id="globals" name="globals" app="{{app.globals}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-globals>
+          <my-globals-priority id="globals-priority" name="globals-priority" app="{{app.globals-priority}}" superadmin="[[superadmin]]"></my-globals-priority>
+          <my-departments id="departments" name="departments" app="{{app.departments}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-departments>
+          <my-restricted-days id="restricted-days" name="restricted-days" app="{{app.restricted-days}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-restricted-days>
+          <my-workstations id="workstations" name="workstations" app="{{app.workstations}}" route="{{subroute}}"></my-workstations>
+          <my-humans id="humans" name="humans" app="{{app.humans}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-humans>
+          <my-terminals id="terminals" name="terminals" app="{{app.terminals}}" route="{{subroute}}"></my-terminals>
+          <my-roomdisplays id="roomdisplays" name="roomdisplays" app="{{app.roomdisplays}}" route="{{subroute}}"></my-roomdisplays>
+          <my-services id="services" name="services" app="{{app.services}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-services>
+          <my-schedules id="schedules" name="schedules" app="{{app.schedules}}" route="{{subroute}}"></my-schedules>
+          <my-digital-displays id="digital-displays" name="digital-displays" app="{{app.digital-displays}}" route="{{subroute}}"></my-digital-displays>
+          <my-system-workstations id="system-workstations" name="system-workstations" app="{{app.system-workstations}}" route="{{subroute}}"></my-system-workstations>
+          <my-service-groups id="service-groups" name="service-groups" app="{{app.service-groups}}" route="{{subroute}}" superadmin="[[superadmin]]"></my-service-groups>
+          <my-servers id="servers" name="servers" app="{{app.servers}}" route="{{subroute}}"></my-servers>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
       </app-header-layout>
@@ -202,7 +202,7 @@
         this.superadmin = getCookie('superadmin') === 'true';
         const p = getCookie('permissions');
         window._globals = {
-          permissions: p.substring(name.length, p.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',')
+          permissions: p.replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',')
         };
 
         if (!user) {
@@ -241,6 +241,8 @@
             this.set('inProgress', false);
             this.importHref(resolvedPageUrl, null, this._showPage404, true);
             this.selectedPage = this.page;
+            const pageElem = this.$[page];
+            pageElem.reset();
           });
 
         }, 300);

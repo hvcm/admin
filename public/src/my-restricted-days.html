@@ -38,10 +38,10 @@
         <template is="dom-repeat" items="[[app.list.default]]" as="day">
           <div class="day">
             [[transformDay(day)]]
-            <paper-icon-button icon="delete" on-tap="deleteDay"></paper-icon-button>
+            <paper-icon-button disabled="[[!superadmin]]" icon="delete" on-tap="deleteDay"></paper-icon-button>
           </div>
         </template>
-        <paper-icon-button icon="add" on-tap="addDay"></paper-icon-button>
+        <paper-icon-button disabled="[[!superadmin]]" icon="add" on-tap="addDay"></paper-icon-button>
       </div>
       <div page="department">
         <template id="test" is="dom-repeat" items="[[officesToList(app.list, toggle)]]" as="office">

@@ -82,7 +82,7 @@
           <paper-input label="Имя" value="{{item.first_name}}" placeholder="Имя" disabled="[[cantEdit]]"></paper-input>
           <paper-input label="Отчество" value="{{item.middle_name}}" placeholder="Отчество" disabled="[[cantEdit]]"></paper-input>
           <paper-input label="Логин" value="{{item.login}}" placeholder="Логин" disabled="[[cantEdit]]"></paper-input>
-          <paper-input label="Пароль" value="{{item.password_hash}}" placeholder="Пароль" disabled="[[cantEdit]]"></paper-input>
+          <paper-input label="Пароль" hidden$="[[cantEdit]]" value="{{item.password_hash}}" placeholder="Пароль" disabled="[[cantEdit]]"></paper-input>
         </div>
         <div page="provides">
           <service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>

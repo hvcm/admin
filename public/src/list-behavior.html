@@ -16,6 +16,9 @@
     getId(ws) {
       return ws && ws["@id"];
     },
+    reset() {
+      this._back();
+    },
     _appListChanged(list) {
       const id = _.get(this, 'routeData.itemId', false);
 
