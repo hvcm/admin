@@ -163,7 +163,8 @@
           id: ws.id,
           value: ''
         });
-        this.actionHappens();
+        this.item.maintains = Symbol('Mutated');
+        // this.actionHappens();
       },
       saveAll() {
         this.changed = false;
@@ -186,7 +187,8 @@
       removeMaintain(e) {
         const index = e.model.index;
         this.splice('displaylist', index, 1);
-        this.actionHappens();
+        this.item.maintains = Symbol('Mutated');
+        // this.actionHappens();
       },
       makeEntity() {
         const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
