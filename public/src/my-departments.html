@@ -119,7 +119,7 @@
           <paper-input label="Приоритет инвалидов" value="{{item.priority_description.invalid.value}}" placeholder="{{getPlaceholder('priority_description.invalid.value',item)}}"></paper-input>
         </div>
         <div page="services">
-          <service-selector services="[[app.helpers.labels]]" selected="{{item.services}}"></service-selector>
+          <service-selector services="[[filterByDep(app.helpers.labels, item)]]" selected="{{item.services}}"></service-selector>
         </div>
         <div page="routes">
           <route-selector label="Разрешенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.include}}"></route-selector>
@@ -168,6 +168,21 @@
       observers: [
         'checkResourceW(item.workstation_resource_enabled)', 'checkResourceE(item.employee_resource_enabled)'
       ],
+      filterByDep(labels, item) {
+        if (!item) {
+          return {};
+        }
+        const id = item["@id"];
+        const list = this.app.helpers.services[id];
+        if (!list) {
+          return {};
+        }
+        const result = _.transform(labels, (acc, item, index) => {
+          list.includes(index) && (acc[index] = item);
+        }, {});
+
+        return result;
+      },
       ready() {
         this.entityName = 'departments';
         this.discardMessage = "	Вы действительно хотите отменить изменения?";

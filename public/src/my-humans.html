@@ -112,7 +112,7 @@
               <paper-item val="prebook">Предварительная запись</paper-item>
             </paper-listbox>
           </paper-dropdown-menu>
-          <membership-picker departments="{{app.helpers.offices}}" human="[[item]]" membership="{{app.helpers.membership}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></membership-picker>
+          <membership-picker departments="{{app.helpers.offices}}" human="[[item]]" membership="{{item._member_of}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></membership-picker>
           <permissions-picker departments="{{app.helpers.offices}}" value="{{item.permissions}}" superadmin="[[superadmin]]"></permissions-picker>
         </div>
       </iron-pages>
@@ -159,6 +159,9 @@
         if (!item.has_schedule.prebook) {
           item.has_schedule.prebook = [];
         }
+        const member_of = _(this.app.helpers.membership).filter({member: item["@id"]}).map('organization').value();
+        item._member_of = member_of;
+
         return item;
       },
       writeAvailable(e) {

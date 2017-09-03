@@ -78,7 +78,7 @@
           <template is="dom-repeat" items="[[displaylist]]" as="maintain">
             <div class="line">
               <span>
-                [[translateWS(maintain.id)]]
+                [[maintain.id]] / [[translateWS(maintain.id)]]
               </span>
               <paper-input label="Значение" value="{{maintain.value}}"></paper-input>
               <paper-icon-button icon="delete" on-tap="removeMaintain"></paper-icon-button>

@@ -6,12 +6,15 @@ class Humans extends Basic {
 	save() {
 		const {data} = this.req.body;
 		const {cb} = this.req;
+		const _member_of = data._member_of;
+		_.unset(data, '_member_of');
 
 		cb
 			.get('global_membership_description')
 			.then(({value}) => {
-				const content = value.content;
-				_.forEach(this.permissions, department => {
+				const content = _.filter(value.content, item => (item.member != data["@id"] || _member_of.includes(item.organization)));
+
+				_.forEach(_member_of, department => {
 					const x = {
 						"member": data["@id"],
 						"organization": department

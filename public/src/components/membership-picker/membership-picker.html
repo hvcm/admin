@@ -17,21 +17,6 @@
   </template>
   <script>
     (function () {
-      function getCookie(cname) {
-        var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
-        var ca = decodedCookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-          }
-          if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
-          }
-        }
-        return "";
-      };
 
       Polymer({
         is: 'membership-picker',
@@ -51,7 +36,7 @@
           }
         },
         filter(departments) {
-          const permissions = getCookie('permissions');
+          const permissions = _globals.permissions;
 
           if (this.superadmin) {
             return _.chain(departments).filter({"@type": 'Department'}).map(item => ({id: item["@id"], label: item.label})).value();
@@ -67,11 +52,17 @@
         toggle(e) {
           const human = e.model.human;
           const dep = e.model.item;
+          const id = dep.id;
+          if (_.includes(this.membership, id)) {
+            const index = this.membership.indexOf(id);
+            this.splice('membership', index, 1);
+          } else {
+            this.push('membership', id);
+          }
           // if (!temp) {   _.set(this.value, `${type.id}.${dep.id}`, false); } this.set(`value.${type.id}.${dep.id}`, !temp);
         },
         getChecked(value, organization) {
-          const member = value["@id"];
-          return !!_.find(this.membership, {member, organization});
+          return !!_.includes(this.membership, organization);
         }
       });
     })();

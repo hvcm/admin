@@ -83,7 +83,8 @@
       },
 
       canAdd(device_type) {
-        return device_type !== 'terminal';
+        return true;
+        // return device_type !== 'terminal';
       },
       _correct(item) {
         item.attached_terminal = item.attached_terminal || [];

@@ -295,11 +295,14 @@ class Departments extends Basic {
 							.compact()
 							.value();
 
-						const helpers = {
+						const helpers = Promise.props({
 							office: value.content,
-							labels: serviceToLabels(res.all_services)
-						};
-						return {list, helpers};
+							labels: serviceToLabels(res.all_services),
+							services: this
+								.util
+								.getServiceMapsObj()
+						});
+						return Promise.props({list, helpers});
 					});
 			})
 			.then(data => this.res.json(data));

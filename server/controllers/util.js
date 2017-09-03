@@ -36,6 +36,19 @@ class Util {
 			.map(this.permissions, department => cb.get(`registry_service_${department}`).catch(e => {}))
 			.then(res => _.compact(res));
 	}
+	getServiceMapsObj() {
+		return this
+			.getServiceMaps()
+			.then(data => _.transform(data, (acc, item) => {
+				const key = _
+					.get(item, 'value.@id', '')
+					.substr(17);
+				const value = item.value.content;
+				if (key) {
+					acc[key] = value;
+				}
+			}, {}));
+	}
 	removeEveryWhere(id, device_type, registry = false) {
 		const {cb, params} = this.req;
 		const {entity} = params;
@@ -132,6 +145,10 @@ class Util {
 
 	addWorkstation(id, device_type, registry) {
 		const {cb} = this.req;
+
+		if (registry.includes('registry_workstation_office')) {
+			return Promise.resolve('office');
+		}
 		return cb
 			.get(registry)
 			.then((data) => {
