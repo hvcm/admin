@@ -221,7 +221,7 @@
           : provides;
       },
       _correct(item) {
-        item.device_placement = {};
+        item.device_placement = item.device_placement || {};
         if (!item.provides) {
           item.provides = [];
         }

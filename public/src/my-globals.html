@@ -219,13 +219,13 @@
       saveAll() {
         this.changed = false;
         // this.presave();
-        const trans = _.chain(this.app.list).map(item => this.presave(item)).sortBy('order').map((item, index) => {
-          item.key = item.key || item.__index;
-          item.__index = index;
+        const trans = _.chain(this.app.list).map(item => this.presave(item)).sortBy('order').transform((acc, item) => {
+          acc.push(`"${item.__index}":${JSON.stringify(item)}`);
 
-          return item;
-        }).keyBy(item => _.padStart(item.__index, 10, '0') + '_key').value();
-        window.api.saveEntity('globals', trans);
+        }, []).value()
+
+        // .keyBy(item => _.padStart(item.__index, 10, '0') + '_key').value();
+        window.api.saveEntity('globals', JSON.parse(`{${trans.join(',')}}`));
         this._back();
       },
       deleteDialog(e) {
