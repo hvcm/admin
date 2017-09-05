@@ -28,11 +28,10 @@ class Humans extends Basic {
 							"organization": department,
 							"role": "Operator"
 						};
-
 						content.push(role);
 					}
 				});
-
+				value.content = content;
 				return cb.upsert('global_membership_description', value);
 			});
 
