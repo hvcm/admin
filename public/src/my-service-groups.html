@@ -124,7 +124,7 @@
             <group-shower disabled="[[!superadmin]]" topLevel on-group-delete="mainGroupDelete" group="[[group]]" groups="[[app.list]]" services="[[app.helpers.services]]" on-cell-tap="cellTap" drake="[[drake]]"></group-shower>
           </template>
 
-          <paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[superadmin]]"></paper-fab>
+          <paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!superadmin]]"></paper-fab>
           <paper-fab id="save" mini icon="save" hidden$="[[isHidden(listchanged, superadmin)]]" on-tap="saveDiff"></paper-fab>
         </div>
       </div>
@@ -202,7 +202,7 @@
       },
       isHidden(a, b) {
 
-        return !a || b;
+        return !a || !b;
       },
       compare() {
         if (!this.app)
