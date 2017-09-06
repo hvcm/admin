@@ -2,20 +2,25 @@
   window.api = {
     request(url, data) {
       myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
-
+      const body = JSON.stringify(data);
       localStorage.getItem('is_dev') && console.log('request:', url, data);
-      return Promise.resolve(fetch(url, {
+      return fetch(url, {
         method: 'POST',
         headers: myHeaders,
         credentials: 'same-origin',
-        body: JSON.stringify(data)
-      }).then(res => res.json())).then(res => {
+        body
+      }).then(res => res.json()).then(res => {
         localStorage.getItem('is_dev') && console.log('result:', res);
         if (res.authfailed === true) {
           return window.location.replace('/login');
         }
+
+        if (_.get(data, 'data.__previous', false) && url.includes('/entity-save/')) {
+          _.set(data, 'data.__previous', false);
+        }
+
         return res;
-      }).timeout(40000);
+      });
     },
     login(user, password, server) {
       return this.request('/login', {user, password, server}).then(res => res.state

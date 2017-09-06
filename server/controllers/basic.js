@@ -58,9 +58,12 @@ class Basic {
 		const util = this.util;
 
 		const previous = data.__previous;
+		console.log('previous', previous);
 		const deleteOld = !previous || previous === id
 			? Promise.resolve(false)
-			: this._deleteEntityWorkstation({device_type, "@id": previous});
+			: this
+				._deleteEntityWorkstation({device_type, "@id": previous})
+				.then(() => cb.remove(previous).catch((e) => console.log(e)));
 
 		_.unset(data, '__previous');
 
