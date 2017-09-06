@@ -1,6 +1,7 @@
 "use strict";
 
 const Basic = require('./basic.js');
+const uuidv1 = require('uuid/v1');
 
 class Humans extends Basic {
 	save() {
@@ -22,7 +23,7 @@ class Humans extends Basic {
 
 					if (!_.find(content, x)) {
 						const role = {
-							"@id": "membership-" + data["@id"],
+							"@id": "membership-" + uuidv1(),
 							"@type": "Membership",
 							"member": data["@id"],
 							"organization": department,
