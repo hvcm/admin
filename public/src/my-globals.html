@@ -219,7 +219,7 @@
       saveAll() {
         this.changed = false;
         // this.presave();
-        const trans = _.chain(this.app.list).map(item => this.presave(item)).sortBy('order').transform((acc, item) => {
+        const trans = _.chain(this.app.list).map(item => this.presave(item)).sortBy(item => parseInt(item.order, 10)).transform((acc, item) => {
           acc.push(`"${item.__index}":${JSON.stringify(item)}`);
 
         }, []).value()
