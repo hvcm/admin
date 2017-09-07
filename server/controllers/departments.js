@@ -166,24 +166,35 @@ class Departments extends Basic {
 	}
 	makeWorkstationRegistry(id) {
 		const {cb} = this.req;
-		console.log(`registry_workstation_${id}`);
-		const map = {
-			"@id": `registry_workstation_${id}`,
-			"@type": "Registry",
-			"@content_type": "Workstation",
-			content: {
-				terminal: [],
-				roomdisplay: [],
-				"digital-display": [],
-				"control-panel": [],
-				registry: [],
-				"call-center": [],
-				reports: [],
-				reception: []
-			}
-		};
+		return cb
+			.get('global_org_structure')
+			.then(({value}) => {
+				const {content} = value;
+				const id = _.get(_.find(content, {"@type": 'Department'}), "@id");
 
-		return cb.upsert(map["@id"], map);
+				return cb
+					.get(`registry_workstation_${id}`)
+					.catch(() => ({value: {}}));
+			})
+			.then(({value}) => {
+				const map = {
+					"@id": `registry_workstation_${id}`,
+					"@type": "Registry",
+					"@content_type": "Workstation",
+					content: {
+						terminal: [],
+						roomdisplay: [],
+						"digital-display": [],
+						"control-panel": [],
+						registry: _.get(value, 'content.registry', []),
+						"call-center": _.get(value, 'content.call-center', []),
+						reports: _.get(value, 'content.reports', []),
+						reception: []
+					}
+				};
+
+				return cb.upsert(map["@id"], map);
+			});
 	}
 
 	makeServiceRoutingMap(id, value) {

@@ -242,7 +242,7 @@
             this.importHref(resolvedPageUrl, null, this._showPage404, true);
             this.selectedPage = this.page;
             const pageElem = this.$[page];
-            if (pageElem && pageElem instanceof Function) {
+            if (pageElem && pageElem.reset instanceof Function) {
               pageElem.reset();
             }
           });
