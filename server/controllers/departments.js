@@ -185,7 +185,7 @@ class Departments extends Basic {
 						registry: _.get(value, 'content.registry', []),
 						"call-center": _.get(value, 'content.call-center', []),
 						reports: _.get(value, 'content.reports', []),
-						reception: []
+						reception: _.get(value, 'content.reception', [])
 					}
 				};
 

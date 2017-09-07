@@ -105,6 +105,21 @@
 
       makeEntity() {
         const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
+        if (filter_type == 'terminal') {
+          return {
+            "default_agent": "megatron-6",
+            "attached_to": "department-252",
+            "device_type": "terminal",
+            "bound_service_groups": "wsg-0",
+            "occupied_by": ["megatron-6"],
+            "@id": `web-term-${this.filter_type}-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+            "@type": "Terminal",
+            "label": "Веб терминал",
+            "custom_fields": {},
+            "__hidden_type": "megatron-6",
+            "booking_methods": ["live", "prebook"]
+          }
+        }
         return {
           "attached_terminal": [],
           "occupied_by": [],

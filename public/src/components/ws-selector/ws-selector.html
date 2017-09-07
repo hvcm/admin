@@ -16,7 +16,15 @@
 
     </style>
     <paper-input disabled="[[disabled]]" label="Поиск" value="{{searchString}}"></paper-input>
-    <iris-table id="workstationsTable" multiselect fields-model="[[fieldsModel]]" data="[[mapIt(services)]]" filter="{{computeFilter(searchString)}}" selected="{{selected}}" selected-index="[[calcSelectedIndex(selected)]]" selection-field="@id"></iris-table>
+    <iris-table
+      id="workstationsTable"
+      multiselect
+      fields-model="[[fieldsModel]]"
+      data="[[mapIt(services)]]"
+      filter="{{computeFilter(searchString)}}"
+      selected="{{selected}}"
+      selected-index="[[calcSelectedIndex(selected, searchString)]]"
+      selection-field="@id"></iris-table>
   </template>
   <script>
     Polymer({
@@ -34,11 +42,15 @@
       departmentToString(id) {
         return (_.find(this.offices, {"@id": id}) || {}).label;
       },
-      calcSelectedIndex(selected) {
+      calcSelectedIndex(selected, searchString) {
         if (!this.selected) {
           return [];
         }
-        const sel = (_(this.$.workstationsTable.data).filter(item => this.selected.includes(item["@id"])).map((i, index) => index).value());
+        const filter = this.computeFilter(searchString);
+
+        const sel = (_(this.$.workstationsTable.data).filter(filter).transform((acc, item, index) => {
+          this.selected.includes(item["@id"]) && acc.push(index);
+        }, []).value());
         return sel;
       },
       ready() {
