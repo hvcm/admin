@@ -119,11 +119,11 @@
           <paper-input label="Приоритет инвалидов" value="{{item.priority_description.invalid.value}}" placeholder="{{getPlaceholder('priority_description.invalid.value',item)}}"></paper-input>
         </div>
         <div page="services">
-          <service-selector services="[[filterByDep(app.helpers.labels, item)]]" selected="{{item.services}}"></service-selector>
+          <service-selector on-check="servicesChanged" services="[[app.helpers.labels]]" selected="{{item.services}}"></service-selector>
         </div>
         <div page="routes">
-          <route-selector label="Разрешенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.include}}"></route-selector>
-          <route-selector label="Запрещенные" services="[[app.helpers.labels]]" routes="{{item.routes.routes.exclude}}"></route-selector>
+          <route-selector label="Разрешенные" services="[[av_services]]" routes="{{item.routes.routes.include}}"></route-selector>
+          <route-selector label="Запрещенные" services="[[av_services]]" routes="{{item.routes.routes.exclude}}"></route-selector>
         </div>
         <div page="satelites">
           <paper-input label="Дизайн пульта оценки качества" value="{{item.qa_design.hold_screen_design}}" placeholder="{{getPlaceholder('qa_design.hold_screen_design',item)}}"></paper-input>
@@ -162,12 +162,16 @@
       is: 'my-departments',
       behaviors: [ListBehavior],
       isVisible(superadmin) {
-
         return !!superadmin;
       },
       observers: [
         'checkResourceW(item.workstation_resource_enabled)', 'checkResourceE(item.employee_resource_enabled)'
       ],
+      getLabels() {
+        const list = this.item.services;
+
+        return _.pick(this.app.helpers.labels, list);
+      },
       filterByDep(labels, item) {
         if (!item) {
           return {};
@@ -225,8 +229,13 @@
         }
         const parent_id = this.item.unit_of;
         this.parentOfItem = _.find(this.app.helpers.office, {"@id": parent_id}) || {};
+        this.av_services = this.getLabels();
       },
-
+      servicesChanged() {
+        console.log('changed');
+        this.av_services = this.getLabels();
+        console.log(this.av_services);
+      },
       isOffice(item) {
         return item && item["@type"] === "Office";
       },

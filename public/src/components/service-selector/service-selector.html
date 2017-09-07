@@ -54,6 +54,7 @@
         }
 
         this.splice('selected', index, 1);
+        this.fire('check');
       },
       isSelected(item, selected) {
         return ~ selected.indexOf(item.id);
@@ -62,10 +63,12 @@
 
         if (!this.$.all.checked) {
           this.set('selected', []);
+          this.fire('check');
           return;
         }
 
         this.set('selected', _.keys(this.services));
+        this.fire('check');
       },
       isAll(selected, services) {
         return selected >= _.size(services);
