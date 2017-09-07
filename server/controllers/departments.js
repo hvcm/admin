@@ -37,10 +37,6 @@ class Departments extends Basic {
 	removeFields(data) {
 		['services', 'qa_design', 'oper_design', 'routes', '__fresh'].map(item => _.unset(data, item));
 	}
-	updateSatelite(...designs) {
-		const {cb} = this.req;
-		return Promise.map(designs, design => design && cb.upsert(design["@id"], design));
-	}
 	update(data, value) {
 		const {cb} = this.req;
 		const id = data["@id"];
@@ -53,8 +49,8 @@ class Departments extends Basic {
 
 		return Promise.props({
 			update: cb.upsert('global_org_structure', value),
-			satelites: this.updateSatelite(qa_design, oper_design),
-			routes: cb.upsert(routes["@id"], routes),
+			satelites: this.makeSatelites(id, qa_design, oper_design),
+			routes: this.makeServiceRoutingMap(id, routes),
 			services: this.makeServiceRegistry(id, services)
 		});
 	}
@@ -204,12 +200,7 @@ class Departments extends Basic {
 			"@id": `service-routing-map-${id}`,
 			"routes": {
 				"include": [],
-				"exclude": [
-					{
-						"from": "*",
-						"to": "*"
-					}
-				]
+				"exclude": []
 			}
 		}, value);
 
