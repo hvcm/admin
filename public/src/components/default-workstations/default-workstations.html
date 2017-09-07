@@ -36,15 +36,13 @@
       wsChange(e) {
         const detail = e.detail;
         const noop = detail.id === '*';
-
-        if (detail.pid) {
+        if (detail.pid && detail.pid !== '*') {
           this.value = _.without(this.value, detail.pid);
         }
 
         if (!noop && !this.value.includes(detail.id)) {
           this.push('value', detail.id);
         }
-
         // if (detail.device_type !== 'control-panel') { }
         this.fire('write-av', detail);
       },
