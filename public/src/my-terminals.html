@@ -124,10 +124,8 @@
         <paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{termType}}">
           <paper-item val="megatron-1">Терминал</paper-item>
           <paper-item val="megatron-6">Веб-терминал</paper-item>
-          <template is="dom-repeat" items="[[app.helpers.workstations]]" as="ws">
-            <paper-item val="[[getId(ws)]]">[[translateType(ws)]]: [[ws.label]]</paper-item>
-          </template>
-
+          <paper-item val="live">Запись ЖО</paper-item>
+          <paper-item val="prebook">Запись ПЗ</paper-item>
         </paper-listbox>
       </paper-dialog-scrollable>
       <div class="buttons">
@@ -214,7 +212,9 @@
         const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
         return {
           "multiselect": false,
-          "default_agent": "megatron-1",
+          "default_agent": this.termType === "megatron-6"
+            ? "megatron-6"
+            : "megatron-1",
           "attached_to": department,
           "device_type": "terminal",
           "bound_service_groups": "sg-0",

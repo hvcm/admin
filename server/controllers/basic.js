@@ -58,7 +58,7 @@ class Basic {
 		const util = this.util;
 
 		const previous = data.__previous;
-		console.log('previous', previous);
+
 		const deleteOld = !previous || previous === id
 			? Promise.resolve(false)
 			: this

@@ -20,19 +20,24 @@ class Terminals extends Basic {
 		const id = data['@id'];
 		const hiddentype = data.__hidden_type;
 
-		const field = hiddentype.indexOf('megatron') === 0
-			? 'available_workstation'
-			: 'attached_terminal';
+		// const field = hiddentype.includes('megatron')
+		// 	? 'available_workstation'
+		// 	: 'attached_terminal';
 
-		return cb
-			.get(hiddentype)
-			.then(res => {
-				const item = res.value;
-				const workstations = item[field];
-				workstations.push(id);
-				item[field] = _.uniq(workstations)
-				return cb.upsert(item["@id"], item);
-			})
+		if (hiddentype.includes('megatron')) {
+			return cb
+				.get(hiddentype)
+				.then(res => {
+					const item = res.value;
+					const workstations = item.available_workstation || [];
+					workstations.push(id);
+					item.available_workstation = _.uniq(workstations);
+
+					return cb.upsert(item["@id"], item);
+				});
+		}
+
+		return Promise.resolve(true);
 	}
 	unlinkToEntity(data) {
 		const {cb} = this.req;

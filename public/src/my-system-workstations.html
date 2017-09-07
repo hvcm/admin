@@ -41,7 +41,7 @@
       <div>
         <paper-icon-button icon="chevron-left" on-tap="back"></paper-icon-button>
         <paper-input label="Наименование" value="{{item.label}}" placeholder="Введите Наименование"></paper-input>
-        <service-selector selected="{{item.attached_terminal}}" services="[[app.helpers.terminals]]"></service-selector>
+        <service-selector selected="{{item.attached_terminal}}" services="[[filterByType(app.helpers.terminals,filter_type)]]"></service-selector>
       </div>
 
       <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
@@ -81,10 +81,15 @@
         }
         return _.chain(data).filter({device_type}).filter(item => ~ (item.label || '').indexOf(searchString)).value();
       },
-
+      filterByType(terminals, filter_type) {
+        const default_agent = filter_type === 'terminal'
+          ? 'megatron-6'
+          : 'megatron-1';
+        return _(terminals).filter({default_agent}).mapValues('label').value();
+      },
       canAdd(device_type) {
-        return true;
-        // return device_type !== 'terminal';
+        // return true;
+        return device_type !== 'terminal';
       },
       _correct(item) {
         item.attached_terminal = item.attached_terminal || [];
@@ -105,21 +110,7 @@
 
       makeEntity() {
         const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
-        if (filter_type == 'terminal') {
-          return {
-            "default_agent": "megatron-6",
-            "attached_to": "department-252",
-            "device_type": "terminal",
-            "bound_service_groups": "wsg-0",
-            "occupied_by": ["megatron-6"],
-            "@id": `web-term-${this.filter_type}-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
-            "@type": "Terminal",
-            "label": "Веб терминал",
-            "custom_fields": {},
-            "__hidden_type": "megatron-6",
-            "booking_methods": ["live", "prebook"]
-          }
-        }
+
         return {
           "attached_terminal": [],
           "occupied_by": [],
