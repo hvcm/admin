@@ -264,8 +264,7 @@ class Departments extends Basic {
 
 		const services = this
 			.util
-			.getServiceMaps()
-			.then(services => _.map(services, s => _.get(s, 'value.content', [])));
+			.getServiceMapsObj();
 
 		return Promise
 			.props({services, qa_design, oper_design, routes, all_services})
@@ -286,7 +285,8 @@ class Departments extends Basic {
 
 								if (dep["@type"] == "Office")
 									return dep;
-								dep.services = res.services[index];
+
+								dep.services = res.services[dep["@id"]];
 								dep.qa_design = _.get(res, [
 									'qa_design', index, 'value'
 								], {});
@@ -300,9 +300,7 @@ class Departments extends Basic {
 						const helpers = Promise.props({
 							office: value.content,
 							labels: serviceToLabels(res.all_services),
-							services: this
-								.util
-								.getServiceMapsObj()
+							services
 						});
 						return Promise.props({list, helpers});
 					});
