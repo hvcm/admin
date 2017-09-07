@@ -51,12 +51,20 @@ class SystemWorkstations extends Basic {
 				offices: this
 					.util
 					.getOffices(),
-				terminals: terminals.then(res => this.toMap(res, "@id", "label")),
+				terminals: terminals.then(res => this.toWideMap(res, "@id", "label", "default_agent", '__hidden_type')),
 				terminalsMap: terminals.then(res => this.toMap(res, "@id", "attached_to"))
 			});
 
 			return Promise.props({list, helpers})
 		}).then(data => this.res.json(data));
+	}
+	toWideMap(items, key, ...fields) {
+		return _.transform(items, (acc, {
+			value = {}
+		}) => {
+			const k = value[key];
+			acc[k] = _.pick(value, fields);
+		}, {});
 	}
 	toMap(items, key, value_key) {
 		return _.transform(items, (acc, {

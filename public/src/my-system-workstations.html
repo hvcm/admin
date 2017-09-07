@@ -85,7 +85,13 @@
         const default_agent = filter_type === 'terminal'
           ? 'megatron-6'
           : 'megatron-1';
-        return _(terminals).filter({default_agent}).mapValues('label').value();
+        return _(terminals).filter(item => {
+          if (item.__hidden_type && filter_type !== 'terminal') {
+            return (filter_type === 'call-center' && item.__hidden_type === 'prebook') || (filter_type === 'registry' && item.__hidden_type === 'live');
+          }
+
+          return item.default_agent == default_agent;
+        }).mapValues('label').value();
       },
       canAdd(device_type) {
         // return true;
