@@ -43,17 +43,16 @@ class Terminals extends Basic {
 		const {cb} = this.req;
 		const id = data['@id'];
 		const hiddentype = data.__hidden_type;
-
-		const field = hiddentype.indexOf('megatron') === 0
-			? 'available_workstation'
-			: 'attached_terminal';
+		//
+		// const field = hiddentype.indexOf('megatron') === 0
+		// 	? 'available_workstation'
+		// 	: 'attached_terminal';
 
 		return cb
 			.get(hiddentype)
 			.then(res => {
 				const item = res.value;
-				const workstations = item[field];
-				item[field] = _.filter(workstations, item => item != id);
+				item.available_workstation = _.filter(item.available_workstation, item => item != id);
 
 				return cb.upsert(item["@id"], item);
 			})

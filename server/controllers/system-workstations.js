@@ -52,7 +52,8 @@ class SystemWorkstations extends Basic {
 					.util
 					.getOffices(),
 				terminals: terminals.then(res => this.toWideMap(res, "@id", "label", "default_agent", '__hidden_type')),
-				terminalsMap: terminals.then(res => this.toMap(res, "@id", "attached_to"))
+				terminalsMap: terminals.then(res => this.toMap(res, "@id", "attached_to")),
+				webterm: webterm.value
 			});
 
 			return Promise.props({list, helpers})

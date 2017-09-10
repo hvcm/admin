@@ -9,6 +9,7 @@ const discover = (name) => require(`../server/controllers/${name}`);
 
 const entities = [
 	'terminals',
+	'web-terminals',
 	'roomdisplays',
 	'humans',
 	'schedules',

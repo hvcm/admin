@@ -22,6 +22,9 @@
       paper-fab#delete {
         bottom: 10px;
       }
+      paper-fab#save-term {
+        bottom: 10px;
+      }
 
     </style>
 
@@ -34,7 +37,16 @@
         <paper-tab page="terminal">Веб-запись</paper-tab>
       </paper-tabs>
       <paper-input label="Поиск" value="{{searchString}}"></paper-input>
-      <iris-table id="workstationsTable" fields-model="[[fieldsModel]]" data="[[filter(app.list,searchString,filter_type)]]" on-cell-tap="cellTap"></iris-table>
+      <iris-table
+        id="workstationsTable"
+        selection-field="@id"
+        selected="{{app.helpers.webterm.available_workstation}}"
+        selected-index="[[calcSelectedIndex(app.helpers.webterm.available_workstation, searchString, filter_type)]]"
+        multiselect="[[!canAdd(filter_type)]]"
+        fields-model="[[fieldsModel]]"
+        data="[[filter(app.list,searchString,filter_type)]]"
+        on-cell-tap="cellTap"></iris-table>
+      <paper-fab id="save-term" mini icon="save" on-tap="saveTerm" hidden$="[[!canSaveTerm(filter_type, termschanged)]]"></paper-fab>
       <paper-fab id="add" mini icon="add" on-tap="addEntity" hidden$="[[!canAdd(filter_type)]]"></paper-fab>
     </template>
     <template is="dom-if" if="[[!listVisible]]">
@@ -74,12 +86,31 @@
     Polymer({
       is: 'my-system-workstations',
       behaviors: [ListBehavior],
-
+      observers: ['_termsChanged(app.helpers.webterm.available_workstation.splices)'],
+      _termsChanged() {
+        this.termschanged = true;
+      },
       filter(data, searchString, device_type) {
         if (!searchString) {
           return _.filter(data, {device_type});
         }
         return _.chain(data).filter({device_type}).filter(item => ~ (item.label || '').indexOf(searchString)).value();
+      },
+      canSaveTerm(filter_type, termschanged) {
+        return filter_type === 'terminal' && termschanged;
+      },
+      saveTerm() {
+        this.termschanged = false;
+        window.api.saveEntity('web-terminals', this.app.helpers.webterm.available_workstation);
+      },
+      calcSelectedIndex(webterm, searchString, filter_type) {
+        const data = this.filter(this.app.list, searchString, filter_type);
+
+        const result = _(data).transform((acc, item, index) => {
+          webterm.includes(item["@id"]) && acc.push(index);
+        }, []).value();
+
+        return result;
       },
       filterByType(terminals, filter_type) {
         const default_agent = filter_type === 'terminal'
@@ -113,7 +144,6 @@
           this.item.attached_to = department;
         }
       },
-
       makeEntity() {
         const department = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => item['@id']).head().value();
 
@@ -129,19 +159,24 @@
           "label": ""
         };
       },
-
+      cellTap(e) {
+        if (this.filter_type === 'terminal') {
+          return;
+        }
+        ListBehavior.cellTap.call(this, e);
+      },
       _itemChanged(id) {
         ListBehavior._itemChanged.call(this, id);
         if (id && this.item) {
           this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
         }
       },
-
       ready() {
         this.deleteMessage = "Вы действительно хотите удалить это служебное рабочее место?";
         this.discardMessage = "	Вы действительно хотите отменить изменения?";
         this.entityName = 'system-workstations';
         this.filter_type = 'call-center';
+        this.termschanged = false;
         const sortable = true;
         this.fieldsModel = [
           {
