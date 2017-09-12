@@ -92,11 +92,8 @@ class Humans extends Basic {
 					workstations: this
 						.util
 						.getWorkstationsId('control-panel', 'reports', 'reception', 'call-center', 'registry')
-						.then(ids => {
-							return cb
-								.getMulti(_.uniq(ids))
-								.then(data => _.map(data, 'value'));
-						})
+						.then(ids => cb.getMulti(_.uniq(ids)))
+						.then(data => _.map(data, 'value'))
 				});
 				return Promise.props({
 					data: cb.getMulti(ids),

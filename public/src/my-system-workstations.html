@@ -91,10 +91,19 @@
         this.termschanged = true;
       },
       filter(data, searchString, device_type) {
+        const mod = device_type === 'terminal'
+          ? {
+            default_agent: 'megatron-6'
+          }
+          : {
+            device_type
+          };
+
         if (!searchString) {
-          return _.filter(data, {device_type});
+          return _.filter(data, mod);
         }
-        return _.chain(data).filter({device_type}).filter(item => ~ (item.label || '').indexOf(searchString)).value();
+
+        return _.chain(data).filter(mod).filter(item => ~ (item.label || '').indexOf(searchString)).value();
       },
       canSaveTerm(filter_type, termschanged) {
         return filter_type === 'terminal' && termschanged;

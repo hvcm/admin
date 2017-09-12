@@ -19,6 +19,11 @@
           _.set(data, 'data.__previous', false);
         }
 
+        const p = getCookie('permissions');
+        window._globals = {
+          permissions: p.replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',')
+        };
+
         return res;
       });
     },

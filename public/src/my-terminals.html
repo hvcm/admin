@@ -298,6 +298,7 @@
             label: "Принадлежность",
             sortable,
             transform: all => {
+
               if (!all.__hidden_type) {
                 const hiddentype = this.getHiddenType(all);
                 all.__hidden_type = hiddentype;
@@ -308,7 +309,13 @@
               }
 
               const ws = _.find(this.app.helpers.workstations, {"@id": all.__hidden_type});
-              const type = _.get(ws, 'device_type');
+              let type = _.get(ws, 'device_type');
+              if (all.__hidden_type === 'live') {
+                type = "registry";
+              }
+              if (all.__hidden_type === 'prebook') {
+                type = "call-center";
+              }
 
               return this.names[type];
             }

@@ -84,7 +84,9 @@
         this.item = this._correct(item);
       }
       this.changed = false;
-      this.clone = _.cloneDeep(this.item);
+      this.clone = this.newItem
+        ? {}
+        : _.cloneDeep(this.item);
       this.setInterval();
     },
     filter(data, searchString) {
@@ -98,13 +100,15 @@
     cellTap(e) {
       const id = e.detail.row_data['@id'];
       const row = _.findIndex(this.app.list, {"@id": id});
+      this.newItem = false;
       this.routeToID(id, row);
     },
     addEntity() {
       const entity = this.makeEntity();
       const id = entity['@id'];
-      const row = this.push('app.list', entity);
+      const row = this.push('app.list', entity) - 1;
       this.changed = true;
+      this.newItem = true;
       this.routeToID(id, row);
     },
     routeToID(id, row) {
@@ -133,7 +137,12 @@
         return;
       }
       this.changed = false;
-      this.splice('app.list', this.index, 1, this.clone);
+      if (this.newItem) {
+        this.splice('app.list', this.index, 1);
+      } else {
+        this.splice('app.list', this.index, 1, this.clone);
+      }
+      this.newItem = false;
       this._back();
     },
     _back() {

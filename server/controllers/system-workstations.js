@@ -31,13 +31,10 @@ class SystemWorkstations extends Basic {
 		return Promise.props({
 			reg: this
 				.util
-				.getWorkstationsId('call-center', 'registry'),
+				.getWorkstationsId('call-center', 'registry', 'terminal'),
 			webterm: cb.get('megatron-6')
-		}).then(({reg, webterm}) => {
-			const workstation_id = _
-				.chain(reg)
-				.concat(_.get(webterm, 'value.available_workstation', []))
-				.value();
+		}).then(({reg, webterm, terms}) => {
+			const workstation_id = reg;
 
 			const list = cb
 				.getMulti(workstation_id)
