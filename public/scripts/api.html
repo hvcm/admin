@@ -47,7 +47,7 @@
     },
     preparePage(entity, department) {
       return this.request(`/entity-list/${entity}`, {department}).then(res => {
-        res.entity = entity;
+        res && (res.entity = entity);
         return res;
       });
     },

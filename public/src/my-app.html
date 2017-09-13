@@ -146,7 +146,7 @@
   </template>
 
   <script>
-    
+
     Polymer({
       is: 'my-app',
 
@@ -191,6 +191,11 @@
       },
       ready() {
         const user = getCookie('user');
+        if (!user) {
+          window.location.replace('/login');
+          return;
+        }
+
         const admins = _.split(getCookie('admins'), '$$$');
 
         this.username = getCookie('username');
@@ -199,10 +204,7 @@
         window._globals = {
           permissions: p.replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',')
         };
-
-        if (!user) {
-          window.location.replace('/login');
-        }
+    
         this.page = this.page || "globals";
         this.selectedPage = this.page;
         this.set('app.global.namespace', 'namespace');
