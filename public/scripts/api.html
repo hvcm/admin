@@ -5,7 +5,7 @@
       ? decodeURIComponent(matches[1])
       : undefined;
   };
-  
+
   window.api = {
     request(url, data) {
       myHeaders = new Headers({"Content-Type": "application/json", "Set-Cookie": true});
@@ -26,7 +26,7 @@
           _.set(data, 'data.__previous', false);
         }
 
-        const p = getCookie('permissions');
+        const p = getCookie('permissions') || '';
         window._globals = {
           permissions: p.replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',')
         };
