@@ -321,12 +321,15 @@
             field: 'login',
             label: 'Логин'
           }, {
-            field: '@id',
             label: 'Отдел',
             sortable: true,
-            transform: (id) => {
+            transform: item => {
+              const id = item["@id"];
               const offices = this.app.helpers.offices;
-              return _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization").map(id => _.find(offices, {"@id": id})).map('label').compact().value().join(',   ');
+              const member = _.size(item._member_of)
+                ? item._member_of
+                : _.chain(this.app.helpers.membership).filter(item => item.member == id).map("organization");
+              return _.chain(member).map(id => _.find(offices, {"@id": id})).map('label').compact().value().join(',   ');
             }
           }
         ];
