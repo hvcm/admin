@@ -85,7 +85,7 @@
           <paper-input label="Пароль" hidden$="[[cantEdit]]" value="{{item.password_hash}}" placeholder="Пароль" disabled="[[cantEdit]]"></paper-input>
         </div>
         <div page="provides">
-          <service-selector services="[[app.helpers.services]]" selected="{{item.provides}}"></service-selector>
+          <service-selector services="[[servicesByOffice(app.helpers.services, item._member_of.splices)]]" selected="{{item.provides}}"></service-selector>
         </div>
         <div page="workstations">
           <ws-selector services="[[app.helpers.workstations]]" offices="[[app.helpers.offices]]" selected="{{item.available_workstation}}"></ws-selector>
@@ -166,6 +166,11 @@
         item._member_of = member_of;
 
         return item;
+      },
+      servicesByOffice(services, _member_of) {
+        const ids = _(this.app.helpers.service_map).pick(this.item._member_of).flatMap().value();
+
+        return _.pick(services, ids);
       },
       writeAvailable(e) {
         const detail = e.detail;

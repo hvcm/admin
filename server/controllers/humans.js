@@ -83,12 +83,26 @@ class Humans extends Basic {
 				const schedule = this
 					.util
 					.getSchedulesByView();
-
+				const getServiceMaps = this
+					.util
+					.getServiceMaps();
 				const helpers = Promise.props({
 					offices,
 					services,
 					schedule,
 					membership,
+					service_map: getServiceMaps.then(data => {
+						return _
+							.chain(data)
+							.map(item => [
+								_
+									.get(item, 'value.@id', '')
+									.substr(17) || 'not-found',
+								_.get(item, 'value.content', [])
+							])
+							.fromPairs()
+							.value();
+					}),
 					workstations: this
 						.util
 						.getWorkstationsId('control-panel', 'reports', 'reception', 'call-center', 'registry')
