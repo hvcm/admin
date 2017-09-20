@@ -159,7 +159,10 @@
         if (!item.has_schedule.prebook) {
           item.has_schedule.prebook = [];
         }
-        const member_of = _(this.app.helpers.membership).filter({member: item["@id"]}).map('organization').value();
+        const s = _.size(item._member_of);
+        const member_of = s
+          ? item._member_of
+          : _(this.app.helpers.membership).filter({member: item["@id"]}).map('organization').value();
         item._member_of = member_of;
 
         return item;
