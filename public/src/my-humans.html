@@ -168,6 +168,9 @@
         return item;
       },
       servicesByOffice(services, _member_of) {
+        if (!this.item) {
+          return services;
+        }
         const ids = _(this.app.helpers.service_map).pick(this.item._member_of).flatMap().value();
 
         return _.pick(services, ids);
