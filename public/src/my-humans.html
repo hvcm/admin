@@ -164,7 +164,7 @@
           ? item._member_of
           : _(this.app.helpers.membership).filter({member: item["@id"]}).map('organization').value();
         item._member_of = member_of;
-
+        item._member_of.splices = {};
         return item;
       },
       servicesByOffice(services, _member_of) {

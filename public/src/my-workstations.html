@@ -208,13 +208,11 @@
       changeProvides() {
         const selected = Polymer.dom(this.root).querySelector('#services').selected;
         const indexes = _.size(this.getServiceMap(this.item.attached_to));
-        this.item.provides = selected.length === indexes
-          ? '*'
-          : selected;
+        this.item.provides = selected;
       },
       transformProvides(provides) {
         if (!provides)
-          return undefined;
+          return [];
         const indexes = this.app.helpers.service_map[this.item.attached_to];
         return provides === '*'
           ? indexes
