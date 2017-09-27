@@ -47,7 +47,7 @@
       check(e) {
         const id = e.model.item.id;
         const index = this.selected.indexOf(id);
-        console.log(_.size(this.selected), _.size(this.services));
+
         if (index === -1) {
           this.push('selected', id);
           return;
