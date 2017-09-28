@@ -10,7 +10,9 @@ class WebTerminals extends Basic {
 			.get('megatron-6')
 			.then(({value}) => {
 				value.available_workstation = data;
+
 				console.log('WEB TERMINAL:', value);
+
 				return cb.upsert('megatron-6', value);
 			})
 			.then(res => this.res.json(res));
