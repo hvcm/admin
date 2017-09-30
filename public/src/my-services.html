@@ -182,8 +182,9 @@
         if (!e.detail.confirmed) {
           return;
         }
-        const offices = this.app.helpers.offices || [];
+        const offices = _.filter(this.app.helpers.offices || [], {"@type": 'Department'});
         this.linked_to = _.map(this.selectedUnitId, id => _.get(offices, [id, "@id"]));
+
         if (!_.size(this.linked_to)) {
           return;
         }
@@ -257,7 +258,7 @@
           item.content.includes(id) && acc.push(item.label);
         }, []).join(', ');
       },
-      ready: function () {
+      ready() {
         this.deleteMessage = "Вы действительно хотите удалить это рабочее место?";
         this.discardMessage = "	Вы действительно хотите отменить изменения?";
         this.entityName = 'services';
