@@ -98,7 +98,7 @@
             <span>Услуги:</span>
             <span>[[provides(item.provides,item.provides.length)]]</span>
           </div>
-          <service-selector id="services" services="[[getServiceMap(item.attached_to)]]" selected="[[transformProvides(item.provides)]]" on-tap="changeProvides"></service-selector>
+          <service-selector id="services" services="[[getServiceMap(item.attached_to)]]" selected="{{item.provides}}"></service-selector>
         </div>
         <div page="schedules" on-change="actionHappens">
           <!-- <h3>Ресурсное расписание</h3>
@@ -155,7 +155,6 @@
         }
         this.set('item.provides', this.app.helpers.service_map[attached_to] || []);
       },
-
       saveAll() {
         this.changed = false;
         (this.presave) && this.presave();
@@ -213,10 +212,6 @@
           return _.filter(data, item => this.soundToString((item || {}).device_placement).toLowerCase().includes(searchString));
         }
       },
-      changeProvides() {
-        const selected = Polymer.dom(this.root).querySelector('#services').selected;
-        this.item.provides = selected;
-      },
       transformProvides(provides) {
 
         if (!provides || !this.item) {
@@ -231,6 +226,10 @@
         item.device_placement = item.device_placement || {};
         if (!item.provides) {
           item.provides = [];
+        }
+        if (item.provides === '*') {
+          const indexes = this.app.helpers.service_map[item.attached_to];
+          item.provides = indexes;
         }
         item.has_schedule = item.has_schedule || {};
         if (!item.has_schedule.resource) {
