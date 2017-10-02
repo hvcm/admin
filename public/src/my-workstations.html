@@ -153,7 +153,12 @@
         if (!this.item || !attached_to) {
           return;
         }
-        this.set('item.provides', this.app.helpers.service_map[attached_to] || []);
+        if (this.item_picked) {
+          this.item_picked = false;
+          return;
+        }
+        console.log('attached_to change');
+        this.set('item.provides', (this.app.helpers.service_map[attached_to] || []).slice());
       },
       saveAll() {
         this.changed = false;
@@ -182,12 +187,13 @@
       getServiceMap(dep) {
         const indexes = this.app.helpers.service_map[dep];
         const service_labels = this.app.helpers.service_labels;
+
         return _.chain(indexes).reduce((acc, id) => {
-          if (service_labels[id])
-            acc.push([id, service_labels[id]])
+          const label = service_labels[id];
+          label && (acc[id] = label);
 
           return acc;
-        }, []).fromPairs().value();
+        }, {}).value();
       },
       filter(data, searchString, field) {
         if (!searchString)
@@ -219,17 +225,19 @@
         }
         const indexes = this.app.helpers.service_map[this.item.attached_to];
         return provides === '*'
-          ? indexes
+          ? indexes.slice()
           : provides;
       },
       _correct(item) {
         item.device_placement = item.device_placement || {};
+        this.item_picked = true;
         if (!item.provides) {
           item.provides = [];
         }
         if (item.provides === '*') {
           const indexes = this.app.helpers.service_map[item.attached_to];
-          item.provides = indexes;
+          item.provides = indexes.slice();
+          console.log('clone');
         }
         item.has_schedule = item.has_schedule || {};
         if (!item.has_schedule.resource) {
@@ -241,6 +249,7 @@
         if (!item.has_schedule.prebook) {
           item.has_schedule.prebook = [];
         }
+        console.log(item);
         return item;
       },
       provides(count) {
