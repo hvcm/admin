@@ -1,0 +1,7 @@
+{
+	"apps": [{
+		"name": "ADMIN",
+		"script": "bin/www",
+		"interpreter": "node@6.11.4"
+	}]
+}
