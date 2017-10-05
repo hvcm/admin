@@ -7,188 +7,188 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
 <dom-module id="iris-login">
-		<template>
-				<style include="shared-styles"></style>
-				<style>
-						:host {
-								display: block;
-								@apply(--shadow-elevation-4dp);
-								--paper-progress-height: 4px;
-								--paper-progress-active-color: var(--mydoc-red-800);
-								--paper-input-container-label-floating: {
-										font-size: 20px;
-								}
-						}
-						.login-panel {
-								padding: 10px;
-						}
-						#login-form {
-								padding-bottom: 25px;
-						}
-						#login-button {
-								width: 100%;
-								margin: 0;
-								background-color: var(--mydoc-beige-1000);
-								color: white;
-								font-weight: bold;
-								font-size: 19px;
-								letter-spacing: 1px;
-						}
-						#greeting {
-								text-transform: uppercase;
-								background-color: var(--mydoc-beige-1000);
-								height: 100px;
-								font-size: 25px;
-								font-weight: bold;
-								color: white;
-								letter-spacing: 1px;
-								display: flex;
-								justify-content: center;
-								align-items: center;
-								text-align: center;
-								-webkit-transition: background-color 750ms linear;
-								-moz-transition: background-color 750ms linear;
-								-o-transition: background-color 750ms linear;
-								-ms-transition: background-color 750ms linear;
-								transition: background-color 750ms linear;
-						}
-						#greeting[error] {
-								font-size: 20px;
-								background-color: var(--mydoc-red-800);
-								font-weight: normal;
-								letter-spacing: 0;
-						}
-						#progress {
-								width: 100%;
-						}
-						paper-dropdown-menu {
-								width: 100%;
-						}
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+      :host {
+        display: block;
+        @apply(--shadow-elevation-4dp);
+        --paper-progress-height: 4px;
+        --paper-progress-active-color: var(--mydoc-red-800);
+        --paper-input-container-label-floating: {
+          font-size: 20px;
+        }
+      }
+      .login-panel {
+        padding: 10px;
+      }
+      #login-form {
+        padding-bottom: 25px;
+      }
+      #login-button {
+        width: 100%;
+        margin: 0;
+        background-color: var(--mydoc-beige-1000);
+        color: white;
+        font-weight: bold;
+        font-size: 19px;
+        letter-spacing: 1px;
+      }
+      #greeting {
+        text-transform: uppercase;
+        background-color: var(--mydoc-beige-1000);
+        height: 100px;
+        font-size: 25px;
+        font-weight: bold;
+        color: white;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        -webkit-transition: background-color 750ms linear;
+        -moz-transition: background-color 750ms linear;
+        -o-transition: background-color 750ms linear;
+        -ms-transition: background-color 750ms linear;
+        transition: background-color 750ms linear;
+      }
+      #greeting[error] {
+        font-size: 20px;
+        background-color: var(--mydoc-red-800);
+        font-weight: normal;
+        letter-spacing: 0;
+      }
+      #progress {
+        width: 100%;
+      }
+      paper-dropdown-menu {
+        width: 100%;
+      }
 
-				</style>
-				<div error$="[[error_happens]]" id="greeting">
-						<span hidden$="[[error_happens]]">Добро Пожаловать</span>
-						<span hidden$="[[!error_happens]]">[[error_text]]</span>
-				</div>
-				<paper-progress id="progress" indeterminate disabled$="[[!processing]]"></paper-progress>
+    </style>
+    <div error$="[[error_happens]]" id="greeting">
+      <span hidden$="[[error_happens]]">Добро Пожаловать</span>
+      <span hidden$="[[!error_happens]]">[[error_text]]</span>
+    </div>
+    <paper-progress id="progress" indeterminate disabled$="[[!processing]]"></paper-progress>
 
-				<div class="login-panel" disabled$="[[loginPanelVisibility(processing,logged_in)]]">
-						<form id="login-form">
-								<paper-dropdown-menu label="Сервер" hidden$="[[!hasVariants(servers)]]">
-										<paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{server}}">
-												<template is="dom-repeat" items="[[servers]]" as="srv">
-														<paper-item val="[[srv.id]]">[[srv.label]]</paper-item>
-												</template>
-										</paper-listbox>
-								</paper-dropdown-menu>
-								<paper-input id="login" on-keypress="kp" label="Логин" value="{{login}}" error-message="Введите логин" required auto-validate></paper-input>
-								<paper-input id="password" on-keypress="kp" label="Пароль" type="password" error-message="Введите пароль" required auto-validate value="{{password}}"></paper-input>
-						</form>
-						<paper-button id="login-button" raised on-click="useLogin" disabled$="[[processing]]" tabindex="-1" onkeydown="return false" onkeypress="return false">Войти</paper-button>
-				</div>
-				<div hidden$="[[!logged_in]]">
-						<content></content>
-				</div>
-		</template>
+    <div class="login-panel" disabled$="[[loginPanelVisibility(processing,logged_in)]]">
+      <form id="login-form">
+        <paper-dropdown-menu label="Сервер" hidden$="[[!hasVariants(servers)]]">
+          <paper-listbox class="dropdown-content" attr-for-selected="val" selected="{{server}}">
+            <template is="dom-repeat" items="[[servers]]" as="srv">
+              <paper-item val="[[srv.id]]">[[srv.label]]</paper-item>
+            </template>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-input id="login" on-keypress="kp" label="Логин" value="{{login}}" error-message="Введите логин" required auto-validate></paper-input>
+        <paper-input id="password" on-keypress="kp" label="Пароль" type="password" error-message="Введите пароль" required auto-validate value="{{password}}"></paper-input>
+      </form>
+      <paper-button id="login-button" raised on-click="useLogin" disabled$="[[processing]]" tabindex="-1" onkeydown="return false" onkeypress="return false">Войти</paper-button>
+    </div>
+    <div hidden$="[[!logged_in]]">
+      <content></content>
+    </div>
+  </template>
 
-		<script>
-				'use strict';
-				(function () {
-						let error_strings = {
-								'incorrect password.': 'неверный пароль',
-								'no such user.': 'пользователь не найден',
-								'internal error.': 'ошибка сервера',
-								'failed to fetch': 'сервер авторизации недоступен',
-								'unknown': 'неизвестная ошибка',
-								'operation timeout': 'превышено время ожидания',
-								'ws anavailable': 'рабочее место недоступно данному оператору',
-								'application error': 'внутренняя ошибка приложения',
-								'already occupied': 'рабочее место занято другим оператором'
-						};
+  <script>
+    'use strict';
+    (function () {
+      let error_strings = {
+        'incorrect password.': 'неверный пароль',
+        'no such user.': 'пользователь не найден',
+        'internal error.': 'ошибка сервера',
+        'failed to fetch': 'сервер авторизации недоступен',
+        'unknown': 'неизвестная ошибка',
+        'operation timeout': 'превышено время ожидания',
+        'ws anavailable': 'рабочее место недоступно данному оператору',
+        'application error': 'внутренняя ошибка приложения',
+        'already occupied': 'рабочее место занято другим оператором'
+      };
 
-						function getCookie(cname) {
-								var name = cname + "=";
-								var decodedCookie = decodeURIComponent(document.cookie);
-								var ca = decodedCookie.split(';');
-								for (var i = 0; i < ca.length; i++) {
-										var c = ca[i];
-										while (c.charAt(0) == ' ') {
-												c = c.substring(1);
-										}
-										if (c.indexOf(name) == 0) {
-												return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
-										}
-								}
-								return "";
-						};
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length).replace('j:[', '').replace(']', '').replace(new RegExp('"', 'g'), '').split(',');
+          }
+        }
+        return "";
+      };
 
-						Polymer({
-								is: 'iris-login',
-								hasVariants(servers) {
-										return servers.length;
-								},
-								ready() {
-										this.processing = false;
-										this.error_happens = false;
-										this.error_text = '';
-										const labels = getCookie('labels');
-										this.servers = _.map(getCookie('servers'), (server, index) => ({id: server, label: labels[index]}));
-										this.server = _.head(this.servers).id;
-								},
-								kp(e) {
-										(e.keyCode === 13 && !this.processing) && this.useLogin();
-								},
-								handleError(e) {
-										this.error_happens = true;
-										let is_jsError = e instanceof Error;
+      Polymer({
+        is: 'iris-login',
+        hasVariants(servers) {
+          return servers.length > 1;
+        },
+        ready() {
+          this.processing = false;
+          this.error_happens = false;
+          this.error_text = '';
+          const labels = getCookie('labels');
+          this.servers = _.map(getCookie('servers'), (server, index) => ({id: server, label: labels[index]}));
+          this.server = _.head(this.servers).id;
+        },
+        kp(e) {
+          (e.keyCode === 13 && !this.processing) && this.useLogin();
+        },
+        handleError(e) {
+          this.error_happens = true;
+          let is_jsError = e instanceof Error;
 
-										let unknown = is_jsError
-												? 'application error'
-												: 'unknown';
+          let unknown = is_jsError
+            ? 'application error'
+            : 'unknown';
 
-										let key = (is_jsError
-												? e.message || unknown
-												: e.reason || unknown).toLowerCase();
+          let key = (is_jsError
+            ? e.message || unknown
+            : e.reason || unknown).toLowerCase();
 
-										if (~ key.indexOf('already occupied'))
-												key = "already occupied";
+          if (~ key.indexOf('already occupied'))
+            key = "already occupied";
 
-										this.error_text = error_strings[key]
-												? error_strings[key]
-												: error_strings[unknown];
-										if (is_jsError && !error_strings[key]) {
-												throw e;
-										}
-								},
-								useLogin() {
-										if (!this.$.login.validate() || !this.$.password.validate())
-												return;
+          this.error_text = error_strings[key]
+            ? error_strings[key]
+            : error_strings[unknown];
+          if (is_jsError && !error_strings[key]) {
+            throw e;
+          }
+        },
+        useLogin() {
+          if (!this.$.login.validate() || !this.$.password.validate())
+            return;
 
-										this.processing = true;
-										api.login(this.login, this.password, this.server).then(result => {
-												this.processing = false;
-												this.error_happens = false;
-												this.fire('action', {
-														value: result.value,
-														type: 'auth-success'
-												});
-										}).catch((e) => {
-												this.processing = false;
-												this.handleError(e);
-												console.error('login failed', e);
-												this.fire('action', {
-														value: e,
-														type: 'auth-failed'
-												});
-												return false;
-										});
-								},
-								loginPanelVisibility(processing, logged_in) {
-										return logged_in || processing;
-								}
+          this.processing = true;
+          api.login(this.login, this.password, this.server).then(result => {
+            this.processing = false;
+            this.error_happens = false;
+            this.fire('action', {
+              value: result.value,
+              type: 'auth-success'
+            });
+          }).catch((e) => {
+            this.processing = false;
+            this.handleError(e);
+            console.error('login failed', e);
+            this.fire('action', {
+              value: e,
+              type: 'auth-failed'
+            });
+            return false;
+          });
+        },
+        loginPanelVisibility(processing, logged_in) {
+          return logged_in || processing;
+        }
 
-						});
-				})();
-		</script>
+      });
+    })();
+  </script>
 
 </dom-module>
