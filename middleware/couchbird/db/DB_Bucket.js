@@ -151,8 +151,9 @@ DB_Bucket.prototype.touch = function(key, expiry, options) {
 
 //does not make sense at all since it is a set of single gets in couchnode
 DB_Bucket.prototype.getMulti = function(keys) {
-	if (keys && !keys.length)
+	if (!keys || !keys.length) {
 		return Promise.resolve([]);
+	}
 
 	return new Promise(resolve => {
 		this
