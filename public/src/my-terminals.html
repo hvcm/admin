@@ -87,7 +87,7 @@
           <short-editor id="peditor" value="[[item.custom_fields]]" fields="[[app.helpers.fields]]"></short-editor>
         </div>
         <div page="sg">
-          <paper-listbox id="bookingMethods" class="dropdown-content" attr-for-selected="val" selected="{{item.bound_service_groups}}">
+          <paper-listbox id="baseServiceGroups" class="dropdown-content" attr-for-selected="val" selected="{{item.bound_service_groups}}">
             <template is="dom-repeat" items="[[app.helpers.groups]]" as="group">
               <paper-item val="[[group.id]]">[[group.label]]</paper-item>
             </template>

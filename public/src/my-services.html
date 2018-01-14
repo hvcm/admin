@@ -60,23 +60,26 @@
         <paper-tab page="fields">Информационные поля</paper-tab>
         <paper-tab page="schedules">Расписания</paper-tab>
         <paper-tab page="departments">Отделы</paper-tab>
+        <paper-tab page="inherits" hidden="[[inherited]]">Наследование</paper-tab>
       </paper-tabs>
       <iron-pages selected="{{routeData.subpage}}" attr-for-selected="page" on-change="actionHappens" on-keydown="actionHappens">
         <div page=""></div>
         <div page="common">
-          <paper-input disabled="[[!superadmin]]" label="Наименование" value="{{item.label}}" placeholder="Наименование"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Короткое наименование" value="{{item.short_label}}" placeholder="Короткое наименование"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="Код услуги ФРГУ"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="Код ведомства ФРГУ"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="Код услуги ЕПГУ"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="Промежуток ограничения времени до ближайшего слота предзаписи"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="Время обслуживания по ЖО"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="Время обслуживания по ПЗ"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="Количество дней по ПЗ"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="Процент талонов по ПЗ"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="Процент талонов по ПЗ на текущий день"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Приоритет" value="{{item.priority}}" placeholder="Приоритет"></paper-input>
-          <paper-input disabled="[[!superadmin]]" label="Префикс" value="{{item.prefix}}" placeholder="Префикс"></paper-input>
+
+
+          <paper-input disabled="[[!superadmin]]" label="Наименование" value="{{item.label}}" placeholder="[[getPlaceholder(item,'label',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Короткое наименование" value="{{item.short_label}}" placeholder="[[getPlaceholder(item,'short_label',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Код услуги ФРГУ" value="{{item.code_frgu}}" placeholder="[[getPlaceholder(item,'code_frgu',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Код ведомства ФРГУ" value="{{item.dept_code_frgu}}" placeholder="[[getPlaceholder(item,'dept_code_frgu',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Код услуги ЕПГУ" value="{{item.service_code_epgu}}" placeholder="[[getPlaceholder(item,'service_code_epgu',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Промежуток ограничения времени до ближайшего слота предзаписи" value="{{item.prebook_offset}}" placeholder="[[getPlaceholder(item,'prebook_offset',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Время обслуживания по ЖО" value="{{item.live_operation_time}}" placeholder="[[getPlaceholder(item,'live_operation_time',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Время обслуживания по ПЗ" value="{{item.prebook_operation_time}}" placeholder="[[getPlaceholder(item,'prebook_operation_time',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Количество дней по ПЗ" value="{{item.prebook_interval}}" placeholder="[[getPlaceholder(item,'prebook_interval',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Процент талонов по ПЗ" value="{{item.prebook_percentage}}" placeholder="[[getPlaceholder(item,'prebook_percentage',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Процент талонов по ПЗ на текущий день" value="{{item.prebook_today_percentage}}" placeholder="[[getPlaceholder(item,'prebook_today_percentage',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Приоритет" value="{{item.priority}}" placeholder="[[getPlaceholder(item,'priority',inheritedServ)]]"></paper-input>
+          <paper-input disabled="[[!superadmin]]" label="Префикс" value="{{item.prefix}}" placeholder="[[getPlaceholder(item,'prefix',inheritedServ)]]"></paper-input>
         </div>
         <div page="fields">
           <!-- <field-editor id="peditor" value="[[transformedFields]]"></field-editor> -->
@@ -94,7 +97,21 @@
           </div>
         </div>
         <div page="departments">
-          <service-selector disabled="[[!superadmin]]" services="[[departmentMap(app.helpers.offices)]]" selected="{{item.linked_to}}"></service-selector>
+          <service-selector hidden="[[inherited]]" disabled="[[!superadmin]]" services="[[departmentMap(app.helpers.offices)]]" selected="{{item.linked_to}}"></service-selector>
+          <div hidden="[[!inherited]]">
+            Услуга унаследована от [[getLabel(inheritedServ)]]
+          </div>
+        </div>
+        <div page="inherits">
+          <template is="dom-repeat" items="[[departmentInherited(app.helpers.offices, app.list)]]">
+            <div class="department-">
+              <span class="department-label">[[item.label]]</span>
+              <template is="dom-if" if="[[item.hasService]]">
+                <span class="department-service">[[item.serviceLabel]]</span>
+              </template>
+              <paper-icon-button hidden="[[item.hasService]]" icon="add" on-tap="addInherits"></paper-icon-button>
+            </div>
+          </template>
         </div>
       </iron-pages>
       <paper-fab id="save" mini icon="save" hidden$="[[!changed]]" on-tap="saveAll"></paper-fab>
@@ -150,6 +167,44 @@
 
         return item;
       },
+      getPlaceholder(item,label,service){
+        const texts = [
+          "Наименование",
+          "Короткое наименование",
+          "Код услуги ФРГУ",
+          "Код ведомства ФРГУ",
+          "Код услуги ЕПГУ",
+          "Промежуток ограничения времени до ближайшего слота предзаписи",
+          "Время обслуживания по ЖО",
+          "Время обслуживания по ПЗ",
+          "Количество дней по ПЗ",
+          "Процент талонов по ПЗ",
+          "Процент талонов по ПЗ на текущий день",
+          "Приоритет",
+          "Префикс"
+        ];
+
+        const keys =  [
+          "label",
+          "short_label",
+          "code_frgu",
+          "dept_code_frgu",
+          "service_code_epgu",
+          "prebook_offset",
+          "live_operation_time",
+          "prebook_operation_time",
+          "prebook_interval",
+          "prebook_percentage",
+          "prebook_today_percentage",
+          "priority",
+          "prefix"
+        ];
+
+        const index = keys.indexOf(label);
+        const text = texts[index];
+
+        return (service && service[label]) || text;
+      },
       filter(data, searchString, field) {
         if (!searchString)
           return data;
@@ -168,8 +223,44 @@
           return _.filter(data, item => ~ (this.groupToLabel(item).toLowerCase().indexOf(searchString)));
         }
       },
+      getLabel(inheritedFromServ) {
+        return inheritedFromServ && inheritedFromServ.label;
+      },
       departmentMap(list) {
         const deps = _.chain(list).filter({"@type": 'Department'}).map(item => ([item["@id"], item.label])).fromPairs().value();
+        return deps;
+      },
+      addInherits(e) {
+        const item = e.model.item;
+        const linked_to = item.id;
+        const current_id = this.item["@id"].replace('service-', '');
+        const id = `service-${linked_to}-${current_id}`;
+
+        const entity = this._makeEntity(id, linked_to, true);
+        const new_id = entity['@id'];
+        const row = this.push('app.list', entity) - 1;
+        this.changed = true;
+        this.newItem = true;
+        this.routeToID(new_id, row);
+      },
+      departmentInherited(list, services) {
+        const deps = _.chain(list)
+          .filter({"@type": 'Department'})
+          .map(item => {
+            const id = item["@id"];
+            const service = _.find(services, service => service && service["@id"].includes(id))
+            const hasService = !!service;
+
+            return  {
+              hasService,
+              service: hasService && service["@id"],
+              serviceLabel: hasService && service.label,
+              id,
+              label: item.label
+            };
+          })
+          .value();
+
         return deps;
       },
       addEntityDialog() {
@@ -196,16 +287,43 @@
         if (!id || !this.item) {
           return;
         }
-        this.departments = _.chain(this.app.helpers.offices).filter({"@type": "Department"}).map(item => ({id: item['@id'], label: item.label})).value();
+        this.inherited = id.includes('department-');
+        const path = id.split('-');
+        this.inheritedFrom = this.inherited && path.slice(1,3).join('-');
+        this.inheritedFromServ = this.inherited && [path[0],path[3]].join('-');
+        this.inheritedDep = this.inherited && _.find(this.app.helpers.offices, {"@id": this.inheritedFrom});
+        this.inheritedServ = this.inherited && (_.find(this.app.list, {"@id": this.inheritedFromServ}));
+
+        this.departments = _.chain(this.app.helpers.offices)
+          .filter({"@type": "Department"})
+          .map(item => ({id: item['@id'], label: item.label}))
+          .value();
+
         this.transformedFields = _.map(this.item.custom_fields, (item, index) => {
           item.__index = index;
           return item;
         });
       },
       makeEntity() {
+        const id = `service-${Date.now()}-${Math.ceil(Math.random() * 10000)}`;
+
+        return this._makeEntity(id, this.linked_to);
+      },
+      _makeEntity(id, linked_to, _is_inherited) {
+        if (_is_inherited) {
+          return {
+            "linked_to": linked_to,
+            "@id": id,
+            "_is_inherited": _is_inherited,
+            "@type": "Service",
+            "has_schedule": { },
+            "custom_fields": {}
+          };
+        }
+
         return {
-          "linked_to": this.linked_to,
-          "@id": `service-${Date.now()}-${Math.ceil(Math.random() * 10000)}`,
+          "linked_to": linked_to,
+          "@id": id,
           "@type": "Service",
           "code_frgu": "0",
           "dept_code_frgu": "0",

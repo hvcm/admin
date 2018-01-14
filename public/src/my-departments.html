@@ -245,12 +245,15 @@
           veteran: {},
           invalid: {}
         };
-        item.routes = item.routes || {
-          routes: {
-            include: [],
-            exclude: []
-          }
-        };
+        if (!item.routes || !item.routes.routes)  {
+          item.routes = {
+            routes: {
+              include: [],
+              exclude: []
+            }
+          };
+        }
+        console.log(item.routes);
         item.qa_design = item.qa_design || {
           hold_screen_design: ''
         };

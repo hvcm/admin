@@ -42,7 +42,9 @@
       .label {
         flex: 1;
       }
-
+      .label span{
+        font-weight: bold;
+      }
     </style>
     <paper-tabs selected="{{page}}">
       <paper-tab >
@@ -60,7 +62,7 @@
               <div class="dragged-item" item$="[[item]]">
                 <div class="shadow draggable">
                   <div class="label">
-                    [[translateID(item)]]
+                    <span>[[item]]</span> / [[translateID(item)]]
                     <!-- <paper-icon-button icon="delete" on-tap="delete"></paper-icon-button> -->
                     <a href$="service-groups/[[item]]/common" id$="link[[item]]" hidden></a>
                     <paper-icon-button icon="icons:create" val$="[[item]]"></paper-icon-button>

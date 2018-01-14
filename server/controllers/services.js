@@ -39,12 +39,14 @@ class Services extends Basic {
 
 		_.unset(data, 'linked_to');
 
-		const local_ids = _
+		const inherited = data._is_inherited;
+
+		let local_ids = _
 			.chain(linked_to)
 			.castArray()
-			.map(item => `registry_service_${item}`)
-			.concat('registry_service')
-			.value();
+			.map(item => `registry_service_${item}`);
+
+		local_ids = (inherited ? local_ids : local_ids.concat('registry_service')).value();
 
 		const pushes = Promise.map(local_ids, local_id => cb.get(local_id).then(({value}) => {
 			if (!value) {
@@ -62,7 +64,7 @@ class Services extends Basic {
 		const {cb} = this.req;
 		const id = data["@id"];
 
-		const registries = _
+		let registries = _
 			.chain(this.permissions)
 			.difference(excludes)
 			.map(item => `registry_service_${item}`)

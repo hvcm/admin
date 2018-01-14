@@ -33,10 +33,12 @@
       *[hidden] {
         display: none;
       }
-
+      .name span {
+        font-weight: bold;
+      }
     </style>
     <paper-icon-button icon="[[icon]]" on-tap="expand"></paper-icon-button>
-    <span class="name" on-tap="cellTap">[[group.label]]</span>
+    <span class="name" on-tap="cellTap"><span>[[getId(group)]]</span> /  [[group.label]]</span>
     <paper-icon-button icon="delete" on-tap="delete" hidden$="[[disabled]]"></paper-icon-button>
 
     <template id="list" is="dom-if" if="[[open]]">
@@ -135,6 +137,9 @@
             value: false
           }
 
+        },
+        getId(group){
+          return group ? group["@id"] : "";
         },
         _drakeChanged() {
           this.listener = this.listener || fn(this);
